@@ -2,15 +2,15 @@
 
 Für jeden Text der Website steht hier, **was dort inhaltlich hinkommen soll**. Wer Texte schreibt oder überarbeitet, orientiert sich daran. Die Spalte „Aktuell“ zeigt den Anfang des heutigen Texts, damit man die Stelle findet.
 
-Stand der Durchsicht: 17.10.2026, Branch `feature/website` (Commit `ae25b21`).
+Stand der Durchsicht: 20.10.2026.
 
 Die Website zählt zur Öffentlichkeitsarbeit, die die Jury mit 10 % bewertet (CanSat-Handbuch, Abschnitt 5.2.4).
 
 ## Vor dem Schreiben
 
 - **Englische Version mitpflegen.** Die Sprachumschaltung sucht jeden deutschen Text *wortgleich* in `assets/translations.js`. Wer einen deutschen Text im HTML ändert, muss denselben Text dort als Schlüssel ändern und die englische Übersetzung anpassen. Sonst bleibt der Text beim Umschalten auf EN deutsch.
-- **Fakten nur aus dem Repo** (`tests/`, `docs/`, `hardware/`, `electronics/`). Schätzungen immer als Schätzung kennzeichnen.
-- **Anrede:** Die Seite sagt derzeit „Sie“ (Kontakt, Datenschutz-Hinweis). Ob „Sie“ oder „du/ihr“, gilt dann für alle Seiten.
+- **Fakten aus dem Repo oder vom Team bestätigt.** Schätzungen immer als Schätzung kennzeichnen.
+- **Anrede:** Das Team hat die höfliche Anrede „Sie“ bestätigt.
 - **Richtwerte für die Länge** im aktuellen Layout:
 
 | Elementtyp | Länge |
@@ -117,7 +117,7 @@ Das Video am besten lokal einbinden. Ein eingebettetes YouTube-Video verlangt ei
 
 ## Über uns (`ueber-uns.html`)
 
-Die Seite heißt „Über uns“, beschreibt aber Mission und Technik. Wer das Team ist und **warum wir mitmachen** (Motivation), steht nirgends auf der Website. Der Endbericht verlangt genau das („Kurzvorstellung des Projekts, der Motivation und des Teams“), der Text ließe sich hier wiederverwenden.
+Die Seite heißt „Über uns“, beschreibt aber Mission und Technik. Die Motivation steht als eigener Abschnitt auf der Startseite. Der Endbericht verlangt eine Kurzvorstellung des Projekts, der Motivation und des Teams.
 
 ### Einstieg
 
@@ -135,7 +135,7 @@ Die Seite heißt „Über uns“, beschreibt aber Mission und Technik. Wer das T
 | Kicker | „Primärmission“ | Bleibt. |
 | Überschrift | „Temperatur und Luftdruck im Sinkflug messen.“ | Die vorgeschriebene Aufgabe in einem Satz. |
 | Absatz 1 | „Unser CanSat soll Lufttemperatur und Luftdruck …“ | Was gemessen wird, wie oft (mindestens 1 Hz, Vorgabe aus dem Handbuch, Abschnitt 2.2.1), wohin übertragen und was ausgewertet wird. |
-| Absatz 2 | „Die Flugsteuerung übernimmt ein Mikrocontroller …“ | Welche Hardware das umsetzt. Den Mikrocontroller beim Namen nennen, sobald er feststeht (RP2040 oder ESP32-S3). |
+| Absatz 2 | „Die Flugsteuerung übernimmt ein ESP32-S3 …“ | Mikrocontroller festgelegt: ESP32-S3. |
 | Infokasten | „Messung · Funk · Auswertung“, „1 Hz“, Satz darunter | Eine Kennzahl der Primärmission groß, darunter ein Satz, der die Zahl erklärt. |
 
 ### Das steckt im CanSat
@@ -143,7 +143,7 @@ Die Seite heißt „Über uns“, beschreibt aber Mission und Technik. Wer das T
 | Element | Aktuell | Was dort hinkommen soll |
 |---|---|---|
 | Kicker und Überschrift | „Das steckt im CanSat“, „Ein kompaktes System mit mehreren Aufgaben.“ | Leiten die Karten ein. |
-| Karte 01 | „Flugcomputer & Sensorik“ | Mikrocontroller und Sensoren: was gelesen und aufgezeichnet wird. |
+| Karte 01 | „Flugcomputer & Sensorik“ | ESP32-S3 und Sensoren: was gelesen und aufgezeichnet wird. |
 | Karte 02 | „LoRa-Bodenstation“ | Wie die Daten zur Bodenstation kommen. Frequenz oder Reichweite ergänzen, sobald `protocol/telemetry.md` sie nennt. |
 | Karte 03 | „Autorotationsrotor“ | Rotor, Taumelscheibe, Servos: wie gesteuert wird und wozu (stabiler Sinkflug, zielgenaue Landung). |
 | Karte 04 | „Kamera & NDVI“ | Raspberry Pi Zero 2 W mit Kamera: was aufgenommen wird, was NDVI ist, was wir auswerten. |
@@ -156,7 +156,7 @@ Kommt der Umgebungslicht-/UV-Sensor dazu, passt eine fünfte Karte mit demselben
 |---|---|---|
 | Kicker | „Entwicklungsstand“ | Bleibt. |
 | Überschrift | „Wir machen Fortschritte messbar.“ | Bleibt oder wird an den Stand angepasst. |
-| Text | „Vor dem Flug testen wir den Rotor …“ | Der aktuelle Stand in 2–3 Sätzen: was gerade getestet wird, was noch offen ist. Regelmäßig aktualisieren. Die Sekundärmission hier nennen, sobald sie in `docs/mission.md` steht. |
+| Text | „In Rotor-Vorversuchen prüfen wir …“ | Der aktuelle Stand in 2–3 Sätzen: Rotorversuche, nächste Falltests und NDVI-Auswertung. Die Sekundärmission umfasst Rotorsteuerung und NDVI-Bildauswertung. Regelmäßig aktualisieren. |
 | Button | „Zu den Test- und Flugergebnissen“ | Führt zu „Flugergebnisse“. |
 | Karte | „Vom Versuch zur Auswertung“ mit drei Punkten | Unsere Arbeitsweise bei Versuchen in drei kurzen Punkten. Bleibt allgemein. |
 
@@ -168,10 +168,10 @@ Kommt der Umgebungslicht-/UV-Sensor dazu, passt eine fünfte Karte mit demselben
 |---|---|---|
 | Kicker | „Team SWASH“ | Bleibt. |
 | Überschrift | „Vier Fachbereiche, ein gemeinsamer CanSat.“ | Wie das Team aufgebaut ist, in einem Satz. |
-| Einleitung | „Wir entwickeln das System gemeinsam …“ | 1–2 Sätze. Auch Schule, Jahrgang und Zahl der Mitglieder passen hierher. |
+| Einleitung | „Wir sind ein sechsköpfiges Team des Jahrgangs 2023 an der HTL Kaindorf …“ | 1–2 Sätze. Schule, Jahrgang und Zahl der Mitglieder sind ergänzt. |
 | Vier Karten: Titel | „Konstruktion“, „Elektronik“, „Programmierung“, „Wissenschaft“ | Name des Fachbereichs. |
 | Vier Karten: Untertitel | „Mechanik & CAD“ usw. | Schwerpunkt in 2–3 Wörtern. |
-| Vier Karten: Text | „Wir entwickeln Rotor, Gehäuse und Bauteile …“ | 1–2 Sätze, was der Bereich macht. Die Namen der Mitglieder (Tabelle im Repo-`README.md`) können dazu, aber nur mit dem Einverständnis jeder Person. |
+| Vier Karten: Text | „Wir entwickeln Rotor, Gehäuse und Bauteile …“ | 1–2 Sätze, was der Bereich macht. Die Nachnamen von David, Felix und Gabriel wurden mit ihrer Freigabe ergänzt. |
 | Abschnitt unten: Kicker und Überschrift | „Gemeinsam entwickeln“, „Vom ersten Entwurf bis zur Auswertung.“ | Leiten den Absatz ein. |
 | Abschnitt unten: Text | „Die Fachbereiche arbeiten eng zusammen …“ | Wie die Bereiche zusammenarbeiten (Treffen, gegenseitige Prüfung). |
 | Button | „Unsere Mission im Detail“ | Führt zu „Über uns“. |
@@ -190,8 +190,8 @@ Das Repo-`README.md` führt sieben Rollen, die Website nur vier Fachbereiche. So
 | Kicker | „Aktueller Stand“ | Bleibt. |
 | Überschrift | „Rotor-Vorversuch am Autofenster“ | Name des Versuchs, wie er unter `tests/` heißt. |
 | Beschreibung | „Ein früher Versuch mit einem 96,9-g-Testmodell …“ | Versuchsaufbau in 1–2 Sätzen: Testmodell und Masse, Blattwinkel, Art der Anströmung. Quelle: `tests/04-passive-rotor-car-window-test/`. |
-| Tabelle | Lauf, Fahrgeschwindigkeit, Gemessene Kraft, Winkel | Messwerte aus `results.md` mit Einheiten. Fehlt: ob die Kraft um den Nullwert der Federwaage (0,7 N ohne Last) bereinigt ist. Lauf 2 und 3 sind gleich, das stimmt mit `results.md` überein. Ein Vermerk „Wiederholung“ würde Nachfragen vermeiden. |
-| Hinweisbox | „Einordnung: Die daraus abgeleitete Sinkgeschwindigkeit …“ | Was die Messung bedeutet, mit Zahlen: geschätzt ca. 19–22 m/s für einen 300-g-CanSat. Die Richtlinien 2026 (Punkt 11) verlangen 8–11 m/s, bei geplanter Zielandung 6 m/s. Dazu die nächsten Schritte aus `results.md` (kleinerer Blattwinkel, größerer Rotor, Falltests). |
+| Tabelle | Lauf, Fahrgeschwindigkeit, Gemessene Kraft, Winkel | Messwerte aus `results.md` mit Einheiten. Die Kraftwerte sind bereits um den Nullwert der Federwaage (0,7 N ohne Last) bereinigt. Lauf 2 und 3 sind Wiederholungen. |
+| Hinweisbox | „Einordnung: Für einen vollständigen CanSat …“ | Schätzung ca. 19–22 m/s für einen 300-g-CanSat; die Richtlinien 2026 (Punkt 11) verlangen 8–11 m/s, bei geplanter Zielandung 6 m/s. Nächste Schritte: kleinerer Blattwinkel, größerer Rotor, Falltests. |
 | Abschnitt „Nach dem Start“: Kicker, Überschrift, Text | „Die Flugauswertung kommt hier dazu.“ | Platzhalter bis zum Flug. Danach: Diagramme zu Temperatur, Druck und Höhe, Flugphasen, Landegenauigkeit, was wir gelernt haben (wie im Endbericht unter „Flugauswertung“). |
 | Button | „Mehr über unsere Mission“ | Führt zu „Über uns“. |
 | Karte | „CanSat Austria“ mit Text und Link | Ein Satz zum Rahmen des Wettbewerbs, dazu der Link. |
@@ -282,17 +282,11 @@ Das sind **Muster-AGB für Beratungs- und Kreativleistungen** eines Unternehmens
 
 ---
 
-## Was bei der Durchsicht aufgefallen ist
+## Offene Punkte vor der Veröffentlichung
 
-Offene Punkte für die nächste Teambesprechung:
-
-1. **Sprachauswahl wird gespeichert, steht aber nicht im Datenschutztext.** `site.js` legt die Sprache im Browser ab. Der Datenschutz-Hinweis und Abschnitt 5 nennen nur Hell/Dunkel und die Bestätigung.
-2. **Wikimedia Commons** in Abschnitt 5 der Datenschutzerklärung ist ein Überbleibsel und sollte weg.
-3. **Impressum, Datenschutz und AGB sind Firmenvorlagen**, ihre Meta-Beschreibungen ebenfalls. Wer Medieninhaber und Verantwortlicher ist, entscheidet über Impressum und Datenschutz. Diese Frage hängt mit dem Hosting zusammen.
-4. **Sekundärmission:** „Über uns“ beschreibt den gesteuerten Rotor zur Zielannäherung und sagt zugleich, die Sekundärmission werde noch ausgearbeitet. Leser fragen sich, ob der Rotor die Sekundärmission ist.
-5. **Team:** Die Website zeigt vier Fachbereiche, das Repo-`README.md` sieben Rollen.
-6. **Kontakt:** Der Hinweis „Formular sendet noch nicht“ steht dreimal. Die Überschrift klingt nach Agentur, „Direkt Kontakt“ ist grammatisch falsch, die E-Mail-Schreibweise uneinheitlich.
-7. **Flugergebnisse:** Unklar, ob die Kraftwerte um den Nullwert der Federwaage bereinigt sind. Die konkreten Schätzwerte (19–22 m/s, verlangt sind 8–11 m/s bzw. 6 m/s bei Zielandung) fehlen.
-8. **Motivation fehlt:** Nirgends steht, warum das Team mitmacht. Das wollen Jury und Endbericht wissen.
-9. **Sponsoren:** Die Website hat keinen Platz für Sponsoren oder Unterstützer.
-10. **`translations.js`** enthält zwei Texte, die keine Seite mehr verwendet („Messen. Übertragen. Gezielt landen.“ und „Ein kleines Raumfahrtprojekt mit großen Fragen.“), und einen doppelten Eintrag („Mehr zum CanSat-Projekt bei ESERO Austria ↗“). Das schadet nicht, kann aber aufgeräumt werden.
+1. **Impressum und Datenschutz:** Medieninhaber bzw. Verantwortlicher und Hosting sind noch nicht festgelegt. Die bestehenden Rechtstexte bleiben bis dahin Vorlagen.
+2. **AGB:** Entscheiden, ob die Musterseite gelöscht wird; bis dahin bleiben Seite und Footer-Link bestehen.
+3. **Kontaktformular:** Entscheiden, ob ein Versanddienst angebunden oder das Formular entfernt wird. Bis dahin weist die Seite darauf hin, dass es nicht versendet.
+4. **Sponsoren:** Entscheiden, ob ein eigener Abschnitt für Sponsoren und Unterstützer ergänzt wird.
+5. **Datenschutzhinweis:** Sprache wird lokal gespeichert, ist dort aber noch nicht genannt. Der Verweis auf Wikimedia Commons in der Datenschutzerklärung ist ebenfalls zu prüfen.
+6. **Fotos und Video:** Platzhalter auf der Startseite erst ersetzen, wenn echte Medien samt passenden Bildunterschriften vorliegen.

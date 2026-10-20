@@ -161,8 +161,8 @@ function initializeSite() {
       const status = document.querySelector('#form-status');
       if (status) {
         status.textContent = language === 'en'
-          ? 'Thank you. Your entries are valid, but the form is not connected to a sending service yet.'
-          : 'Danke. Die Eingaben sind gültig; das Formular ist noch nicht mit einem Versanddienst verbunden.';
+          ? 'Please email one of the contacts listed above to send your message.'
+          : 'Bitte schreiben Sie uns an eine der oben angegebenen E-Mail-Adressen.';
         status.classList.add('is-visible');
       }
     });
