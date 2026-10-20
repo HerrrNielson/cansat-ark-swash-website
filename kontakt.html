@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="de-AT">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Kontaktinformationen und Projektlink für Team SWASH.">
+    <meta name="theme-color" content="#0b1f3a">
+    <title>Kontakt | Team SWASH</title>
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Team SWASH – Startseite"><span class="logo-frame"><img class="site-logo" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
+        <div class="header-controls"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Menü öffnen"><span aria-hidden="true">☰</span></button></div>
+        <nav class="site-nav" id="primary-nav" aria-label="Hauptnavigation">
+          <ul class="nav-list">
+            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dunkelmodus aktivieren"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="team.html">Team</a></li>
+            <li><a href="flugergebnisse.html">Flugergebnisse</a></li>
+            <li><a href="kontakt.html" class="nav-contact">Kontakt</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="page-hero">
+        <div class="container">
+          <p class="breadcrumb"><a href="index.html">Home</a> / Kontakt</p>
+          <p class="eyebrow">Kontakt</p>
+          <h1>Was möchten Sie gemeinsam möglich machen?</h1>
+          <p class="lead">Das Kontaktformular ist vorbereitet, wird derzeit aber noch nicht an einen Server übermittelt.</p>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container contact-grid">
+          <form class="form-card" id="contact-form">
+            <h2>Nachricht vorbereiten</h2>
+            <p class="form-hint">Alle Felder außer Telefonnummer sind erforderlich. Das Formular übermittelt Nachrichten derzeit noch nicht.</p>
+            <div class="form-grid">
+              <div class="field"><label for="name">Name *</label><input id="name" name="name" autocomplete="name" required></div>
+              <div class="field"><label for="email">E-Mail *</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+              <div class="field full"><label for="phone">Telefonnummer</label><input id="phone" name="phone" type="tel" autocomplete="tel"></div>
+              <div class="field full"><label for="message">Nachricht *</label><textarea id="message" name="message" required></textarea></div>
+            </div>
+            <button class="button" type="submit">Formular absenden</button>
+            <p class="form-hint">Diese statische Demo übermittelt oder speichert Formulardaten nicht auf einem Server.</p>
+            <p class="form-status" id="form-status" aria-live="polite"></p>
+          </form>
+          <aside class="contact-details">
+            <div class="card">
+              <h2 class="contact-intro-title">Team SWASH</h2>
+              <p>Wir entwickeln unseren CanSat für den österreichischen CanSat-Wettbewerb.</p>
+              <p><a href="https://esero.at/de/projects/cansat/" target="_blank" rel="noopener noreferrer">Informationen zum Wettbewerb bei ESERO Austria ↗</a></p>
+            </div>
+            <div class="card contact-people-card">
+              <h3>Direkt Kontakt</h3>
+              <div class="contact-person"><strong>Valentin Gerdenitsch</strong><span>Team Leader</span><a href="mailto:gervan23@HTL-Kaindorf.at">gervan23@HTL-Kaindorf.at</a></div>
+              <div class="contact-person"><strong>Leon Murko</strong><span>Social-Media-Manager</span><a href="mailto:murlen23@htl-kaindorf.at">murlen23@htl-kaindorf.at</a></div>
+              <div class="contact-person"><strong>Johannes Wagner</strong><span>Social-Media-Manager</span><a href="mailto:wagjon23@HTL-Kaindorf.at">wagjon23@HTL-Kaindorf.at</a></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-kicker">Hilfreiche Links</p>
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="index.html"><span class="logo-frame"><img class="site-logo footer-logo" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
+            <p>Ein Team aus Kaindorf entwickelt einen CanSat für Messungen, Autorotation und präzise Landung.</p>
+          </div>
+          <div>
+            <h2 class="footer-title">Seiten</h2>
+            <ul class="footer-links">
+              <li><a href="ueber-uns.html">Über uns</a></li>
+              <li><a href="team.html">Team</a></li>
+              <li><a href="flugergebnisse.html">Flugergebnisse</a></li>
+              <li><a href="kontakt.html">Kontakt</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="footer-title">CanSat Austria</h2>
+            <p><a href="https://esero.at/de/projects/cansat/" target="_blank" rel="noopener noreferrer">Informationen bei ESERO Austria ↗</a></p>
+            <h2 class="footer-title">Rechtliches</h2>
+            <ul class="footer-links">
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="datenschutz.html">Datenschutz</a></li>
+              <li><a href="agb.html">AGB</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom"><span>© <span data-year>2026</span> Team SWASH · CanSat Austria</span><span>Mit Sorgfalt gestaltet in Österreich</span></div>
+      </div>
+    </footer>
+    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+      <div class="privacy-dialog-content">
+        <p class="eyebrow">Datenschutz</p>
+        <h2 id="privacy-title">Datenschutz &amp; Cookies</h2>
+        <p id="privacy-copy">Diese Website setzt keine Cookies und lädt keine Inhalte von fremden Servern. Wenn Sie Farbschema oder Sprache umstellen oder diesen Hinweis bestätigen, merkt sich Ihr Browser das lokal. <a href="datenschutz.html">Datenschutzerklärung lesen</a>.</p>
+        <button class="button" type="button" data-privacy-dismiss>Verstanden</button>
+      </div>
+    </dialog>
+    <script src="assets/translations.js" defer></script>
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>

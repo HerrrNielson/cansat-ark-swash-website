@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none">
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.024" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="stripes" width="20" height="26" patternUnits="userSpaceOnUse">
+      <rect width="20" height="13" fill="#4d1056"/>
+    </pattern>
+  </defs>
+  <g filter="url(#rough)">
+    <ellipse cx="300" cy="330" rx="280" ry="118" transform="rotate(-16 300 330)" stroke="#a9b4c2" stroke-width="2.5" stroke-dasharray="3 13" stroke-linecap="round"/>
+    <path d="M300 58 L472 522 L128 522 Z" fill="url(#stripes)"/>
+    <path d="M122 530 C 214 452, 384 452, 480 530" stroke="#1e5aa8" stroke-width="22" stroke-linecap="round"/>
+    <path d="M168 522 C 118 518, 92 492, 138 456 C 222 394, 330 330, 402 252 C 452 196, 490 146, 512 104" stroke="#ff6b1a" stroke-width="17" stroke-linecap="round"/>
+    <path d="M520 62 l8 22 22 8 -22 8 -8 22 -8 -22 -22 -8 22 -8z" fill="#f5f7fa"/>
+    <circle cx="196" cy="148" r="7.5" fill="#005300"/>
+    <circle cx="152" cy="186" r="7.5" fill="#c77214"/>
+    <circle cx="124" cy="242" r="7.5" fill="#b5213a"/>
+    <circle cx="112" cy="304" r="7.5" fill="#2c55a2"/>
+  </g>
+</svg>

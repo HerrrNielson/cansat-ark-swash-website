@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="de-AT">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Die CanSat-Mission und das technische System von Team SWASH.">
+    <meta name="theme-color" content="#0b1f3a">
+    <title>Über uns | Team SWASH</title>
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Team SWASH – Startseite"><span class="logo-frame"><img class="site-logo" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
+        <div class="header-controls"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Menü öffnen"><span aria-hidden="true">☰</span></button></div>
+        <nav class="site-nav" id="primary-nav" aria-label="Hauptnavigation">
+          <ul class="nav-list">
+            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dunkelmodus aktivieren"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="team.html">Team</a></li>
+            <li><a href="flugergebnisse.html">Flugergebnisse</a></li>
+            <li><a href="kontakt.html" class="nav-contact">Kontakt</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="page-hero">
+        <div class="container">
+          <p class="breadcrumb"><a href="index.html">Home</a> / Über uns</p>
+          <p class="eyebrow">Mission & System</p>
+          <h1>Ein CanSat sammelt Daten – und soll kontrolliert landen.</h1>
+          <p class="lead">Team SWASH entwickelt einen Satelliten im Dosenformat für CanSat Austria. Wir verbinden die vorgeschriebenen Messungen im Sinkflug mit dem Versuch, einen gesteuerten Autorotationsrotor zur Zielannäherung einzusetzen.</p>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow section-label">Primärmission</p>
+            <h2>Temperatur und Luftdruck im Sinkflug messen.</h2>
+            <p>Unser CanSat soll Lufttemperatur und Luftdruck mindestens einmal pro Sekunde erfassen und die Werte per LoRa an eine Bodenstation senden. Dort können wir Messverlauf und Flugphase gemeinsam auswerten.</p>
+            <p>Die Flugsteuerung übernimmt ein Mikrocontroller. GPS, Lage- und Drucksensoren unterstützen die Aufzeichnung und Einordnung der Flugdaten.</p>
+          </div>
+          <div class="visual-panel">
+            <span class="eyebrow">Messung · Funk · Auswertung</span><span class="big-number">1 Hz</span>
+            <p>Mindestens eine Messung pro Sekunde während des Sinkflugs.</p>
+          </div>
+        </div>
+      </section>
+      <section class="section soft">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow section-label">Das steckt im CanSat</p>
+            <h2>Ein kompaktes System mit mehreren Aufgaben.</h2>
+          </div>
+          <div class="grid-2">
+            <article class="card">
+              <span class="icon" aria-hidden="true">01</span>
+              <h3>Flugcomputer & Sensorik</h3>
+              <p>Ein Mikrocontroller liest Temperatur, Druck, Lage und GPS-Daten aus und protokolliert die Flugphasen.</p>
+            </article>
+            <article class="card">
+              <span class="icon" aria-hidden="true">02</span>
+              <h3>LoRa-Bodenstation</h3>
+              <p>Telemetriedaten werden während des Flugs per Funk an die Bodenstation übertragen.</p>
+            </article>
+            <article class="card">
+              <span class="icon" aria-hidden="true">03</span>
+              <h3>Autorotationsrotor</h3>
+              <p>Rotor, Taumelscheibe und Servos sind Teil unseres Entwicklungswegs zu einem stabilen Sinkflug und einer präziseren Landung.</p>
+            </article>
+            <article class="card">
+              <span class="icon" aria-hidden="true">04</span>
+              <h3>Kamera & NDVI</h3>
+              <p>Ein Raspberry Pi Zero 2 W mit Kamera soll Bilder aufnehmen und eine NDVI-Auswertung ermöglichen.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow section-label">Entwicklungsstand</p>
+            <h2>Wir machen Fortschritte messbar.</h2>
+            <p>Vor dem Flug testen wir den Rotor und prüfen, wie sich Masse, Blattwinkel und Anströmung auf den Sinkflug auswirken. Die Sekundärmission und ein zusätzlicher Umgebungslicht-/UV-Sensor werden noch ausgearbeitet.</p>
+            <a class="button" href="flugergebnisse.html">Zu den Test- und Flugergebnissen</a>
+          </div>
+          <div class="card">
+            <h3>Vom Versuch zur Auswertung</h3>
+            <ul class="check-list">
+              <li>Versuchsbedingungen und Messwerte festhalten.</li>
+              <li>Schätzungen klar von Messungen trennen.</li>
+              <li>Nach dem Flug Telemetrie und Bilddaten ergänzen.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-kicker">Hilfreiche Links</p>
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="index.html"><span class="logo-frame"><img class="site-logo footer-logo" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
+            <p>Ein Team aus Kaindorf entwickelt einen CanSat für Messungen, Autorotation und präzise Landung.</p>
+          </div>
+          <div>
+            <h2 class="footer-title">Seiten</h2>
+            <ul class="footer-links">
+              <li><a href="ueber-uns.html">Über uns</a></li>
+              <li><a href="team.html">Team</a></li>
+              <li><a href="flugergebnisse.html">Flugergebnisse</a></li>
+              <li><a href="kontakt.html">Kontakt</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="footer-title">CanSat Austria</h2>
+            <p><a href="https://esero.at/de/projects/cansat/" target="_blank" rel="noopener noreferrer">Informationen bei ESERO Austria ↗</a></p>
+            <h2 class="footer-title">Rechtliches</h2>
+            <ul class="footer-links">
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="datenschutz.html">Datenschutz</a></li>
+              <li><a href="agb.html">AGB</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom"><span>© <span data-year>2026</span> Team SWASH · CanSat Austria</span><span>Mit Sorgfalt gestaltet in Österreich</span></div>
+      </div>
+    </footer>
+    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+      <div class="privacy-dialog-content">
+        <p class="eyebrow">Datenschutz</p>
+        <h2 id="privacy-title">Datenschutz &amp; Cookies</h2>
+        <p id="privacy-copy">Diese Website setzt keine Cookies und lädt keine Inhalte von fremden Servern. Wenn Sie Farbschema oder Sprache umstellen oder diesen Hinweis bestätigen, merkt sich Ihr Browser das lokal. <a href="datenschutz.html">Datenschutzerklärung lesen</a>.</p>
+        <button class="button" type="button" data-privacy-dismiss>Verstanden</button>
+      </div>
+    </dialog>
+    <script src="assets/translations.js" defer></script>
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>
