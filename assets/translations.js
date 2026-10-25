@@ -123,6 +123,8 @@ window.swashTranslations = {
   'Gabriel Zach': 'Gabriel Zach',
   'Die meisten von uns arbeiten in mehreren Fachbereichen mit.': 'Most of us work across several disciplines.',
   'Foto folgt': 'Photo coming soon',
+  'Gruppenfoto von Team SWASH': 'Group photo of Team SWASH',
+  'Von links: Felix Trummer, David Friesser, Valentin Gerdenitsch, Leon Murko, Gabriel Zach, Johannes Wagner': 'From left: Felix Trummer, David Friesser, Valentin Gerdenitsch, Leon Murko, Gabriel Zach, Johannes Wagner',
   'Aufgabenbereiche': 'Responsibilities',
   'Teamleitung': 'Team lead',
   'Aufbau & Tests': 'Integration & testing',
