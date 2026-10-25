@@ -146,7 +146,7 @@ Die Seite heißt „Über uns“, beschreibt aber Mission und Technik. Die Motiv
 | Karte 01 | „Flugcomputer & Sensorik“ | ESP32-S3 und Sensoren: was gelesen und aufgezeichnet wird. |
 | Karte 02 | „LoRa-Bodenstation“ | Wie die Daten zur Bodenstation kommen. Frequenz oder Reichweite ergänzen, sobald `protocol/telemetry.md` sie nennt. |
 | Karte 03 | „Autorotationsrotor“ | Rotor, Taumelscheibe, Servos: wie gesteuert wird und wozu (stabiler Sinkflug, zielgenaue Landung). |
-| Karte 04 | „Kamera & NDVI“ | Raspberry Pi Zero 2 W mit Kamera: was aufgenommen wird, was NDVI ist, was wir auswerten. |
+| Karte 04 | „Kamera & NDVI“ | Raspberry Pi CM0 (Compute Module Zero) mit Kamera: was aufgenommen wird, was NDVI ist, was wir auswerten. |
 
 Kommt der Umgebungslicht-/UV-Sensor dazu, passt eine fünfte Karte mit demselben Aufbau.
 

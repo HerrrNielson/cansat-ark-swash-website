@@ -1071,6 +1071,32 @@ a.button::after, .button[type="submit"]::after {
   object-fit: cover;
 }
 
+.team-photo {
+  margin-bottom: 3rem;
+}
+
+.team-photo .mission-image-frame {
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+}
+
+.team-photo .mission-image-frame::before,
+.team-photo .mission-image-frame::after {
+  display: none;
+}
+
+.team-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-photo figcaption {
+  position: static;
+  border-top: 0;
+  border-radius: 0 0 var(--radius-hand) var(--radius-hand);
+}
+
 .member-photo .image-placeholder-label {
   margin-bottom: 0;
 }
