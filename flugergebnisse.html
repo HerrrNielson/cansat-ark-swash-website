@@ -33,7 +33,7 @@
           <p class="breadcrumb"><a href="index.html">Home</a> / Flugergebnisse</p>
           <p class="eyebrow">Test & Flug</p>
           <h1>Was wir messen, teilen wir.</h1>
-          <p class="lead">Hier dokumentieren wir Vorversuche und ergänzen nach dem Start die Messdaten unseres CanSat. Die Werte unten stammen noch aus einem Rotor-Vorversuch, nicht aus einem Flug.</p>
+          <p class="lead">Hier dokumentieren wir Vorversuche und ergänzen nach dem Start die Messdaten unseres CanSat. Die Werte unten stammen noch aus einem Rotor-Vorversuch und aus Simulationen, nicht aus einem Flug.</p>
         </div>
       </section>
       <section class="section">
@@ -79,6 +79,87 @@
         </div>
       </section>
       <section class="section soft">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow section-label">Simulation</p>
+            <h2>Wir fliegen am Computer, bevor wir fliegen.</h2>
+            <p>Unsere Flugsoftware läuft unverändert in einer Simulation am PC. Ein Rotormodell antwortet auf jeden Einstellwinkel der Blätter mit Drehzahl und Sinkrate. So testen wir in Sekunden Hunderte Flüge, auch mit kaputten Sensoren.</p>
+          </div>
+          <div class="grid-2 chart-grid">
+            <figure class="card chart-card chart-card-wide">
+              <img src="assets/simulation/flug.svg" width="576" height="317" loading="lazy" alt="Diagramm: Höhe und Sinkrate eines simulierten Flugs, die Schätzung der Firmware liegt fast deckungsgleich auf dem simulierten Verlauf.">
+              <figcaption>
+                <h3>Ein ganzer Flug</h3>
+                <p>Start, Gipfel in ca. 520 m, Rotorsinkflug, Landung. Die Firmware schätzt Höhe und Sinkrate auf etwa einen Meter genau.</p>
+              </figcaption>
+            </figure>
+            <figure class="card chart-card">
+              <img src="assets/simulation/andrehen.svg" width="576" height="317" loading="lazy" alt="Diagramm: Mit 20° Startwinkel erreicht der Rotor in zwei Sekunden über 3000 U/min. Mit 8° und zu frühem Umschalten bleibt ein schwergängiger Rotor bei 1100 U/min hängen.">
+              <figcaption>
+                <h3>Rotor andrehen</h3>
+                <p>Aus dem Stand läuft der Rotor nur an, wenn die Blätter mit der Vorderkante nach unten stehen. Mit 20° dreht er in zwei Sekunden auf.</p>
+              </figcaption>
+            </figure>
+            <figure class="card chart-card">
+              <img src="assets/simulation/blattwinkel.svg" width="576" height="317" loading="lazy" alt="Diagramm: Zwischen 2° und 8° Einstellwinkel sinkt der CanSat mit 6,9 bis 10,7 m/s, unter etwa 1° reißt die Strömung am Rotor ab.">
+              <figcaption>
+                <h3>Einstellwinkel als Bremse</h3>
+                <p>Zwischen 2° und 8° stellt der Einstellwinkel die Sinkrate ein. Darunter reißt die Strömung ab, und der CanSat fällt.</p>
+              </figcaption>
+            </figure>
+            <figure class="card chart-card">
+              <img src="assets/simulation/masse.svg" width="576" height="317" loading="lazy" alt="Säulendiagramm: Geregelt sinkt der CanSat bei allen Massen mit 8,8 m/s, mit festem Einstellwinkel zwischen 8,3 und 8,9 m/s.">
+              <figcaption>
+                <h3>Geregelt statt fest</h3>
+                <p>Die Firmware stellt den Einstellwinkel laufend nach und hält 8,8 m/s, egal ob der CanSat 300 oder 350 g wiegt.</p>
+              </figcaption>
+            </figure>
+            <figure class="card chart-card">
+              <img src="assets/simulation/zyklik.svg" width="576" height="317" loading="lazy" alt="Diagramm: Ohne Ausgleich wächst der Fehler bis 90 %, mit Servomodell bleibt er bis 5 Umdrehungen pro Sekunde unter 5 %.">
+              <figcaption>
+                <h3>Drehender Rumpf</h3>
+                <p>Die Lagerreibung dreht den Rumpf mit. Die Firmware rechnet die Drehung aus der Steuerung heraus, der Fehler bleibt unter 5 %.</p>
+              </figcaption>
+            </figure>
+          </div>
+          <h3 class="sim-subheading">Was passiert, wenn ein Sensor ausfällt?</h3>
+          <div class="table-wrap">
+            <table class="results-table results-table-wrap">
+              <thead>
+                <tr>
+                  <th scope="col">Fehler</th>
+                  <th scope="col">Vorher</th>
+                  <th scope="col">Jetzt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Luftdrucksensor friert ein</th>
+                  <td>Firmware glaubt, sie sinkt nicht, fällt mit 13,4 m/s</td>
+                  <td>erkannt, sicherer Blattwinkel, 8,7 m/s</td>
+                </tr>
+                <tr>
+                  <th scope="row">Lagesensor fällt 2 s aus</th>
+                  <td>Höhe springt um 21 m</td>
+                  <td>kein Sprung</td>
+                </tr>
+                <tr>
+                  <th scope="row">Beschleunigungssensor verschoben</th>
+                  <td>hält 10,1 statt 9 m/s</td>
+                  <td>korrigiert, 8,9 m/s</td>
+                </tr>
+                <tr>
+                  <th scope="row">Drehzahlsensor tot</th>
+                  <td>–</td>
+                  <td>Umschalten nach Zeit, Flug normal</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="notice results-note"><strong>Einordnung:</strong> Das sind Simulationen, keine Messungen. Rotorgröße, Profil, Reibung und Servos sind angenommen. Mit den Maßen unseres Autofenster-Rotors kommt das Modell auf ähnliche Sinkraten wie unsere Auswertung des Versuchs. Abwurfversuche werden es genauer prüfen.</div>
+        </div>
+      </section>
+      <section class="section">
         <div class="container split">
           <div>
             <p class="eyebrow section-label">Nach dem Start</p>

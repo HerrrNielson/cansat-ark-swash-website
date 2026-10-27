@@ -1208,6 +1208,41 @@ a.button::after, .button[type="submit"]::after {
   margin-top: 1.75rem;
 }
 
+/* Simulation */
+
+.chart-card {
+  margin: 0;
+  padding: clamp(.9rem, 1.6vw, 1.2rem);
+}
+
+.chart-card-wide {
+  grid-column: 1 / -1;
+}
+
+.chart-card img {
+  width: 100%;
+  height: auto;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-hand-sm);
+  background: var(--logo-light);
+}
+
+.chart-card figcaption {
+  padding: 1rem .4rem .3rem;
+}
+
+.chart-card h3 {
+  margin: 0;
+}
+
+.sim-subheading {
+  margin: 3rem 0 1.25rem;
+}
+
+.results-table-wrap th, .results-table-wrap td {
+  white-space: normal;
+}
+
 /* Contact */
 
 .contact-grid {
