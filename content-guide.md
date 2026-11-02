@@ -33,7 +33,7 @@ Die Website zählt zur Öffentlichkeitsarbeit, die die Jury mit 10 % bewertet (C
 |---|---|---|
 | Name neben dem Logo | „Team SWASH“ | Teamname. Bleibt. |
 | Alternativtext des Logos | „SWASH – Arbeitsgruppe für Raumfahrt Kaindorf“ | Wird von Screenreadern vorgelesen: offizieller Name der Gruppe. Nur ändern, wenn sich der Name ändert. |
-| Navigation | Home · Über uns · Team · Flugergebnisse · Kontakt | Ein bis zwei Wörter pro Seite, passend zum Seitentitel. |
+| Navigation | Home · Über uns · Team · Flugergebnisse · Simulation · Kontakt | Ein bis zwei Wörter pro Seite, passend zum Seitentitel. |
 | Sprunglink | „Zum Inhalt springen“ | Unsichtbar, für Tastatur und Screenreader. Nicht ändern. |
 | Beschriftung von Menü, Hell/Dunkel, DE/EN | in `assets/site.js` | Nur für Screenreader. Nicht ändern. |
 
@@ -54,7 +54,7 @@ Die Website zählt zur Öffentlichkeitsarbeit, die die Jury mit 10 % bewertet (C
 |---|---|---|
 | Kicker | „Datenschutz“ | Bleibt. |
 | Titel | „Datenschutz & Cookies“ | Bleibt. |
-| Text | „Diese Website setzt derzeit keine …“ | Zählt genau auf, was im Browser gespeichert wird, und verlinkt die Datenschutzerklärung. **Gespeichert werden heute drei Dinge: Hell/Dunkel, Sprache und die Bestätigung dieses Hinweises. Die Sprache fehlt im Text.** Muss zu Abschnitt 5 der Datenschutzerklärung passen. |
+| Text | „Diese Website setzt derzeit keine …“ | Zählt genau auf, was im Browser gespeichert wird, und verlinkt die Datenschutzerklärung. Gespeichert werden heute: Hell/Dunkel, Sprache, die Bestätigung dieses Hinweises, die gesehene Anleitung der Simulation und die Haken in der Checkliste der Simulation. Muss zu Abschnitt 3 der Datenschutzerklärung passen. |
 | Button | „Verstanden“ | Bestätigung. Bleibt. |
 
 ### Unsichtbare Texte jeder Seite

@@ -1243,6 +1243,46 @@ a.button::after, .button[type="submit"]::after {
   white-space: normal;
 }
 
+.sim-cta {
+  margin: 1.75rem 0 0;
+}
+
+/* Simulation page: the ground station runs in a frame */
+
+.sim-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sim-frame {
+  height: clamp(640px, 88vh, 1000px);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius-hand-sm);
+  overflow: hidden;
+  background: #f0f0f0;
+  box-shadow: 8px 8px 0 var(--accent);
+}
+
+.sim-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.sim-guide-steps {
+  display: grid;
+  gap: .7rem;
+  margin: 0 0 1.6rem;
+  padding-left: 1.3rem;
+}
+
+.sim-guide-steps strong {
+  color: var(--navy);
+}
+
 /* Contact */
 
 .contact-grid {

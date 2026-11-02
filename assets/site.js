@@ -112,6 +112,27 @@ function initializeSite() {
     });
   }
 
+  // The simulation guide opens once by itself; afterwards only through its button.
+  const simGuide = document.querySelector('#sim-guide');
+  const simGuideKey = 'team-swash-sim-guide';
+  const openSimGuide = () => {
+    if (typeof simGuide.showModal === 'function') simGuide.showModal();
+    else simGuide.setAttribute('open', '');
+  };
+  if (simGuide) {
+    document.querySelectorAll('[data-sim-guide-open]').forEach((button) => button.addEventListener('click', openSimGuide));
+    simGuide.querySelector('[data-sim-guide-dismiss]')?.addEventListener('click', () => {
+      if (typeof simGuide.close === 'function') simGuide.close();
+      else simGuide.removeAttribute('open');
+    });
+    simGuide.addEventListener('close', () => setStoredValue(simGuideKey, 'seen'));
+    if (getStoredValue(simGuideKey) !== 'seen') {
+      // Wait for the privacy notice, so two dialogs never stack.
+      if (privacyDialog?.open) privacyDialog.addEventListener('close', openSimGuide, { once: true });
+      else openSimGuide();
+    }
+  }
+
   const currentPage = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.site-nav a').forEach((link) => {
     if (link.getAttribute('href') === currentPage) link.setAttribute('aria-current', 'page');

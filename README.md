@@ -12,6 +12,7 @@ index.html im Browser öffnen. Für eine Vorschau mit lokalem Webserver können 
 - ueber-uns.html – Mission und technischer Aufbau
 - team.html – Aufgabenbereiche des Teams
 - flugergebnisse.html – Vorversuche und spätere Flugmessungen
+- simulation.html – Launch-Day-Simulation der Bodenstation zum Ausprobieren, eingebettet aus simulation/launch-day-simulation.html (Kopie aus dem Haupt-Repo, ground-station/web-sim/). Beim ersten Besuch erscheint eine kurze Anleitung, danach nur über „Anleitung anzeigen“.
 - kontakt.html – Kontaktangaben und Formular
 - Header und Footer zeigen das lokale SWASH-Logo aus assets/swash-logo.png.
 - impressum.html – österreichisches Impressum-Muster

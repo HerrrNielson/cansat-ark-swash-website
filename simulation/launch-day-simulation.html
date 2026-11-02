@@ -1,0 +1,1991 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CanSat Launch Day Simulation</title>
+<!--
+  Browser version of the ground station's launch day rehearsal, run "Pi manual + random faults" only.
+  Port of ground-station/app (SimCanSat, SimTransport, GroundLink, LaunchDay, MainWindow,
+  SimControlWindow). No serial stick, no relay / passive stations, no internet: open the file in a browser.
+-->
+<style>
+/* A Windows desktop holding the Swing ground station window and the instructor window beside it. */
+:root {
+  --desk: #1d4f7c;
+  --desk-2: #2f6e9e;
+  --panel: #f0f0f0;
+  --white: #ffffff;
+  --text: #000000;
+  --text-dim: #6d6d6d;
+  --btn: #e1e1e1;
+  --btn-border: #adadad;
+  --hover: #e5f1fb;
+  --hover-border: #0078d7;
+  --press: #cce4f7;
+  --press-border: #005499;
+  --field-border: #7a7a7a;
+  --etched: #dcdcdc;
+  --tab-border: #d9d9d9;
+  --frame-border: #5f7d99;
+  --close-hover: #e81123;
+  --ok: #2e7d32;
+  --warn: #c77700;
+  --bad: #c62828;
+  --off: #9e9e9e;
+  --orange-row: #ffe0b2;
+  --font-ui: "Segoe UI", Tahoma, "Noto Sans", "DejaVu Sans", sans-serif;
+  --font-mono: "Courier New", Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--panel);
+  color: var(--text);
+  font: 12px/1.35 var(--font-ui);
+}
+.desk {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+}
+
+/* ---- the two panels: ground station and instructor ---- */
+.win {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  min-width: 0;
+  min-height: 0;
+}
+.simwin { border-left: 1px solid var(--tab-border); }
+.dlg { border: 1px solid var(--frame-border); }
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding-left: 8px;
+  background: var(--white);
+  flex: none;
+  user-select: none;
+}
+.titlebar .title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-btns { display: flex; align-self: stretch; }
+.tb-btns span, .tb-btns button {
+  width: 46px; display: grid; place-items: center; font: 10px var(--font-ui);
+  border: 0; background: transparent; color: var(--text); padding: 0;
+}
+.tb-btns button { cursor: default; }
+.tb-btns button:hover { background: #e5e5e5; }
+.tb-btns .x:hover { background: var(--close-hover); color: var(--white); }
+.main { flex: 1; }
+.simwin { width: 410px; flex: none; }
+.simwin .body { overflow: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.simwin.collapsed .body > fieldset:not(:first-child) { display: none; }
+.sim-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-weight: 700; }
+
+/* ---- Swing components, Windows look and feel ---- */
+button.b, select.b {
+  font: 12px var(--font-ui);
+  color: var(--text);
+  background: var(--btn);
+  border: 1px solid var(--btn-border);
+  border-radius: 0;
+  min-height: 23px;
+  padding: 1px 10px;
+  cursor: default;
+  white-space: nowrap;
+}
+button.b:hover:not(:disabled), select.b:hover:not(:disabled) { background: var(--hover); border-color: var(--hover-border); }
+button.b:active:not(:disabled) { background: var(--press); border-color: var(--press-border); }
+button.b:focus-visible, select.b:focus-visible { outline: 1px dotted var(--text); outline-offset: -4px; }
+button.b:disabled, select.b:disabled { background: #cccccc; border-color: #bfbfbf; color: #838383; }
+button.b.bold { font-weight: 700; }
+button.b.fire:not(:disabled) { color: var(--bad); }
+select.b {
+  appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 4 4-4' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.field {
+  font: 12px var(--font-ui);
+  background: var(--white);
+  border: 1px solid var(--field-border);
+  padding: 2px 4px;
+}
+.spinner { display: inline-flex; align-items: stretch; border: 1px solid var(--field-border); background: var(--white); height: 21px; }
+.spinner input { border: 0; width: 70px; font: 12px var(--font-ui); padding: 0 4px; outline: none; background: transparent; color: var(--text); }
+.spinner .arrows { display: flex; flex-direction: column; width: 16px; border-left: 1px solid var(--etched); }
+.spinner .arrows button { flex: 1; border: 0; padding: 0; background: var(--panel); font-size: 6px; line-height: 1; color: var(--text); cursor: default; }
+.spinner .arrows button:hover { background: var(--hover); }
+label.cb { display: inline-flex; align-items: center; gap: 5px; cursor: default; }
+input[type="checkbox"].cb {
+  appearance: none; margin: 0; width: 13px; height: 13px; flex: none;
+  border: 1px solid #333333; background: var(--white); display: inline-grid; place-items: center;
+}
+input[type="checkbox"].cb:hover { border-color: var(--hover-border); }
+input[type="checkbox"].cb:checked::after {
+  content: ""; width: 9px; height: 9px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9'%3E%3Cpath d='M1 4.5l2.2 2.2L8 1.6' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat center;
+}
+input[type="checkbox"].cb:focus-visible { outline: 1px dotted var(--text); outline-offset: 1px; }
+fieldset.tb {
+  border: 1px solid var(--etched);
+  margin: 0;
+  padding: 2px 6px 6px;
+  min-width: 0;
+}
+fieldset.tb > legend { padding: 0 2px; margin-left: 2px; }
+.chip {
+  color: var(--white); background: var(--off); font-weight: 700; font-size: 11px;
+  text-align: center; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+::-webkit-scrollbar { width: 17px; height: 17px; background: var(--panel); }
+::-webkit-scrollbar-thumb { background: #cdcdcd; border: 4px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
+
+/* ---- main window ---- */
+.frame-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.connbar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 5px; padding: 5px 6px 0; }
+.center {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 370px;
+  gap: 6px;
+}
+.col { min-height: 0; min-width: 0; overflow: auto; }
+.state { padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+.phase { font-size: 30px; font-weight: 700; color: var(--white); background: var(--off); text-align: center; padding: 2px; }
+.centered { text-align: center; }
+.chips2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.chips3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+.kv { display: grid; grid-template-columns: auto auto; column-gap: 8px; row-gap: 2px; }
+.right { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.right > .col { flex: 6; }
+.right > .cmds { flex: 5; padding: 6px; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+#eventLog {
+  flex: none; height: 104px; resize: none; margin: 0;
+  font: 12px var(--font-mono); background: var(--white); color: var(--text);
+  border: 0; border-top: 1px solid var(--tab-border); padding: 2px 4px; box-sizing: border-box; width: 100%;
+}
+
+/* tabs */
+.tabs { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.tabstrip { display: flex; flex-wrap: wrap; padding-left: 2px; position: relative; z-index: 1; }
+.tabstrip button {
+  font: 12px var(--font-ui); color: var(--text); background: var(--panel);
+  border: 1px solid var(--tab-border); border-bottom: 0; margin-right: -1px; margin-top: 2px;
+  padding: 2px 8px 3px; cursor: default;
+}
+.tabstrip button:hover { background: var(--hover); }
+.tabstrip button[aria-selected="true"] { background: var(--white); margin-top: 0; padding-bottom: 5px; margin-bottom: -1px; }
+.tabstrip button:focus-visible { outline: 1px dotted var(--text); outline-offset: -3px; }
+.tabbody { flex: 1; min-height: 0; border: 1px solid var(--tab-border); background: var(--panel); display: flex; flex-direction: column; }
+.tabpanel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.charts { flex: 1; display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 6px; padding: 4px; min-height: 0; }
+.charts canvas { width: 100%; height: 100%; min-height: 120px; display: block; }
+.mapbar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 2px 4px; }
+.mapwrap { flex: 1; min-height: 240px; position: relative; }
+.mapwrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+.mapinfo { font: 700 13px var(--font-mono); padding: 2px 4px; min-height: 18px; overflow-wrap: anywhere; }
+.hint { font-size: 11px; padding: 2px 4px; }
+.tablewrap { flex: 1; min-height: 0; overflow: auto; background: var(--white); border-top: 1px solid var(--tab-border); }
+table.jt { border-collapse: collapse; font: 12px var(--font-mono); white-space: nowrap; background: var(--white); }
+table.jt th {
+  font: 12px var(--font-ui); text-align: left; font-weight: 400; background: var(--white);
+  border-right: 1px solid #e5e5e5; border-bottom: 1px solid #d5d5d5; padding: 2px 4px; position: sticky; top: 0;
+}
+table.jt td { border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 1px 4px; }
+table.jt tr.gap td { background: var(--orange-row); }
+table.jt tbody tr:hover td { background: var(--hover); }
+
+/* checklist panel (right) */
+.banner { color: var(--white); background: var(--off); font-weight: 700; font-size: 16px; text-align: center; padding: 4px; }
+.cl-sec { font-weight: 700; margin: 6px 2px 1px; }
+.cl-row { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 4px; margin: 1px 2px; }
+.cl-dot { font-weight: 700; font-size: 14px; text-align: center; line-height: 16px; }
+.cl-row small { font-size: 11px; display: block; min-height: 15px; }
+
+/* commands */
+.cmdgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.cmdgrid .wide { grid-column: span 2; }
+.cmdlist { flex: 1; min-height: 120px; overflow: auto; background: var(--white); border: 1px solid var(--field-border); font: 12px var(--font-mono); }
+.cmdlist div { padding: 2px 4px; border-bottom: 1px solid var(--panel); }
+.cmdlist small { font-size: 11px; display: block; }
+
+/* launch day tab */
+.ld-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px; }
+.ld-top .prog { font-size: 14px; font-weight: 700; }
+.ld-scroll { flex: 1; min-height: 0; overflow: auto; padding: 0 4px 8px; }
+.ld-head { display: flex; justify-content: space-between; gap: 8px; margin: 12px 4px 2px; border-bottom: 1px solid var(--off); font-weight: 700; font-size: 14px; }
+.ld-head span:last-child { font-weight: 400; font-size: 12px; }
+.ld-note { color: var(--warn); font-style: italic; margin: 1px 8px; }
+.ld-row { display: grid; grid-template-columns: 18px minmax(0, 1fr) 64px minmax(0, 220px); gap: 6px; padding: 2px 4px; align-items: start; }
+.ld-row .t { cursor: default; padding-top: 1px; }
+.ld-row .tm { font: 12px var(--font-mono); padding-top: 2px; }
+.ld-row .lv { padding-top: 1px; }
+.ld-row input { margin-top: 3px; }
+code { font: 12px var(--font-mono); }
+
+/* instructor window */
+.sim-clock { font: 700 15px var(--font-mono); margin-bottom: 4px; }
+.row-btns { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+.truth { font: 12px var(--font-mono); white-space: pre-wrap; }
+
+/* option panes */
+.modal-layer { position: fixed; inset: 0; background: rgba(0, 0, 0, .12); display: grid; place-items: center; z-index: 20; padding: 16px; }
+.dlg { max-width: min(520px, calc(100vw - 32px)); box-shadow: 0 10px 34px rgba(0, 0, 0, .4); }
+.dlg .content { display: flex; gap: 12px; padding: 14px 14px 10px; }
+.dlg .msg { white-space: pre-wrap; min-width: 0; }
+.dlg .btns { display: flex; justify-content: flex-end; gap: 6px; padding: 0 14px 12px; }
+.dlg .btns .b { min-width: 75px; }
+.form { display: grid; gap: 4px; width: min(420px, calc(100vw - 80px)); white-space: normal; }
+.form .about { min-height: 48px; }
+
+/* ---- smaller screens ---- */
+@media (max-width: 1499px) {
+  .desk { flex-direction: column; height: auto; min-height: 100%; }
+  .main { flex: none; height: max(760px, 100vh); }
+  .simwin { width: auto; border-left: 0; border-top: 1px solid var(--tab-border); }
+}
+@media (max-width: 1099px) {
+  .main { height: auto; }
+  .center { grid-template-columns: minmax(0, 1fr); }
+  .col { overflow: visible; }
+  .tabs { height: 560px; }
+  .right > .col, .right > .cmds { flex: none; }
+  .cmdlist { max-height: 260px; }
+  .ld-row { grid-template-columns: 18px minmax(0, 1fr); }
+  .ld-row .tm, .ld-row .lv { grid-column: 2; }
+}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="win main" id="mainWin">
+    <div class="frame-body">
+      <div class="connbar">
+        <button class="b" id="simBtn">Simulate</button>
+        <button class="b" id="discBtn">Disconnect</button>
+        <span id="linkLabel">not connected</span>
+      </div>
+      <div class="center">
+        <div class="col state">
+          <div class="phase" id="phaseLabel">&#x2013;</div>
+          <div class="centered" id="causeLabel">&nbsp;</div>
+          <div class="centered" style="font-weight:700" id="ageLabel">no data</div>
+          <fieldset class="tb"><legend>Flags</legend><div class="chips2" id="flagChips"></div></fieldset>
+          <fieldset class="tb"><legend>Health</legend><div class="chips3" id="healthChips"></div></fieldset>
+          <fieldset class="tb"><legend>Telemetry</legend><div class="kv" id="values"></div></fieldset>
+        </div>
+        <div class="tabs">
+          <div class="tabstrip" role="tablist">
+            <button role="tab" id="tab-live" aria-selected="true" aria-controls="p-live">Live</button>
+            <button role="tab" id="tab-map" aria-selected="false" aria-controls="p-map">Map</button>
+            <button role="tab" id="tab-packets" aria-selected="false" aria-controls="p-packets">Packets</button>
+            <button role="tab" id="tab-ld" aria-selected="false" aria-controls="p-ld">Launch day checklist (simulation)</button>
+          </div>
+          <div class="tabbody">
+            <div class="tabpanel" role="tabpanel" id="p-live">
+              <div class="charts"><canvas id="altChart"></canvas><canvas id="vzChart"></canvas><canvas id="rpmChart"></canvas></div>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="p-map" hidden>
+              <div class="mapbar">
+                <label class="cb"><input type="checkbox" class="cb" id="follow" checked> Follow CanSat</label>
+                <button class="b" id="fitBtn">Fit all</button>
+                <button class="b" id="zinBtn">+</button>
+                <button class="b" id="zoutBtn">&#x2212;</button>
+              </div>
+              <div class="mapwrap"><canvas id="mapCanvas"></canvas></div>
+              <div class="mapinfo" id="mapInfo">&nbsp;no GPS position yet</div>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="p-packets" hidden>
+              <div class="hint">Newest first. Received = time at the ground station (ms), &#x394;t = since the previous packet; orange = gap over 2 s or lost packets. Up to 2000 rows.</div>
+              <div class="tablewrap">
+                <table class="jt"><thead><tr><th>Received</th><th>&#x394;t s</th><th>Seq</th><th>Lost</th><th>CanSat s</th><th>Phase</th><th>Alt m</th><th>vz m/s</th><th>Vbat V</th><th>rpm</th><th>Deploy</th><th>Flags</th><th>SNR</th><th>Ack</th></tr></thead><tbody id="packetBody"></tbody></table>
+              </div>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="p-ld" hidden>
+              <div class="ld-top">
+                <span class="prog" id="ldProgress"></span>
+                <button class="b" id="exportBtn">Export report</button>
+                <button class="b" id="newDayBtn">New launch day</button>
+                <span style="color:var(--off)">&nbsp;checklist: built in</span>
+              </div>
+              <div class="ld-scroll" id="ldBody"></div>
+            </div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="col"><fieldset class="tb" style="min-height:100%;box-sizing:border-box"><legend>Launch day</legend>
+            <div class="banner" id="banner">NO DATA</div><div id="clRows"></div></fieldset></div>
+          <div class="cmds">
+            <fieldset class="tb"><legend>Commands</legend>
+              <div class="cmdgrid">
+                <button class="b wide cmd" id="cPing">Ping</button>
+                <select class="b cmd" id="phaseBox" aria-label="Phase"><option value="1">ASCENT</option><option value="2">EJECTION</option><option value="3">SPIN_UP</option><option value="4">DESCENT</option><option value="5">LANDED</option></select>
+                <button class="b cmd" id="cPhase">Set phase</button>
+                <button class="b wide cmd fire" id="cFire">Deploy fire (nichrome 1 s)</button>
+                <select class="b cmd" id="shakeBox" aria-label="Shake pattern"><option value="0">BOTH</option><option value="1">COLLECTIVE</option><option value="2">CYCLIC</option></select>
+                <button class="b cmd" id="cShake">Shake servos</button>
+                <button class="b cmd" id="cPiOn">Pi active</button>
+                <button class="b cmd" id="cPiOff">Pi standby</button>
+                <button class="b cmd" id="cStop">Stop shake</button>
+                <button class="b cmd" id="cDisarm">Disarm</button>
+                <button class="b wide cmd" id="cCancel">Cancel queued</button>
+              </div>
+              <div class="hint">Critical commands are armed automatically (ARM, then the command). Each is repeated after every packet until acknowledged.</div>
+            </fieldset>
+            <fieldset class="tb" style="flex:1;display:flex;flex-direction:column;min-height:0"><legend>Command status</legend>
+              <div class="cmdlist" id="cmdList"></div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <textarea id="eventLog" readonly aria-label="Event log"></textarea>
+    </div>
+  </div>
+
+  <div class="win simwin" id="simWin" hidden>
+    <div class="body">
+      <fieldset class="tb"><legend>Launch day simulation</legend>
+        <div class="sim-head">Run: Pi manual + random faults
+          <button class="b" id="simMin" title="Hides clock, faults and truth from the team">Hide</button></div>
+        <span id="runDesc"></span>
+      </fieldset>
+      <fieldset class="tb"><legend>Clock</legend>
+        <div class="sim-clock" id="simClock"></div>
+        <div class="row-btns" id="speedBtns"><button class="b" id="pauseBtn">Pause</button></div>
+        <label class="cb" style="margin-top:4px"><input type="checkbox" class="cb" id="slowForLaunch" checked> back to 1&#xd7; at T-30 s</label>
+      </fieldset>
+      <fieldset class="tb"><legend>Rocket</legend>
+        <div class="row-btns">
+          <button class="b bold" id="launchNow">Launch now</button>
+          <button class="b" id="autoLaunchBtn">Auto launch in (min)</button>
+          <span class="spinner" id="autoMin"></span>
+        </div>
+      </fieldset>
+      <fieldset class="tb"><legend>Faults this run</legend>
+        <div style="display:flex;gap:6px;align-items:center"><div id="faultsLabel" style="flex:1;min-width:0"></div><button class="b" id="revealBtn">Reveal</button></div>
+      </fieldset>
+      <fieldset class="tb"><legend>End of the run</legend>
+        <button class="b" id="offBtn" style="width:100%" title="Remove-before-flight pin back in, when the team says so: checks that the Pi was in standby">Switch CanSat off</button>
+      </fieldset>
+      <fieldset class="tb"><legend>Truth (not visible to the ground station)</legend>
+        <div class="truth" id="truthLabel"></div>
+      </fieldset>
+    </div>
+  </div>
+</div>
+<div class="modal-layer" id="modalLayer" hidden></div>
+
+<script>
+"use strict";
+// ======================================================================
+// Protocol enums (protocol/Enums.java)
+// ======================================================================
+const PHASE = ["PAD", "ASCENT", "EJECTION", "SPIN_UP", "DESCENT", "LANDED"];
+const CAUSE = ["NONE", "ACCEL", "ALTITUDE", "VZ", "ALT_DROP", "TIMEOUT", "HOLD", "STEADY_SINK", "STILL", "IMPACT",
+  "LIFTOFF_ABORT", "FORCED", "RESTORED"];
+const DEPLOY = ["IDLE", "WAITING", "BURNING", "OK", "NO_CURRENT", "UNVERIFIED", "SKIPPED"];
+const ACK = ["NONE", "OK", "NOT_ARMED", "BAD_ARG", "UNKNOWN", "BUSY"];
+const SHAKE = ["BOTH", "COLLECTIVE", "CYCLIC"];
+const P = { PAD: 0, ASCENT: 1, EJECTION: 2, SPIN_UP: 3, DESCENT: 4, LANDED: 5 };
+const C = Object.fromEntries(CAUSE.map((n, i) => [n, i]));
+const D = Object.fromEntries(DEPLOY.map((n, i) => [n, i]));
+const A = Object.fromEntries(ACK.map((n, i) => [n, i]));
+/** Critical commands need an ARM first; the ground station sends it automatically. */
+const CRITICAL = new Set(["SET_PHASE", "DEPLOY_FIRE", "SHAKE"]);
+const ARM_CONFIRM = 0xA5;
+const FLAG_RESTORED = 1, FLAG_SHAKING = 1 << 1, FLAG_ARMED = 1 << 2, FLAG_VZ_TRUSTED = 1 << 3,
+  FLAG_ALT_TRUSTED = 1 << 4, FLAG_HEATER_ON = 1 << 5, FLAG_SERVOS_ON = 1 << 6, FLAG_PI_ACTIVE = 1 << 7;
+const HEALTH_BITS = ["IMU", "BARO", "TEMP", "POWER", "FLASH", "GPS", "RADIO"];
+const HEALTH_PI_READY = 1 << 7, HEALTH_PI_CAMERA = 1 << 8;
+const PI_LABEL = { STANDBY: "PI STANDBY", BOOTING: "PI BOOTING", READY: "PI READY", NO_CAMERA: "PI NO CAMERA",
+  NO_HEARTBEAT: "PI NO HEARTBEAT", LOST: "PI LOST" };
+
+function argText(cmd, arg) {
+  if (cmd === "SET_PHASE") return " " + PHASE[arg];
+  if (cmd === "SHAKE") return " " + SHAKE[Math.min(arg, 2)];
+  if (cmd === "PI_MODE") return arg === 0 ? " STANDBY" : " ACTIVE";
+  return "";
+}
+
+// ---- small helpers ----
+const $ = id => document.getElementById(id);
+const pad2 = n => String(n).padStart(2, "0");
+const isNaN_ = Number.isNaN;
+function gauss() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function wallClock(d = new Date(), ms = false) {
+  const s = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+  return ms ? s + "." + String(d.getMilliseconds()).padStart(3, "0") : s;
+}
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function escCode(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+const f0 = x => (Math.round(x) + 0).toFixed(0);
+const f1 = x => x.toFixed(1), f2 = x => x.toFixed(2), f5 = x => x.toFixed(5), f6 = x => x.toFixed(6);
+const deg3 = x => String(Math.round(x) % 360).padStart(3, "0");
+
+// ======================================================================
+// Simulated CanSat (sim/SimCanSat.java): truth layer and firmware view
+// ======================================================================
+const FAULTS = {
+  STUCK_ROTOR: "Blades stay folded after the release (SHAKE frees them)",
+  RELEASE_FAILS: "First nichrome burn does not heat (DEPLOY_FIRE works)",
+  BARO_FREEZE: "Barometer frozen: altitude and vz untrusted",
+  RADIO_DROPOUT: "No radio link",
+  GPS_NO_FIX: "GPS without fix",
+  WEAK_BATTERY: "Battery starts at 7.35 V and drains fast",
+  PI_NO_HALT: "Pi hangs on shutdown: no PI_HALTED, the FC cuts its power after 30 s",
+  PI_CRASH: "Pi crashes: powered, but the heartbeat stops (PI LOST)",
+  PI_NO_CAMERA: "Pi runs without camera: heartbeat says no camera",
+  KNOCK_ON_PAD: "A knock on the pad: ASCENT, then LIFTOFF_ABORT back to PAD",
+  FC_RESET: "Flight computer reboots 15 s after ejection: RESTORED, no second burn",
+};
+const RUN_DESC = "Like Pi manual, plus 0 to 2 faults drawn at random, each at the point of the flight where it "
+  + "would happen. Handle them with the operator manual; the instructor reveals them in the debrief.";
+
+const G = 9.80665, THRUST = 65, BURN_S = 2.0, ROCKET_DRAG = 0.0012, EJECT_AFTER_APOGEE_S = 0.5;
+const SINK_FREE = 9.0, SINK_STUCK = 25.0, WIND_E = 3.5, WIND_N = 1.2;
+const PAD_LAT_E7 = 476926000, PAD_LON_E7 = 162475000;  // placeholder launch site
+const ARM_WINDOW_MS = 20000;
+const PI_BOOT_S = 25, PI_SHUTDOWN_S = 7, PI_TIMEOUT_S = 30, PI_MIN_OFF_S = 2;
+
+/** 0, 1 or 2 different faults, for training. */
+function drawFaults() {
+  const all = Object.keys(FAULTS);
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+  return all.slice(0, Math.floor(Math.random() * 3));
+}
+
+class SimCanSat {
+  constructor(autoLaunchT) {
+    this.autoLaunchT = autoLaunchT;
+    this.done = new Set();
+    this.planned = drawFaults();
+    this.faults = new Set();
+    // truth
+    this.stage = "PAD"; this.t = 0; this.h = 0; this.v = 0; this.east = 0; this.north = 0; this.rpm = 0;
+    this.launchT = NaN; this.apogeeT = NaN; this.apogeeM = 0; this.ejectT = NaN; this.landT = NaN;
+    this.released = false; this.shakeFreed = false; this.releaseFailUsed = false; this.battery = 8.30;
+    // firmware view
+    this.phase = P.PAD; this.cause = C.NONE; this.enteredT = 0; this.liftoffT = 0; this.checkPending = false;
+    this.maxEstAlt = 0; this.holdA = NaN; this.holdB = NaN; this.aborts = 0;
+    this.deploy = D.IDLE; this.heaterUntil = NaN; this.burnFails = false; this.burnStarted = false;
+    this.shakeStart = NaN; this.shakeUntil = NaN; this.benchDeploy = D.IDLE; this.benchUntil = NaN;
+    this.restored = false; this.silentUntil = -1; this.baroFrozenAt = NaN; this.frozenAlt = 0;
+    this.estAlt = 0; this.estVz = 0; this.impactSeen = false; this.seq = 0;
+    // Pi: this run is firmware with kPiActiveAtBoot = false, the team switches the Pi active itself
+    this.piActiveAtBoot = false; this.pi = "STANDBY"; this.piWantActive = false; this.piSince = 0;
+    this.piAtLiftoff = null; this.switchedOff = false; this.switchOffResult = null;
+    // uplink guard
+    this.armed = false; this.armedMs = 0; this.any = false; this.lastId = 0; this.lastResult = A.NONE;
+  }
+
+  // planned faults happen once
+  setFaultOnce(f, on) { if (!this.done.has(f + "=" + on)) { this.done.add(f + "=" + on); this.setFault(f, on); } }
+  setFault(f, on) {
+    if (on) {
+      this.faults.add(f);
+      if (f === "WEAK_BATTERY") this.battery = Math.min(this.battery, 7.35);
+    } else {
+      this.faults.delete(f);
+    }
+  }
+  fault(f) { return this.faults.has(f); }
+
+  /** The rocket lifts off now (if still on the pad). */
+  launch() {
+    if (this.stage === "PAD") {
+      this.stage = "BOOST";
+      this.launchT = this.t;
+      this.piAtLiftoff = this.piCameraReady() ? "camera ready" : "camera NOT ready (" + this.piText() + ")";
+    }
+  }
+  /** The team puts the Remove-before-flight pin back in: the CanSat is off for good. */
+  switchOff() {
+    if (this.switchedOff) return;
+    this.switchedOff = true;
+    this.switchOffResult = this.pi === "STANDBY" ? "switched off with the Pi in standby: OK"
+      : "switched off while the Pi was " + this.piText() + ": microSD at risk";
+  }
+  setAutoLaunch(at) { this.autoLaunchT = at; }
+  /** A knock on the CanSat on the pad: > 3 g for a moment. */
+  knock() {
+    if (this.phase === P.PAD) {
+      this.liftoffT = this.t; this.checkPending = true; this.maxEstAlt = this.estAlt;
+      this.enter(P.ASCENT, C.ACCEL);
+    }
+  }
+  /** The flight computer reboots (brownout, watchdog): silent for 3 s, then continues from NVS. */
+  reset() {
+    this.silentUntil = this.t + 3; this.seq = 0; this.any = false; this.lastId = 0; this.lastResult = A.NONE;
+    this.armed = false; this.shakeUntil = NaN; this.checkPending = false; this.heaterUntil = NaN;
+    // PI_EN drops during the reset; at boot the firmware sets its start mode again
+    this.pi = this.piActiveAtBoot ? "ACTIVE" : "STANDBY";
+    this.piWantActive = this.piActiveAtBoot;
+    this.piSince = this.t;
+    if (this.phase === P.PAD) { this.restored = false; this.deploy = D.IDLE; return; }
+    this.restored = true;
+    this.enter(this.phase, C.RESTORED);
+    this.deploy = this.burnStarted || this.phase > P.EJECTION ? D.SKIPPED : D.IDLE;
+  }
+
+  step(now, dt) {
+    this.t = now;
+    if (this.stage === "PAD" && !isNaN_(this.autoLaunchT) && this.t >= this.autoLaunchT) this.launch();
+    this.applyPlan();
+    this.stepTruth(dt);
+    this.stepEstimate(dt);
+    this.stepFirmware();
+    this.battery -= (this.fault("WEAK_BATTERY") ? 0.0006 : 0.00025) * dt;
+  }
+
+  // each planned fault at the point of the flight where it would happen
+  applyPlan() {
+    const sinceEject = this.t - this.ejectT;  // NaN before the ejection: every comparison false
+    const knockAt = isNaN_(this.autoLaunchT) ? 60 : Math.min(60, this.autoLaunchT / 2);
+    for (const f of this.planned) {
+      switch (f) {
+        case "BARO_FREEZE": if (sinceEject >= 10) this.setFaultOnce(f, true); break;
+        case "RADIO_DROPOUT":
+          if (sinceEject >= 5 && sinceEject < 25) this.setFaultOnce(f, true);
+          if (sinceEject >= 25) this.setFaultOnce(f, false);
+          break;
+        case "FC_RESET":
+          if (sinceEject >= 15 && !this.done.has("reset")) { this.done.add("reset"); this.reset(); }
+          break;
+        case "KNOCK_ON_PAD":
+          if (isNaN_(this.launchT) && this.t >= knockAt && !this.done.has("knock")) { this.done.add("knock"); this.knock(); }
+          break;
+        case "PI_CRASH":
+          if (this.pi === "ACTIVE" && this.t - this.piSince >= PI_BOOT_S + 20) this.setFaultOnce(f, true);
+          break;
+        // from power-up; noticeable when it matters (rotor, release, battery, Pi shutdown)
+        default: this.setFaultOnce(f, true);
+      }
+    }
+  }
+
+  stepTruth(dt) {
+    switch (this.stage) {
+      case "PAD": case "GROUND": this.h = 0; this.v = 0; break;
+      case "BOOST": case "COAST": {
+        const a = (this.stage === "BOOST" ? THRUST : 0) - G - ROCKET_DRAG * this.v * Math.abs(this.v);
+        this.v += a * dt;
+        this.h += this.v * dt;
+        if (this.stage === "BOOST" && this.t - this.launchT >= BURN_S) this.stage = "COAST";
+        if (this.stage === "COAST" && this.v <= 0 && isNaN_(this.apogeeT)) { this.apogeeT = this.t; this.apogeeM = this.h; }
+        if (!isNaN_(this.apogeeT) && this.t - this.apogeeT >= EJECT_AFTER_APOGEE_S) { this.stage = "FALL"; this.ejectT = this.t; }
+        break;
+      }
+      case "FALL": {
+        if (this.shaking() && this.t - this.shakeStart >= 4) this.shakeFreed = true;
+        const free = this.bladesFree();
+        const vt = free ? SINK_FREE : SINK_STUCK;
+        const a = -G + G * (this.v / vt) * (this.v / vt);
+        this.v = Math.max(-60, this.v + a * dt);
+        this.h += this.v * dt;
+        this.east += WIND_E * dt;
+        this.north += WIND_N * dt;
+        this.rpm += ((free ? 2100 : 0) - this.rpm) * Math.min(1, dt / 0.8);
+        if (this.h <= 0) { this.h = 0; this.v = 0; this.rpm = 0; this.stage = "GROUND"; this.landT = this.t; }
+        break;
+      }
+    }
+  }
+  bladesFree() { return this.released && (!this.fault("STUCK_ROTOR") || this.shakeFreed); }
+  shaking() { return !isNaN_(this.shakeUntil) && this.t < this.shakeUntil; }
+  baroOk() { return isNaN_(this.baroFrozenAt); }
+  vzTrusted() { return this.baroOk(); }
+
+  stepEstimate(dt) {
+    if (this.fault("BARO_FREEZE") && this.baroOk()) { this.baroFrozenAt = this.t; this.frozenAlt = this.estAlt; }
+    else if (!this.fault("BARO_FREEZE")) this.baroFrozenAt = NaN;
+    if (this.baroOk()) {
+      this.estAlt = this.h + gauss() * 0.3;
+      this.estVz = this.v + gauss() * 0.2;
+    } else {
+      // accelerometer only: biased vz, altitude integrates it
+      this.estVz = this.v * 0.6 + 1.5;
+      this.estAlt = Math.max(-50, this.estAlt + this.estVz * dt * 0.3);
+    }
+  }
+
+  held(cond, useB, holdS) {
+    let since = useB ? this.holdB : this.holdA;
+    if (!cond) since = NaN;
+    else if (isNaN_(since)) since = this.t;
+    if (useB) this.holdB = since; else this.holdA = since;
+    return !isNaN_(since) && this.t - since >= holdS;
+  }
+  enter(p, c) { this.phase = p; this.cause = c; this.enteredT = this.t; this.holdA = this.holdB = NaN; }
+
+  stepFirmware() {
+    const sinceLiftoff = this.t - this.liftoffT, inPhase = this.t - this.enteredT;
+    if (this.phase !== P.PAD && this.phase !== P.LANDED && sinceLiftoff >= 300) this.enter(P.LANDED, C.TIMEOUT);
+    if (this.stage === "GROUND" && !isNaN_(this.landT) && this.t - this.landT < 0.2) this.impactSeen = true;
+    switch (this.phase) {
+      case P.PAD:
+        if (this.stage !== "PAD" && this.t - this.launchT >= 0.1) {
+          this.liftoffT = this.launchT; this.checkPending = true; this.maxEstAlt = this.estAlt;
+          this.enter(P.ASCENT, C.ACCEL);
+        }
+        break;
+      case P.ASCENT: {
+        this.maxEstAlt = Math.max(this.maxEstAlt, this.estAlt);
+        if (this.checkPending && sinceLiftoff >= 3) {
+          this.checkPending = false;
+          if (this.baroOk() && this.maxEstAlt < 10) { this.aborts++; this.enter(P.PAD, C.LIFTOFF_ABORT); break; }
+        }
+        if (sinceLiftoff >= 60) {
+          this.enter(P.EJECTION, C.TIMEOUT);
+        } else if (sinceLiftoff >= 3) {
+          const byVz = this.held(this.estVz < 0, false, 0.5);
+          const byDrop = this.held(this.baroOk() && this.maxEstAlt - this.estAlt > 10, true, 0.5);
+          if (byVz || byDrop) this.enter(P.EJECTION, byVz ? C.VZ : C.ALT_DROP);
+        }
+        break;
+      }
+      case P.EJECTION: if (inPhase >= 0.5) this.enter(P.SPIN_UP, C.HOLD); break;
+      case P.SPIN_UP: {
+        const sink = -this.estVz;
+        if (this.held(this.vzTrusted() && sink > 4 && sink < 13, false, 1.0)) this.enter(P.DESCENT, C.STEADY_SINK);
+        else if (inPhase >= 5) this.enter(P.DESCENT, C.TIMEOUT);
+        break;
+      }
+      case P.DESCENT: {
+        const calm = this.stage === "GROUND" || Math.abs(this.v) < 0.5;  // |acc| ~ 1 g only on the ground
+        const byVz = this.vzTrusted() && Math.abs(this.estVz) < 1 && this.stage === "GROUND";
+        if (this.held((this.impactSeen || byVz) && calm, false, 3)) this.enter(P.LANDED, byVz ? C.STILL : C.IMPACT);
+        break;
+      }
+    }
+    this.stepDeploy();
+    if (this.benchDeploy === D.BURNING && this.t >= this.benchUntil) this.benchDeploy = D.OK;
+    this.stepPi();
+  }
+
+  // start right away (after a minimum off time), shutdown takes a few seconds until PI_HALTED
+  stepPi() {
+    switch (this.pi) {
+      case "STANDBY":
+        if (this.piWantActive && this.t - this.piSince >= PI_MIN_OFF_S) { this.pi = "ACTIVE"; this.piSince = this.t; }
+        break;
+      case "ACTIVE":
+        if (!this.piWantActive) { this.pi = "STOPPING"; this.piSince = this.t; }
+        break;
+      case "STOPPING":
+        if (this.t - this.piSince >= this.piStopS()) { this.pi = "STANDBY"; this.piSince = this.t; }
+        break;
+    }
+  }
+  // a hanging Pi never sends PI_HALTED: the firmware cuts the power at its timeout
+  piStopS() { return this.fault("PI_NO_HALT") ? PI_TIMEOUT_S : PI_SHUTDOWN_S; }
+  piHeartbeat() { return this.pi === "ACTIVE" && this.t - this.piSince >= PI_BOOT_S && !this.fault("PI_CRASH"); }
+  piCameraReady() { return this.piHeartbeat() && !this.fault("PI_NO_CAMERA"); }
+  piText() {
+    switch (this.pi) {
+      case "STANDBY": return "in standby (no power)";
+      case "ACTIVE":
+        if (this.fault("PI_CRASH") && this.t - this.piSince >= PI_BOOT_S) return "crashed (powered, no heartbeat)";
+        if (this.piHeartbeat()) return this.piCameraReady() ? "running, camera ready" : "running, no camera";
+        return "booting, camera ready in " + f0(PI_BOOT_S - (this.t - this.piSince)) + " s";
+      default:
+        return this.fault("PI_NO_HALT")
+          ? "hanging in shutdown, FC cuts power in " + f0(this.piStopS() - (this.t - this.piSince)) + " s"
+          : "shutting down";
+    }
+  }
+
+  stepDeploy() {
+    switch (this.deploy) {
+      case D.IDLE:
+        if (this.phase === P.EJECTION && this.cause !== C.RESTORED) this.deploy = D.WAITING;
+        else if (this.phase > P.EJECTION) this.deploy = D.SKIPPED;
+        break;
+      case D.WAITING:
+        if (this.t - this.enteredT >= 0.5 || this.phase !== P.EJECTION) this.burn();
+        break;
+      case D.BURNING:
+        if (this.t >= this.heaterUntil) {
+          this.heaterUntil = NaN;
+          if (this.burnFails) this.deploy = D.NO_CURRENT;
+          else {
+            this.deploy = D.OK;
+            if (this.stage === "FALL" || this.stage === "COAST") this.released = true;
+          }
+        }
+        break;
+    }
+  }
+  burn() {
+    this.deploy = D.BURNING;
+    this.heaterUntil = this.t + 1.0;
+    this.burnStarted = true;
+    this.burnFails = this.fault("RELEASE_FAILS") && !this.releaseFailUsed;
+    if (this.burnFails) this.releaseFailUsed = true;
+  }
+
+  // ---- radio ----
+  /** False while the CanSat cannot be heard (dropout, rebooting, switched off). */
+  transmitting() { return !this.switchedOff && !this.fault("RADIO_DROPOUT") && this.t >= this.silentUntil; }
+  servosOn() { return this.shaking() || this.phase === P.SPIN_UP || this.phase === P.DESCENT; }
+  isArmed(nowMs) { return this.armed && nowMs - this.armedMs < ARM_WINDOW_MS; }
+
+  telemetry() {
+    const gps = !this.fault("GPS_NO_FIX");
+    const vzSigma = this.baroOk() ? 0.15 : Math.min(2.55, 0.15 + 0.05 * (this.t - this.baroFrozenAt));
+    const nis = this.baroOk() ? 2 + Math.floor(Math.random() * 3) : 60;
+    const heater = this.deploy === D.BURNING || this.benchDeploy === D.BURNING;
+    const vbat = this.battery - (heater ? 0.4 : 0) - (this.servosOn() ? 0.1 : 0);
+    // like the firmware: the bench result is shown while the flight release is idle
+    const shown = this.deploy === D.IDLE ? this.benchDeploy : this.deploy;
+    const pressure = 101325 * Math.pow(1 - (this.baroOk() ? this.estAlt : this.frozenAlt) / 44330, 5.255);
+    const health = (0x7F & ~(gps ? 0 : 1 << 5)) | (this.piHeartbeat() ? HEALTH_PI_READY : 0)
+      | (this.piCameraReady() ? HEALTH_PI_CAMERA : 0);
+    const flags = (this.restored ? FLAG_RESTORED : 0) | (this.shaking() ? FLAG_SHAKING : 0)
+      | (this.isArmed(Math.trunc(this.t * 1000)) ? FLAG_ARMED : 0)
+      | (this.vzTrusted() ? FLAG_VZ_TRUSTED | FLAG_ALT_TRUSTED : 0) | (heater ? FLAG_HEATER_ON : 0)
+      | (this.servosOn() ? FLAG_SERVOS_ON : 0) | (this.pi !== "STANDBY" ? FLAG_PI_ACTIVE : 0);
+    const latE7 = PAD_LAT_E7 + this.north / 111320.0 * 1e7;
+    const lonE7 = PAD_LON_E7 + this.east / (111320.0 * Math.cos(PAD_LAT_E7 / 1e7 * Math.PI / 180)) * 1e7;
+    const t = {
+      seq: this.seq & 0xFFFF, timeMs: Math.trunc(this.t * 1000), pressurePa: Math.fround(pressure),
+      airTempC: Math.fround(15 - Math.max(0, this.h) * 0.0065 + gauss() * 0.02),
+      altM: Math.fround(this.estAlt), vzMps: Math.fround(this.estVz),
+      latE7: gps ? Math.trunc(latE7) : 0, lonE7: gps ? Math.trunc(lonE7) : 0,
+      vbatMv: Math.trunc(vbat * 1000), health, phase: this.phase, cause: this.cause, deploy: shown, flags,
+      rotorRpm: Math.trunc(this.rpm), vzSigmaCms: Math.round(vzSigma * 100) & 0xFF, nis,
+      ackId: this.lastId & 0xFF, ackResult: this.lastResult,
+    };
+    this.seq++;
+    return t;
+  }
+
+  /** A command packet the ground station sent while the CanSat listens. */
+  receive(c) {
+    if (!this.transmitting()) return;
+    const now = Math.trunc(this.t * 1000);
+    if (this.any && c.id === this.lastId) return;  // repeat: the ack is already in the telemetry
+    let r;
+    switch (c.cmd) {
+      case "PING": r = A.OK; break;
+      case "ARM":
+        r = c.arg === ARM_CONFIRM ? A.OK : A.BAD_ARG;
+        if (r === A.OK) { this.armed = true; this.armedMs = now; }
+        break;
+      case "DISARM": this.armed = false; r = A.OK; break;
+      case "SHAKE_STOP": this.shakeUntil = NaN; r = A.OK; break;
+      case "PI_MODE":
+        r = c.arg > 1 ? A.BAD_ARG : A.OK;
+        if (r === A.OK) this.piWantActive = c.arg === 1;
+        break;
+      default: r = this.critical(c, now);
+    }
+    this.any = true;
+    this.lastId = c.id;
+    this.lastResult = r;
+  }
+  critical(c, now) {
+    if (c.cmd === "SET_PHASE" && (c.arg < 1 || c.arg > 5)) return A.BAD_ARG;
+    if (c.cmd === "SHAKE" && c.arg > 2) return A.BAD_ARG;
+    if (!this.isArmed(now)) return A.NOT_ARMED;
+    this.armed = false;
+    switch (c.cmd) {
+      case "SET_PHASE":
+        if (this.phase === P.PAD) this.liftoffT = this.t;
+        if (this.t - this.liftoffT > 240) this.liftoffT = this.t - 240;  // at least 60 s to the forced landing
+        this.checkPending = false;
+        this.enter(c.arg, C.FORCED);
+        break;
+      case "DEPLOY_FIRE":
+        if (this.phase === P.PAD) { this.benchDeploy = D.BURNING; this.benchUntil = this.t + 1.0; }  // bench test
+        else if (this.deploy !== D.BURNING) this.burn();
+        break;
+      case "SHAKE": this.shakeStart = this.t; this.shakeUntil = this.t + 18; break;
+      default: return A.UNKNOWN;
+    }
+    return A.OK;
+  }
+
+  /** Truth for the simulation window. Times in simulated seconds, NaN = not yet. */
+  truth() {
+    let pi = this.switchedOff ? "CanSat off" : this.piText();
+    if (this.piAtLiftoff != null) pi += "; at liftoff: " + this.piAtLiftoff;
+    if (this.switchOffResult != null) pi += "; " + this.switchOffResult;
+    return { t: this.t, stage: this.stage, altM: this.h, vzMps: this.v, bladesFree: this.bladesFree(),
+      rotorRpm: Math.trunc(this.rpm), driftM: Math.hypot(this.east, this.north), launchT: this.launchT,
+      apogeeT: this.apogeeT, apogeeM: this.apogeeM, ejectT: this.ejectT, landT: this.landT,
+      autoLaunchT: this.autoLaunchT, pi };
+  }
+}
+
+// ======================================================================
+// Simulated time; speed can change and pause at any moment (sim/SimClock.java)
+// ======================================================================
+class SimClock {
+  constructor(speed) { this.baseSim = 0; this.baseReal = performance.now(); this.speed = speed; this.paused = false; }
+  now() { return this.paused ? this.baseSim : this.baseSim + (performance.now() - this.baseReal) / 1000 * this.speed; }
+  rebase() { this.baseSim = this.now(); this.baseReal = performance.now(); }
+  setSpeed(s) { this.rebase(); this.speed = s; }
+  setPaused(p) { this.rebase(); this.paused = p; }
+}
+
+// ======================================================================
+// Radio link: simulated stick (SimTransport) and the ground link (GroundLink).
+// Listen continuously; right after each telemetry packet, when the CanSat listens,
+// send the pending command, repeated with the same id until the telemetry acks it.
+// ======================================================================
+const PERIOD_S = 1.0, STEP_S = 0.05, MAX_ATTEMPTS = 6;
+
+class Link {
+  constructor(cansat, clock, listener) {
+    this.cansat = cansat; this.clock = clock; this.listener = listener;
+    this.simS = 0; this.nextPacketS = PERIOD_S;
+    this.queue = []; this.current = null; this.requestCounter = 0;
+    this.stats = { received: 0, lost: 0, lastSeq: -1,
+      lossPercent() { const n = this.received + this.lost; return n === 0 ? 0 : 100 * this.lost / n; } };
+  }
+  advanceTo(t) {
+    while (this.simS < t) {
+      const dt = Math.min(STEP_S, t - this.simS);
+      this.simS += dt;
+      this.cansat.step(this.simS, dt);
+    }
+  }
+  // a telemetry packet every simulated second
+  tick() {
+    const t = this.clock.now();
+    while (this.nextPacketS <= t) {
+      this.advanceTo(this.nextPacketS);
+      this.nextPacketS += PERIOD_S;
+      if (this.cansat.transmitting()) this.onPacket(this.cansat.telemetry());
+    }
+    this.advanceTo(t);
+  }
+  send(cmd, arg) {
+    const o = { no: ++this.requestCounter, cmd, arg, arming: false, packet: null, attempts: 0 };
+    this.queue.push(o);
+    this.status(o, "QUEUED", A.NONE, "waiting for the next telemetry packet");
+  }
+  /** Drops queued commands; one already on air is finished first. */
+  cancelQueued() {
+    for (const o of this.queue) this.status(o, "FAILED", A.NONE, "cancelled");
+    this.queue = [];
+  }
+  onPacket(t) {
+    const s = this.stats;
+    if (s.lastSeq >= 0) {
+      const gap = (t.seq - s.lastSeq - 1) & 0xFFFF;
+      if (gap < 1000) s.lost += gap;  // a large jump is a CanSat reboot, not 60000 lost packets
+    }
+    s.lastSeq = t.seq;
+    s.received++;
+    this.handleCommands(t);  // first: the CanSat listens only for ~0.6 s
+    this.listener.telemetry(t, 5 + Math.floor(Math.random() * 4), s);
+  }
+  handleCommands(t) {
+    const cur = this.current;
+    if (cur) {
+      const r = t.ackResult;
+      const acked = t.ackId === cur.packet.id && r !== A.NONE;
+      if (acked && r !== A.BUSY) {
+        if (cur.arming) {
+          if (r !== A.OK) this.finish("FAILED", r, "ARM refused: " + ACK[r]);
+          else {
+            cur.arming = false;
+            cur.attempts = 0;
+            cur.packet = { id: (t.ackId + 1) & 0xFF, cmd: cur.cmd, arg: cur.arg };
+          }
+        } else {
+          this.finish(r === A.OK ? "DONE" : "FAILED", r, r === A.OK ? "acknowledged" : "refused: " + ACK[r]);
+        }
+      } else if (cur.attempts >= MAX_ATTEMPTS) {
+        this.finish("FAILED", r, "no acknowledgement after " + cur.attempts + " attempts");
+      }
+    }
+    if (!this.current) {
+      this.current = this.queue.shift() || null;
+      if (!this.current) return;
+      const c = this.current;
+      c.arming = CRITICAL.has(c.cmd);
+      // a fresh id: the CanSat treats its last id as a repeat
+      c.packet = { id: (t.ackId + 1) & 0xFF, cmd: c.arming ? "ARM" : c.cmd, arg: c.arming ? ARM_CONFIRM : c.arg };
+    }
+    const c = this.current;
+    c.attempts++;
+    this.cansat.receive(c.packet);
+    this.status(c, c.arming ? "ARMING" : "SENT", A.NONE, (c.arming ? "ARM" : c.cmd) + " sent (id " + c.packet.id
+      + ", attempt " + c.attempts + ")");
+  }
+  finish(state, r, text) { this.status(this.current, state, r, text); this.current = null; }
+  status(o, state, r, text) { this.listener.command({ no: o.no, cmd: o.cmd, arg: o.arg, state, result: r, attempts: o.attempts, text }); }
+}
+
+// ======================================================================
+// Launch day checklist filled from the telemetry (mission/LaunchDay.java).
+// Times are CanSat time, so it works with the accelerated simulator.
+// ======================================================================
+const HEALTH_NEEDED = 0x5F;  // IMU, BARO, TEMP, POWER, FLASH, RADIO (GPS separately)
+const PI_BOOT_LIMIT_MS = 60000;
+const KEY_BY_TITLE = { "Radio link": "link", "Sensors": "sensors", "GPS fix": "gps", "Battery": "battery",
+  "Phase PAD": "phase_pad", "Altitude zeroed": "zeroed", "Safe": "safe", "Liftoff": "liftoff",
+  "Apogee / ejection": "ejection", "Rotor release": "release", "Rotor spinning": "spinning",
+  "Steady descent": "descent", "Landed": "landed", "Recovery": "recovery", "Pi": "pi" };
+const item = (title, status, detail) => ({ title, status, detail });
+const flag = (t, bit) => (t.flags & bit) !== 0;
+const secs = ms => (ms / 1000).toFixed(1);
+
+class LaunchDay {
+  constructor() {
+    this.last = null; this.stats = null; this.lastRxWallMs = 0;
+    this.timeOffsetMs = 0; this.lastRawTimeMs = -1; this.nowMs = 0;
+    this.padLat = null; this.padLon = null; this.lastLat = null; this.lastLon = null;
+    this.liftoffMs = -1; this.ejectMs = -1; this.landedMs = -1;
+    this.liftoffCause = null; this.ejectCause = null; this.landedCause = null;
+    this.aborts = 0; this.maxAlt = 0; this.maxRpmAfterEject = 0; this.sinkSamples = []; this.sinkTrusted = true;
+    this.burnedOk = false; this.piActiveSinceMs = -1; this.piReportedSinceActive = false;
+  }
+  update(t, s, wallMs) {
+    // CanSat time in ms; continues across a reboot of the flight computer
+    if (this.lastRawTimeMs >= 0 && t.timeMs + 2000 < this.lastRawTimeMs) this.timeOffsetMs += this.lastRawTimeMs + 1000;
+    this.lastRawTimeMs = t.timeMs;
+    this.nowMs = t.timeMs + this.timeOffsetMs;
+    this.last = t; this.stats = s; this.lastRxWallMs = wallMs;
+    const fix = (t.health & (1 << 5)) !== 0;
+    if (fix) {
+      this.lastLat = t.latE7 / 1e7; this.lastLon = t.lonE7 / 1e7;
+      if (t.phase === P.PAD) { this.padLat = this.lastLat; this.padLon = this.lastLon; }
+    }
+    if (t.phase === P.PAD && t.cause === C.LIFTOFF_ABORT && this.liftoffMs >= 0) { this.aborts++; this.liftoffMs = -1; }
+    // LANDED alone is no liftoff: a CanSat that kept LANDED from the last flight
+    const flying = t.phase >= P.ASCENT && t.phase <= P.DESCENT;
+    if (flying && this.liftoffMs < 0) { this.liftoffMs = this.nowMs; this.liftoffCause = CAUSE[t.cause]; this.maxAlt = 0; }
+    if (this.liftoffMs >= 0) this.maxAlt = Math.max(this.maxAlt, t.altM);
+    if (t.phase >= P.EJECTION && this.ejectMs < 0 && t.phase !== P.LANDED) {
+      this.ejectMs = this.nowMs;
+      // EJECTION lasts 0.5 s: a later packet carries the cause of the next transition
+      this.ejectCause = t.phase === P.EJECTION ? CAUSE[t.cause] : null;
+    }
+    if (this.ejectMs >= 0) this.maxRpmAfterEject = Math.max(this.maxRpmAfterEject, t.rotorRpm);
+    // not the last metres: the landing hold (vz ~ 0) would pull the mean down
+    if (t.phase === P.DESCENT && t.altM > 10) {
+      this.sinkSamples.push(-t.vzMps);
+      while (this.sinkSamples.length > 10) this.sinkSamples.shift();
+      this.sinkTrusted = flag(t, FLAG_VZ_TRUSTED);
+    }
+    if (t.phase === P.LANDED && this.landedMs < 0 && this.liftoffMs >= 0) { this.landedMs = this.nowMs; this.landedCause = CAUSE[t.cause]; }
+    if (t.deploy === D.OK) this.burnedOk = true;
+    if (!flag(t, FLAG_PI_ACTIVE)) { this.piActiveSinceMs = -1; this.piReportedSinceActive = false; }
+    else {
+      if (this.piActiveSinceMs < 0) this.piActiveSinceMs = this.nowMs;
+      if ((t.health & HEALTH_PI_READY) !== 0) this.piReportedSinceActive = true;
+    }
+  }
+  /** Pi from the flag, the heartbeat bits and how long it has been active. */
+  piStatus() {
+    const t = this.last;
+    if (!t || !flag(t, FLAG_PI_ACTIVE)) return "STANDBY";
+    if ((t.health & HEALTH_PI_READY) !== 0) return (t.health & HEALTH_PI_CAMERA) !== 0 ? "READY" : "NO_CAMERA";
+    if (this.piReportedSinceActive) return "LOST";
+    return this.nowMs - this.piActiveSinceMs > PI_BOOT_LIMIT_MS ? "NO_HEARTBEAT" : "BOOTING";
+  }
+  inFlight() { return this.liftoffMs >= 0; }
+  go(wallMs) { return this.preflight(wallMs).every(i => i.status !== "FAIL" && i.status !== "PENDING"); }
+  /** Live state by checklist key, for the full launch day checklist. */
+  auto(wallMs) {
+    const m = {};
+    const pre = this.preflight(wallMs);
+    for (const i of pre) if (KEY_BY_TITLE[i.title]) m[KEY_BY_TITLE[i.title]] = i;
+    for (const i of this.flight()) if (KEY_BY_TITLE[i.title]) m[KEY_BY_TITLE[i.title]] = i;
+    m.pi_standby = this.piStandby();
+    const open = pre.filter(i => i.status === "FAIL" || i.status === "PENDING").length;
+    m.go = this.inFlight() ? item("GO", "OK", "launched")
+      : item("GO", open === 0 ? "OK" : "FAIL", open === 0 ? "GO FOR LAUNCH" : "NO GO: " + open + " open");
+    return m;
+  }
+  preflight(wallMs) {
+    const l = [];
+    const t = this.last;
+    if (!t) { l.push(item("Radio link", "PENDING", "no packet yet")); return l; }
+    const age = (wallMs - this.lastRxWallMs) / 1000, loss = this.stats.lossPercent();
+    l.push(item("Radio link", age > 5 ? "FAIL" : loss > 20 ? "WARN" : "OK",
+      "last packet " + f0(age) + " s ago, loss " + f0(loss) + " %"));
+    const missing = HEALTH_NEEDED & ~t.health;
+    const miss = HEALTH_BITS.filter((_, i) => (missing & (1 << i)) !== 0).join(", ");
+    l.push(item("Sensors", missing === 0 ? "OK" : "FAIL", missing === 0 ? "all answer" : "missing: " + miss));
+    const fix = (t.health & (1 << 5)) !== 0;
+    l.push(item("GPS fix", fix ? "OK" : "FAIL", fix ? f5(t.latE7 / 1e7) + ", " + f5(t.lonE7 / 1e7) : "no fix: wait, sky view"));
+    const v = t.vbatMv / 1000;
+    l.push(item("Battery", v >= 7.6 ? "OK" : v >= 7.4 ? "WARN" : "FAIL",
+      f2(v) + " V" + (v < 7.4 ? ": change the pack" : v < 7.6 ? ": low, change if the wait is long" : "")));
+    const pad = t.phase === P.PAD, restored = flag(t, FLAG_RESTORED);
+    l.push(item("Phase PAD", pad && !restored ? "OK" : "FAIL", pad && !restored ? "ready"
+      : "is " + PHASE[t.phase] + (restored ? " (restored)" : "") + ": 'phase reset' over USB"));
+    const altT = flag(t, FLAG_ALT_TRUSTED), zero = Math.abs(t.altM) < 3 && altT;
+    l.push(item("Altitude zeroed", zero ? "OK" : "WARN", zero ? f1(t.altM) + " m"
+      : f1(t.altM) + " m" + (altT ? "" : ", untrusted") + ": 'zero' over USB"));
+    const safe = !flag(t, FLAG_ARMED) && !flag(t, FLAG_HEATER_ON) && !flag(t, FLAG_SHAKING);
+    l.push(item("Safe", safe ? "OK" : "FAIL", safe ? "not armed, heater off, no shake"
+      : "armed, heater or shake active: Disarm / Stop shake"));
+    // WARN only: the team may keep the Pi in standby during a long wait to save the battery
+    const activeS = this.piActiveSinceMs < 0 ? 0 : Math.trunc((this.nowMs - this.piActiveSinceMs) / 1000);
+    l.push({
+      READY: item("Pi", "OK", "ready, camera OK"),
+      STANDBY: item("Pi", "WARN", "standby: press Pi active before the launch"),
+      BOOTING: item("Pi", "WARN", "booting for " + activeS + " s: wait for PI READY"),
+      NO_CAMERA: item("Pi", "WARN", "running, but no camera: check the camera cable"),
+      NO_HEARTBEAT: item("Pi", "WARN", "no heartbeat after " + activeS + " s: payload service not running? Pi standby, then Pi active"),
+      LOST: item("Pi", "WARN", "heartbeat lost: Pi crashed or its service stopped"),
+    }[this.piStatus()]);
+    return l;
+  }
+  /** After the landing the Pi goes to standby before the CanSat is switched off (microSD). */
+  piStandby() {
+    if (!this.last || this.landedMs < 0) return item("Pi standby", "PENDING", "after the landing");
+    const active = flag(this.last, FLAG_PI_ACTIVE);
+    return item("Pi standby", active ? "WARN" : "OK", active ? "still active: press Pi standby, wait for PI STANDBY"
+      : "standby: the CanSat may be switched off");
+  }
+  flight() {
+    const l = [];
+    const t = this.last;
+    if (!t) return l;
+    if (this.liftoffMs < 0) l.push(item("Liftoff", "PENDING", this.aborts > 0 ? this.aborts + " liftoff(s) undone on the pad (knock?)" : "waiting"));
+    else l.push(item("Liftoff", "OK", "by " + this.liftoffCause + ", now T+" + secs(this.nowMs - this.liftoffMs) + " s"));
+
+    if (this.ejectMs < 0) l.push(item("Apogee / ejection", "PENDING", this.liftoffMs < 0 ? "" : "max " + f0(this.maxAlt) + " m so far"));
+    else {
+      const timeout = this.ejectCause === "TIMEOUT";
+      l.push(item("Apogee / ejection", timeout ? "WARN" : "OK", (this.ejectCause == null ? "" : "by " + this.ejectCause + " ")
+        + "at T+" + secs(this.ejectMs - this.liftoffMs) + " s, max " + f0(this.maxAlt) + " m" + (timeout ? " (apogee missed, timeout)" : "")));
+    }
+    const d = DEPLOY[Math.min(t.deploy, DEPLOY.length - 1)];
+    if (this.ejectMs < 0) l.push(item("Rotor release", "PENDING", ""));
+    else if (d === "OK") l.push(item("Rotor release", "OK", "wire heated (current seen)"));
+    else if (d === "NO_CURRENT") l.push(item("Rotor release", "FAIL", "no current: send DEPLOY FIRE"));
+    else if (d === "UNVERIFIED") l.push(item("Rotor release", "WARN", "burned, current not measured: watch the rpm"));
+    else if (d === "SKIPPED") l.push(item("Rotor release", this.burnedOk ? "OK" : "WARN", "skipped after a reset" + (this.burnedOk ? " (burned before)" : ": watch the rpm")));
+    else l.push(item("Rotor release", "PENDING", d.toLowerCase()));
+
+    if (this.ejectMs < 0) l.push(item("Rotor spinning", "PENDING", ""));
+    else if (this.maxRpmAfterEject > 1000) l.push(item("Rotor spinning", "OK", "max " + this.maxRpmAfterEject + " rpm"));
+    else if (this.nowMs - this.ejectMs > 4000 && t.phase !== P.LANDED) {
+      l.push(item("Rotor spinning", "FAIL", t.rotorRpm + " rpm, sink " + f0(-t.vzMps) + " m/s: send SHAKE SERVOS"
+        + (d === "NO_CURRENT" ? " after DEPLOY FIRE" : "")));
+    } else l.push(item("Rotor spinning", t.phase === P.LANDED ? "FAIL" : "PENDING", t.rotorRpm + " rpm"));
+
+    if (this.sinkSamples.length === 0) l.push(item("Steady descent", "PENDING", ""));
+    else {
+      const mean = this.sinkSamples.reduce((a, b) => a + b, 0) / this.sinkSamples.length;
+      const inRange = mean >= 8 && mean <= 11;
+      l.push(item("Steady descent", !this.sinkTrusted ? "WARN" : inRange ? "OK" : "WARN",
+        f1(mean) + " m/s" + (!this.sinkTrusted ? " (vz untrusted, rely on GPS)" : inRange ? "" : " (rules: 8-11)")));
+    }
+    if (this.landedMs < 0) l.push(item("Landed", "PENDING", ""));
+    else {
+      const descentMs = this.ejectMs >= 0 ? this.landedMs - this.ejectMs : -1;
+      const tooLong = descentMs > 120000;  // rules: descent at most 120 s
+      l.push(item("Landed", tooLong ? "WARN" : "OK", "by " + this.landedCause + ", flight " + secs(this.landedMs - this.liftoffMs) + " s"
+        + (descentMs < 0 ? "" : ", descent " + secs(descentMs) + " s") + (tooLong ? " (rules: max 120 s)" : "")));
+    }
+    if (this.liftoffMs < 0) {
+      l.push(item("Recovery", "PENDING", this.padLat == null ? "launch site: no fix yet" : "launch site " + f5(this.padLat) + ", " + f5(this.padLon)));
+    } else if (this.lastLat == null) l.push(item("Recovery", "WARN", "no GPS position"));
+    else {
+      let where = f5(this.lastLat) + ", " + f5(this.lastLon);
+      if (this.padLat != null) {
+        const o = Geo.offsetM(this.padLat, this.padLon, this.lastLat, this.lastLon);
+        const bearing = (Math.atan2(o[0], o[1]) * 180 / Math.PI + 360) % 360;
+        where += "  (" + f0(Math.hypot(o[0], o[1])) + " m, " + deg3(bearing) + "° from the pad)";
+      }
+      l.push(item("Recovery", this.landedMs >= 0 ? "OK" : "PENDING", where));
+    }
+    return l;
+  }
+}
+
+// ======================================================================
+// Small-area geometry and the GPS track (map/Geo.java, map/FlightTrack.java)
+// ======================================================================
+const Geo = {
+  M: 111320.0,
+  /** East and north of (lat0, lon0) in metres; flat earth, fine over a few km. */
+  offsetM(lat0, lon0, lat, lon) {
+    return [(lon - lon0) * this.M * Math.cos(lat0 * Math.PI / 180), (lat - lat0) * this.M];
+  },
+  move(lat0, lon0, e, n) { return [lat0 + n / this.M, lon0 + e / (this.M * Math.cos(lat0 * Math.PI / 180))]; },
+  distanceM(a, b, c, d) { const o = this.offsetM(a, b, c, d); return Math.hypot(o[0], o[1]); },
+  bearingDeg(a, b, c, d) { const o = this.offsetM(a, b, c, d); return (Math.atan2(o[0], o[1]) * 180 / Math.PI + 360) % 360; },
+  compass(b) { return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(b / 45) % 8]; },
+  worldX(lon, z) { return (lon + 180) / 360 * 256 * (1 << z); },
+  worldY(lat, z) {
+    const r = Math.max(-85, Math.min(85, lat)) * Math.PI / 180;
+    return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * (1 << z);
+  },
+  lon(wx, z) { return wx / (256 * (1 << z)) * 360 - 180; },
+  lat(wy, z) { const n = Math.PI - 2 * Math.PI * wy / (256 * (1 << z)); return Math.atan(Math.sinh(n)) * 180 / Math.PI; },
+  mpp(lat, z) { return 156543.034 * Math.cos(lat * Math.PI / 180) / (1 << z); },
+};
+
+class FlightTrack {
+  constructor() { this.clear(); }
+  clear() { this.points = []; this.pad = null; this.lastVz = 0; this.lastPhase = 0; this.timeOffsetMs = 0; this.lastRawTimeMs = -1; }
+  add(t) {
+    if (this.lastRawTimeMs >= 0 && t.timeMs + 2000 < this.lastRawTimeMs) this.timeOffsetMs += this.lastRawTimeMs + 1000;
+    this.lastRawTimeMs = t.timeMs;
+    this.lastVz = t.vzMps;
+    this.lastPhase = t.phase;
+    if ((t.health & (1 << 5)) === 0 || (t.latE7 === 0 && t.lonE7 === 0)) return;  // no fix
+    const p = { lat: t.latE7 / 1e7, lon: t.lonE7 / 1e7, altM: t.altM, phase: t.phase, timeMs: t.timeMs + this.timeOffsetMs };
+    this.points.push(p);
+    if (t.phase === P.PAD) this.pad = p;  // the last fix on the pad is the launch site
+  }
+  current() { return this.points.length ? this.points[this.points.length - 1] : null; }
+  landed() { return this.lastPhase === P.LANDED && this.pad != null && this.current() != null && this.current() !== this.pad; }
+  /** Only while coming down (SPIN_UP / DESCENT) with a few seconds of fixes. */
+  predictedLanding() {
+    const cur = this.current();
+    if (!cur || (this.lastPhase !== P.SPIN_UP && this.lastPhase !== P.DESCENT)) return null;
+    if (this.lastVz > -1 || cur.altM < 5) return null;
+    let old = null;
+    for (let i = this.points.length - 1; i >= 0; i--) {
+      if (cur.timeMs - this.points[i].timeMs > 6000) break;
+      old = this.points[i];
+    }
+    if (!old || cur.timeMs - old.timeMs < 2000) return null;
+    const dt = (cur.timeMs - old.timeMs) / 1000;
+    const d = Geo.offsetM(old.lat, old.lon, cur.lat, cur.lon);
+    const toGround = cur.altM / -this.lastVz;
+    const p = Geo.move(cur.lat, cur.lon, d[0] / dt * toGround, d[1] / dt * toGround);
+    return { lat: p[0], lon: p[1], secondsToGround: toGround };
+  }
+}
+
+// ======================================================================
+// Canvas drawing
+// ======================================================================
+function fitCanvas(cv) {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const g = cv.getContext("2d");
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { g, w: r.width, h: r.height };
+}
+const UI_FONT = getComputedStyle(document.documentElement).getPropertyValue("--font-ui").trim() || "sans-serif";
+
+// Rolling line chart of the last windowS seconds; hovering shows the closest measurement (ui/ChartPanel.java)
+class Chart {
+  constructor(cv, title, unit, color, windowS) {
+    this.cv = cv; this.title = title; this.unit = unit; this.color = color; this.windowS = windowS;
+    this.points = []; this.mouseX = -1; this.dirty = true;
+    cv.addEventListener("pointermove", e => { this.mouseX = e.offsetX; this.dirty = true; });
+    cv.addEventListener("pointerleave", () => { this.mouseX = -1; this.dirty = true; });
+  }
+  add(t, v) {
+    this.points.push({ t, v });
+    let i = 0;
+    while (i < this.points.length && this.points[i].t < t - this.windowS) i++;
+    if (i) this.points.splice(0, i);
+    this.dirty = true;
+  }
+  clear() { this.points = []; this.dirty = true; }
+  draw() {
+    if (!this.dirty) return;
+    this.dirty = false;
+    const { g, w, h } = fitCanvas(this.cv);
+    g.clearRect(0, 0, w, h);
+    const left = 56, right = 10, top = 22, bottom = 22, pw = w - left - right, ph = h - top - bottom;
+    const pts = this.points;
+    g.fillStyle = "#000";
+    g.font = "bold 12px " + UI_FONT;
+    const last = pts.length ? f1(pts[pts.length - 1].v) + " " + this.unit : "–";
+    g.fillText(this.title + "   " + last, left, 15);
+    if (!pts.length || pw <= 0 || ph <= 0) return;
+    const tMax = pts[pts.length - 1].t, tMin = tMax - this.windowS;
+    let vMin = Infinity, vMax = -Infinity;
+    for (const p of pts) { vMin = Math.min(vMin, p.v); vMax = Math.max(vMax, p.v); }
+    if (vMax - vMin < 1) { vMax += 0.5; vMin -= 0.5; }
+    const padV = (vMax - vMin) * 0.08;
+    vMin -= padV; vMax += padV;
+    g.font = "11px " + UI_FONT;
+    const step = vMax - vMin < 10 ? 0.1 : 1;
+    for (let i = 0; i <= 4; i++) {
+      const v = vMin + (vMax - vMin) * i / 4;
+      const y = Math.round(top + ph - ph * i / 4) + 0.5;
+      g.strokeStyle = "rgba(0,0,0,.16)"; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(left, y); g.lineTo(left + pw, y); g.stroke();
+      g.fillStyle = "#000";
+      const shown = Math.round(v / step) * step + 0;  // + 0 turns -0 into 0
+      g.fillText(step < 1 ? shown.toFixed(1) : shown.toFixed(0), 4, y + 4);
+    }
+    g.fillText("-" + this.windowS.toFixed(0) + " s", left, h - 6);
+    g.fillText("now", left + pw - 22, h - 6);
+    g.beginPath();
+    pts.forEach((p, i) => {
+      const x = left + (p.t - tMin) / this.windowS * pw, y = top + ph - (p.v - vMin) / (vMax - vMin) * ph;
+      if (i) g.lineTo(x, y); else g.moveTo(x, y);
+    });
+    g.strokeStyle = this.color; g.lineWidth = 2; g.lineJoin = "round"; g.stroke();
+    if (this.mouseX >= 0) this.hover(g, left, top, pw, ph, tMin, tMax, vMin, vMax);
+  }
+  // dot on the measurement closest to the mouse in time, a guide line and the value
+  hover(g, left, top, pw, ph, tMin, tMax, vMin, vMax) {
+    const tMouse = tMin + (this.mouseX - left) / pw * this.windowS;
+    let best = null;
+    for (const p of this.points) if (!best || Math.abs(p.t - tMouse) < Math.abs(best.t - tMouse)) best = p;
+    if (!best) return;
+    const x = Math.round(left + (best.t - tMin) / this.windowS * pw), y = Math.round(top + ph - (best.v - vMin) / (vMax - vMin) * ph);
+    g.setLineDash([3, 3]); g.strokeStyle = "rgba(0,0,0,.43)"; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x + 0.5, top); g.lineTo(x + 0.5, top + ph); g.stroke(); g.setLineDash([]);
+    g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill();
+    g.fillStyle = this.color; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill();
+    const value = f1(best.v) + " " + this.unit, time = f1(tMax - best.t) + " s ago  (CanSat " + f1(best.t) + " s)";
+    g.font = "bold 12px " + UI_FONT; const w1 = g.measureText(value).width;
+    g.font = "11px " + UI_FONT; const w2 = g.measureText(time).width;
+    const bw = Math.max(w1, w2) + 12, bh = 34;
+    // right of the dot, or left of it near the right edge; always inside the plot
+    const bx = x + 10 + bw > left + pw ? x - 10 - bw : x + 10, by = Math.max(top, Math.min(top + ph - bh, y - bh / 2));
+    g.fillStyle = "rgba(255,255,255,.9)"; g.strokeStyle = this.color;
+    g.beginPath(); g.rect(bx, by, bw, bh); g.fill(); g.stroke();
+    g.fillStyle = "#000"; g.font = "bold 12px " + UI_FONT; g.fillText(value, bx + 6, by + 14);
+    g.fillStyle = "#404040"; g.font = "11px " + UI_FONT; g.fillText(time, bx + 6, by + 28);
+  }
+}
+
+// Map without internet: a metre grid around the launch site, the track coloured by phase,
+// current position with height, predicted landing point (ui/MapTab.java, grid mode)
+const PHASE_COLORS = ["#757575", "#1565c0", "#ef6c00", "#ef6c00", "#2e7d32", "#455a64"];
+class MapView {
+  constructor(cv, track) {
+    this.cv = cv; this.track = track; this.centerLat = 47.6926; this.centerLon = 16.2475; this.zoom = 16;
+    this.centered = false; this.dirty = true; this.w = 1; this.h = 1;
+    let drag = null;
+    cv.addEventListener("pointerdown", e => { drag = { x: e.offsetX, y: e.offsetY }; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener("pointerup", () => { drag = null; });
+    cv.addEventListener("pointermove", e => {
+      if (!drag) return;
+      $("follow").checked = false;
+      const wx = Geo.worldX(this.centerLon, this.zoom) - (e.offsetX - drag.x);
+      const wy = Geo.worldY(this.centerLat, this.zoom) - (e.offsetY - drag.y);
+      this.centerLon = Geo.lon(wx, this.zoom); this.centerLat = Geo.lat(wy, this.zoom);
+      drag = { x: e.offsetX, y: e.offsetY };
+      this.dirty = true;
+    });
+    // wheel zooms at the mouse: the point under it stays in place
+    cv.addEventListener("wheel", e => {
+      e.preventDefault();
+      const nz = Math.max(3, Math.min(19, this.zoom - Math.sign(e.deltaY)));
+      if (nz === this.zoom) return;
+      const r = cv.getBoundingClientRect();
+      const mx = Geo.worldX(this.centerLon, this.zoom) + e.offsetX - r.width / 2;
+      const my = Geo.worldY(this.centerLat, this.zoom) + e.offsetY - r.height / 2;
+      const lat = Geo.lat(my, this.zoom), lon = Geo.lon(mx, this.zoom);
+      this.zoom = nz;
+      this.centerLon = Geo.lon(Geo.worldX(lon, nz) - (e.offsetX - r.width / 2), nz);
+      this.centerLat = Geo.lat(Geo.worldY(lat, nz) - (e.offsetY - r.height / 2), nz);
+      if ($("follow").checked && this.track.current()) $("follow").checked = false;
+      this.dirty = true;
+    }, { passive: false });
+  }
+  /** New packet: follow the CanSat if wanted, update the text line. */
+  refresh() {
+    const cur = this.track.current();
+    if (cur && (!this.centered || $("follow").checked)) { this.centerLat = cur.lat; this.centerLon = cur.lon; this.centered = true; }
+    const pad = this.track.pad;
+    let s = " ";
+    if (!cur) s += "no GPS position yet";
+    else {
+      s += "CanSat " + f6(cur.lat) + ", " + f6(cur.lon) + "  alt " + f0(cur.altM) + " m";
+      if (pad && cur !== pad) {
+        const b = Geo.bearingDeg(pad.lat, pad.lon, cur.lat, cur.lon);
+        s += "  |  " + f0(Geo.distanceM(pad.lat, pad.lon, cur.lat, cur.lon)) + " m " + deg3(b) + "° (" + Geo.compass(b) + ") from the pad";
+      }
+      const pr = this.track.predictedLanding();
+      if (pr && pad) {
+        s += "  |  landing in ~" + f0(pr.secondsToGround) + " s, " + f0(Geo.distanceM(pad.lat, pad.lon, pr.lat, pr.lon)) + " m "
+          + deg3(Geo.bearingDeg(pad.lat, pad.lon, pr.lat, pr.lon)) + "° from the pad";
+      }
+      if (this.track.landed()) s += "  |  LANDED";
+    }
+    $("mapInfo").textContent = s;
+    this.dirty = true;
+  }
+  setZoom(z) { this.zoom = Math.max(3, Math.min(19, z)); this.dirty = true; }
+  fitAll() {
+    const pts = this.track.points;
+    if (!pts.length) return;
+    let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+    for (const p of pts) { minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat); minLon = Math.min(minLon, p.lon); maxLon = Math.max(maxLon, p.lon); }
+    this.centerLat = (minLat + maxLat) / 2; this.centerLon = (minLon + maxLon) / 2;
+    const r = this.cv.getBoundingClientRect(), w = Math.max(100, r.width - 80), h = Math.max(100, r.height - 80);
+    let z = 19;
+    while (z > 3 && (Geo.worldX(maxLon, z) - Geo.worldX(minLon, z) > w || Geo.worldY(minLat, z) - Geo.worldY(maxLat, z) > h)) z--;
+    this.zoom = z;
+    this.dirty = true;
+  }
+  draw() {
+    if (!this.dirty) return;
+    this.dirty = false;
+    const { g, w, h } = fitCanvas(this.cv);
+    this.w = w; this.h = h;
+    g.fillStyle = "#e8e4d8"; g.fillRect(0, 0, w, h);
+    this.drawGrid(g, w, h);
+    this.drawTrack(g);
+    this.drawScale(g, w, h);
+  }
+  sx(lon) { return Geo.worldX(lon, this.zoom) - Geo.worldX(this.centerLon, this.zoom) + this.w / 2; }
+  sy(lat) { return Geo.worldY(lat, this.zoom) - Geo.worldY(this.centerLat, this.zoom) + this.h / 2; }
+  niceStep(m) { for (const s of [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]) if (s >= m) return s; return 20000; }
+  // lines every 10/20/50/100/... m around the launch site (or the view centre)
+  drawGrid(g, w, h) {
+    const mpp = Geo.mpp(this.centerLat, this.zoom), step = this.niceStep(mpp * 120), pad = this.track.pad;
+    const lat0 = pad ? pad.lat : this.centerLat, lon0 = pad ? pad.lon : this.centerLon;
+    g.strokeStyle = "#c9c2ae"; g.lineWidth = 1;
+    const c = Geo.offsetM(lat0, lon0, this.centerLat, this.centerLon), halfW = w / 2 * mpp, halfH = h / 2 * mpp;
+    g.beginPath();
+    for (let e = Math.floor((c[0] - halfW) / step) * step; e <= c[0] + halfW; e += step) {
+      const x = Math.round(w / 2 + (e - c[0]) / mpp) + 0.5; g.moveTo(x, 0); g.lineTo(x, h);
+    }
+    for (let n = Math.floor((c[1] - halfH) / step) * step; n <= c[1] + halfH; n += step) {
+      const y = Math.round(h / 2 - (n - c[1]) / mpp) + 0.5; g.moveTo(0, y); g.lineTo(w, y);
+    }
+    g.stroke();
+    g.fillStyle = "#8d8672"; g.font = "12px " + UI_FONT;
+    g.fillText("grid " + step + " m", 8, h - 8);
+  }
+  label(g, s, x, y) {
+    g.font = "bold 12px " + UI_FONT;
+    const sw = g.measureText(s).width;
+    g.fillStyle = "rgba(255,255,255,.82)"; g.fillRect(x - 3, y - 13, sw + 6, 17);
+    g.fillStyle = "#000"; g.fillText(s, x, y);
+  }
+  drawTrack(g) {
+    const pts = this.track.points;
+    g.lineWidth = 3; g.lineCap = "round"; g.lineJoin = "round";
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i];
+      g.strokeStyle = PHASE_COLORS[Math.min(b.phase, 5)];
+      g.beginPath(); g.moveTo(this.sx(a.lon), this.sy(a.lat)); g.lineTo(this.sx(b.lon), this.sy(b.lat)); g.stroke();
+    }
+    const pad = this.track.pad;
+    if (pad) {
+      const x = this.sx(pad.lon), y = this.sy(pad.lat);
+      g.fillStyle = "#2e7d32"; g.beginPath(); g.moveTo(x, y - 9); g.lineTo(x - 8, y + 6); g.lineTo(x + 8, y + 6); g.closePath(); g.fill();
+      this.label(g, "Launch site", x + 10, y + 4);
+    }
+    const pr = this.track.predictedLanding(), cur = this.track.current();
+    if (pr && cur) {
+      const x = this.sx(pr.lon), y = this.sy(pr.lat);
+      g.strokeStyle = "#c62828"; g.lineWidth = 2; g.setLineDash([6, 5]);
+      g.beginPath(); g.moveTo(this.sx(cur.lon), this.sy(cur.lat)); g.lineTo(x, y); g.stroke(); g.setLineDash([]);
+      g.lineWidth = 3; g.beginPath(); g.moveTo(x - 7, y - 7); g.lineTo(x + 7, y + 7); g.moveTo(x - 7, y + 7); g.lineTo(x + 7, y - 7); g.stroke();
+      // below the X: the CanSat label sits above its dot, often close by
+      this.label(g, "predicted landing (~" + f0(pr.secondsToGround) + " s)", x + 10, y + 22);
+    }
+    if (cur && cur !== pad) {
+      const x = this.sx(cur.lon), y = this.sy(cur.lat), landed = this.track.landed();
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill();
+      g.fillStyle = landed ? "#6a1b9a" : "#c62828"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill();
+      this.label(g, landed ? "CanSat LANDED" : "CanSat " + f0(cur.altM) + " m (" + PHASE[Math.min(cur.phase, 5)] + ")", x + 11, y - 8);
+    }
+  }
+  drawScale(g, w, h) {
+    const mpp = Geo.mpp(this.centerLat, this.zoom), len = this.niceStep(mpp * 100), px = Math.round(len / mpp);
+    const x = w - px - 20, y = h - 24;
+    g.fillStyle = "rgba(255,255,255,.78)"; g.fillRect(x - 6, y - 16, px + 12, 26);
+    g.strokeStyle = "#000"; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + px, y); g.moveTo(x, y - 5); g.lineTo(x, y + 5); g.moveTo(x + px, y - 5); g.lineTo(x + px, y + 5); g.stroke();
+    g.fillStyle = "#000"; g.font = "11px " + UI_FONT;
+    g.fillText(len >= 1000 ? (len / 1000).toFixed(0) + " km" : len + " m", x + px / 2 - 12, y - 4);
+    // north arrow
+    const nx = w - 30, ny = 40;
+    g.beginPath(); g.moveTo(nx, ny - 18); g.lineTo(nx - 8, ny + 6); g.lineTo(nx, ny); g.lineTo(nx + 8, ny + 6); g.closePath(); g.fill();
+    g.fillText("N", nx - 4, ny + 20);
+    g.fillStyle = "#404040"; g.fillText("zoom " + this.zoom, 8, 16);
+  }
+}
+
+// ======================================================================
+// Option panes (JOptionPane look)
+// ======================================================================
+const ICON_WARN = '<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" style="flex:none"><path d="M16 3L30 28H2z" fill="#ffcc00" stroke="#c79a00"/><rect x="14.6" y="11" width="2.8" height="10" fill="#000"/><rect x="14.6" y="23" width="2.8" height="2.8" fill="#000"/></svg>';
+
+function dialog(title, bodyNode, buttons, icon) {
+  return new Promise(resolve => {
+    const layer = $("modalLayer");
+    layer.innerHTML = "";
+    const win = document.createElement("div");
+    win.className = "win dlg";
+    win.setAttribute("role", "dialog");
+    win.setAttribute("aria-modal", "true");
+    win.innerHTML = '<div class="titlebar"><span class="title"></span><div class="tb-btns"><button class="x" aria-label="Close">&#x2715;</button></div></div>'
+      + '<div class="content">' + (icon || "") + '<div class="msg"></div></div><div class="btns"></div>';
+    win.querySelector(".title").textContent = title;
+    win.querySelector(".msg").append(bodyNode);
+    const onKey = e => { if (e.key === "Escape") close(false); };
+    const close = v => { layer.hidden = true; layer.innerHTML = ""; document.removeEventListener("keydown", onKey); resolve(v); };
+    document.addEventListener("keydown", onKey);
+    win.querySelector(".tb-btns .x").onclick = () => close(false);
+    for (const [label, value] of buttons) {
+      const b = document.createElement("button");
+      b.className = "b";
+      b.textContent = label;
+      b.onclick = () => close(value);
+      win.querySelector(".btns").append(b);
+    }
+    layer.append(win);
+    layer.hidden = false;
+    win.querySelector(".btns .b").focus();
+  });
+}
+const textNode = s => { const d = document.createElement("div"); d.textContent = s; return d; };
+const confirmDlg = text => dialog("Confirm", textNode(text), [["OK", true], ["Cancel", false]], ICON_WARN);
+
+// JSpinner: text field with up/down arrows
+class Spinner {
+  constructor(host, value, min, max, step) {
+    this.min = min; this.max = max; this.step = step;
+    host.innerHTML = '<input inputmode="decimal"><span class="arrows"><button tabindex="-1" aria-label="Up">&#x25B2;</button><button tabindex="-1" aria-label="Down">&#x25BC;</button></span>';
+    this.input = host.querySelector("input");
+    if (host.id) this.input.id = host.id + "-input";
+    const [up, down] = host.querySelectorAll("button");
+    up.onclick = () => this.set(this.value + this.step);
+    down.onclick = () => this.set(this.value - this.step);
+    this.input.addEventListener("change", () => this.set(parseFloat(this.input.value.replace(",", "."))));
+    this.input.addEventListener("keydown", e => {
+      if (e.key === "ArrowUp") { e.preventDefault(); this.set(this.value + this.step); }
+      if (e.key === "ArrowDown") { e.preventDefault(); this.set(this.value - this.step); }
+    });
+    this.set(value);
+  }
+  set(v) {
+    if (!Number.isFinite(v)) v = this.value;
+    this.value = Math.max(this.min, Math.min(this.max, Math.round(v / this.step) * this.step));
+    this.input.value = this.step < 1 ? this.value.toFixed(1) : String(this.value);
+  }
+}
+
+// ======================================================================
+// The built-in launch day checklist (launch-day-checklist.md)
+// ======================================================================
+const CHECKLIST = [
+  ["1. Vorbereitung (Woche davor)", "Alles, was nach der technischen Abnahme nicht mehr geändert werden darf, muss jetzt fertig sein.", [
+    "Firmware-Stand getaggt, Version notiert (`version` über USB)",
+    "Zugewiesene Funkfrequenz in Firmware (`config.h`) und Bodenstation (`--freq`) eingetragen",
+    "Generalprobe mit der Launch-Day-Simulation, mindestens STUCK_ROTOR und RELEASE_FAILS",
+    "Karte des Startgeländes einmal mit Internet im Reiter „Map“ angesehen (Kacheln werden gespeichert, offline nutzbar)",
+    "Handys des Bergungsteams: QR-Code aus „Share“ einmal testweise gescannt",
+    "Masse 300–350 g gewogen, Wert notiert",
+    "Passt in die Dose (115 × 66 mm), Schütteltest: keine losen Teile",
+    "Laufzeit ≥ 3 h am Stück getestet (Akku voll, Pi im Standby)",
+    "Rotor falten und Heizdraht-Schlaufe einlegen mindestens dreimal geübt",
+    "Remove-before-flight-Stift mit roter Fahne vorhanden",
+    "Projektpräsentation fertig, Vorlage für die Auswertung (max. 10 min) vorbereitet"]],
+  ["2. Packliste", null, [
+    "Mindestens zwei geladene, geschützte 2S-18350-Packs (≥ 8,2 V) und Ladegerät",
+    "Laptop mit gebauter Bodenstation (`dist/`), jSerialComm in `lib`, Netzteil, Powerbank",
+    "RN2483-USB-Stick, Antenne, USB-Verlängerung, Ersatzkabel",
+    "USB-C-Kabel für die Konsole des CanSat",
+    "Ersatzteile und Werkzeug für Reparaturen vor der Abnahme (Lötkolben, Multimeter, Kabelbinder, Klebeband)",
+    "Ersatz-Nichromdraht, gleich lang vorbereitet",
+    "Handys/Funkgeräte für das Bergungsteam, Karte des Geländes",
+    "USB-Stick für die Datensicherung"]],
+  ["3. Tag 1 – Präsentation und technische Abnahme", "Nach bestandener Abnahme darf nicht mehr am CanSat gearbeitet werden: erlaubt sind nur Akkutausch, Einschalten und ein finaler Check.", [
+    "Projektpräsentation gehalten",
+    "Technische Abnahme bestanden (Uhrzeit notieren)",
+    "Mängel der Jury behoben und erneut abgenommen (falls nötig)",
+    "Frequenz mit dem Veranstalter bestätigt, Bodenstation darauf eingestellt",
+    "Funktionstest: Telemetrie kommt an [auto:link]",
+    "Akkus über Nacht geladen"]],
+  ["4. Starttag – Aufbau an der Rampe", null, [
+    "Bodenstation aufgebaut: Antenne frei, Stick verbunden, Laptop-Uhrzeit stimmt",
+    "Geladenen Akku eingesetzt [auto:battery]",
+    "Remove-before-flight-Stift gezogen, CanSat läuft (Einschaltzeit notieren, 3 h Laufzeit!)",
+    "Telemetrie kommt an, Verlust unter 20 % [auto:link]",
+    "Alle Sensoren antworten [auto:sensors]",
+    "GPS-Fix, Startplatz-Position notiert [auto:gps]",
+    "Phase PAD, nicht RESTORED (sonst `phase reset` über USB) [auto:phase_pad]",
+    "Höhe am Startplatz genullt (`zero` über USB) [auto:zeroed]",
+    "Nichts scharf, Heizdraht aus, kein Rütteln [auto:safe]",
+    "Pi bereit (PI READY, Kamera OK): sonst Knopf „Pi active“ und warten, bis er gebootet hat [auto:pi]",
+    "Ping über Funk bestätigt (Knopf „Ping“)",
+    "Rotor gefaltet, Heizdraht-Schlaufe sitzt, nichts klemmt",
+    "Rollen verteilt: Funk/Befehle, Checkliste, Bergung, Fotos/Video"]],
+  ["5. Übergabe und Countdown", null, [
+    "CanSat an das TU Wien Space Team übergeben (Uhrzeit notieren)",
+    "Restlaufzeit seit dem Einschalten reicht bis nach der Landung",
+    "GO FOR LAUNCH an der Bodenstation [auto:go]",
+    "Aufzeichnung läuft (Event-Log zeigt den Pfad der CSV)",
+    "Bergungsteam bereit, Handys geladen, Richtung zum Wind geklärt",
+    "Notfallbefehle abgesprochen: wer drückt Deploy fire / Shake servos, nach welcher Anzeige"]],
+  ["6. Flug", "Haken sich selbst ab. Bei rotem Punkt steht die Reaktion dabei.", [
+    "Start erkannt [auto:liftoff]",
+    "Scheitelpunkt und Auswurf [auto:ejection]",
+    "Rotor-Auslösung (bei NO_CURRENT: Deploy fire) [auto:release]",
+    "Rotor dreht (sonst: Shake servos) [auto:spinning]",
+    "Sinkrate 8–11 m/s [auto:descent]",
+    "Gelandet, Sinkflug höchstens 120 s [auto:landed]",
+    "Landeposition ermittelt [auto:recovery]"]],
+  ["7. Bergung", null, [
+    "Letzte GPS-Position per QR-Code oder Link („Share CanSat position“) an das Bergungsteam geschickt",
+    "Entfernung und Richtung vom Startplatz (Reiter „Map“) dem Bergungsteam gesagt",
+    "CanSat gefunden, Lage fotografiert, bevor jemand ihn anfasst",
+    "Sichtprüfung: Rotor, Blätter, Dose, Antenne (Schäden fotografieren)",
+    "Pi im Standby: Knopf „Pi standby“, warten bis PI STANDBY (grau) erscheint (höchstens 30 s) [auto:pi_standby]",
+    "CanSat ausgeschaltet (Remove-before-flight-Stift wieder rein)",
+    "Bodenstation erst danach getrennt"]],
+  ["8. Daten und Auswertung", null, [
+    "Telemetrie-CSV, Event-Log, Flugbahn (KML/GPX aus „Map“) und diese Checkliste (Export) auf USB-Stick und Cloud gesichert",
+    "Flash-Log des CanSat über USB ausgelesen (sobald `log read` in der Firmware ist)",
+    "Daten des Pi gesichert",
+    "`phase reset` über USB vor jedem weiteren Test",
+    "Diagramme für die Auswertung: Höhe, Sinkrate, Temperatur, Druck, Rotordrehzahl",
+    "Fehleranalyse dokumentiert, falls etwas schiefging",
+    "Abschlusspräsentation fertig und auf 10 min geprobt"]],
+].map(([title, note, lines]) => ({ title, note, entries: lines.map(raw => {
+  const m = raw.match(/\s*\[auto:([a-z_]+)]\s*$/);
+  const text = m ? raw.slice(0, m.index).trim() : raw;
+  return { id: title + "\n" + text, text, autoKey: m ? m[1] : null };
+}) }));
+/** Flight items tick themselves once their live state is OK. */
+const AUTO_TICK = new Set(["liftoff", "ejection", "release", "spinning", "descent", "landed", "recovery"]);
+const STORE_KEY = "cansat-sim-checklist-v1";
+
+// ticks with their time, kept in this browser across reloads
+const ticks = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch (e) { return {}; } })();
+function saveTicks() { try { localStorage.setItem(STORE_KEY, JSON.stringify(ticks)); } catch (e) { /* no storage */ } }
+
+// ======================================================================
+// The ground station window
+// ======================================================================
+const COLORS = { OK: "#2e7d32", WARN: "#c77700", FAIL: "#c62828", PENDING: "#9e9e9e" };
+const MARK = { OK: "✔", WARN: "!", FAIL: "✖", PENDING: "•" };
+
+const app = {
+  link: null, cansat: null, clock: null, launchDay: new LaunchDay(), track: new FlightTrack(),
+  lastPacketMs: 0, last: null, lastSnr: null, lastStats: null, uiDirty: false, lastLive: {},
+  packetLastWall: null, packetLastSeq: -1, pendingRows: [], cmdRows: new Map(), faultsShown: false,
+};
+
+const charts = {
+  alt: new Chart($("altChart"), "Altitude", "m", "#1e88e5", 120),
+  vz: new Chart($("vzChart"), "Vertical speed", "m/s", "#8e24aa", 120),
+  rpm: new Chart($("rpmChart"), "Rotor", "rpm", "#f4511e", 120),
+};
+const mapView = new MapView($("mapCanvas"), app.track);
+
+// ---- state panel ----
+const FLAG_DEFS = [["VZ TRUSTED", FLAG_VZ_TRUSTED], ["ALT TRUSTED", FLAG_ALT_TRUSTED], ["ARMED", FLAG_ARMED],
+  ["HEATER", FLAG_HEATER_ON], ["SERVOS", FLAG_SERVOS_ON], ["SHAKING", FLAG_SHAKING], ["RESTORED", FLAG_RESTORED],
+  ["PI STANDBY", FLAG_PI_ACTIVE]];
+const flagChips = new Map();
+for (const [name, bit] of FLAG_DEFS) {
+  const c = document.createElement("div"); c.className = "chip"; c.textContent = name;
+  flagChips.set(bit, c); $("flagChips").append(c);
+}
+const healthChips = HEALTH_BITS.map(n => { const c = document.createElement("div"); c.className = "chip"; c.textContent = n; $("healthChips").append(c); return c; });
+const values = {};
+for (const k of ["Deploy", "Altitude", "Vertical speed", "vz sigma / NIS", "Pressure", "Air temperature", "Battery",
+  "Rotor", "GPS", "Packet", "Received / lost", "SNR", "Last ack"]) {
+  const l = document.createElement("span"); l.textContent = k;
+  const v = document.createElement("b"); v.textContent = "–";
+  $("values").append(l, v); values[k] = v;
+}
+
+// ---- launch day tab: every item with a checkbox (ticked with the time) and its live state ----
+const ldRows = [];
+const sectionProg = [];
+CHECKLIST.forEach((sec, si) => {
+  const body = $("ldBody");
+  const head = document.createElement("div");
+  head.className = "ld-head";
+  head.innerHTML = "<span>" + esc(sec.title) + "</span><span></span>";
+  body.append(head);
+  sectionProg.push({ sec, el: head.lastChild });
+  if (sec.note) { const n = document.createElement("div"); n.className = "ld-note"; n.innerHTML = escCode(sec.note); body.append(n); }
+  sec.entries.forEach((e, ei) => {
+    const row = document.createElement("div");
+    row.className = "ld-row";
+    const id = "ld-" + si + "-" + ei;
+    row.innerHTML = '<input type="checkbox" class="cb" id="' + id + '"><label class="t" for="' + id + '">' + escCode(e.text)
+      + '</label><span class="tm">&nbsp;</span><span class="lv">&nbsp;</span>';
+    const box = row.querySelector("input");
+    box.addEventListener("change", () => { setTick(e, box.checked); refreshLaunchDayTab(app.lastLive); });
+    body.append(row);
+    ldRows.push({ e, box, tm: row.querySelector(".tm"), lv: row.querySelector(".lv") });
+  });
+});
+function setTick(e, on) { if (on) ticks[e.id] = new Date().toISOString(); else delete ticks[e.id]; saveTicks(); }
+const totalItems = ldRows.length;
+
+function refreshLaunchDayTab(live) {
+  app.lastLive = live;
+  for (const r of ldRows) {
+    const it = r.e.autoKey ? live[r.e.autoKey] : null;
+    if (it && AUTO_TICK.has(r.e.autoKey) && it.status === "OK" && !ticks[r.e.id]) setTick(r.e, true);
+    const when = ticks[r.e.id];
+    r.box.checked = !!when;
+    r.tm.textContent = when ? wallClock(new Date(when)) : " ";
+    if (!r.e.autoKey) r.lv.textContent = " ";
+    else if (!it) r.lv.innerHTML = '<span style="color:#9e9e9e">• no data</span>';
+    else r.lv.innerHTML = '<span style="color:' + COLORS[it.status] + '"><b>' + MARK[it.status] + "</b> " + esc(it.detail) + "</span>";
+  }
+  for (const { sec, el } of sectionProg) {
+    const done = sec.entries.filter(x => ticks[x.id]).length;
+    el.textContent = done + " / " + sec.entries.length;
+    el.style.color = done === sec.entries.length ? COLORS.OK : COLORS.PENDING;
+  }
+  $("ldProgress").textContent = "Launch day: " + ldRows.filter(r => ticks[r.e.id]).length + " / " + totalItems + " done";
+}
+
+// GO / NO GO banner, pre-flight, flight (ui/ChecklistPanel.java); after liftoff the flight comes first
+function showChecklistPanel(wallMs) {
+  const day = app.launchDay;
+  const flying = day.inFlight(), banner = $("banner");
+  if (!day.last) { banner.textContent = "NO DATA"; banner.style.background = COLORS.PENDING; }
+  else if (flying) { banner.textContent = "LAUNCHED"; banner.style.background = "#1565c0"; }
+  else { const go = day.go(wallMs); banner.textContent = go ? "GO FOR LAUNCH" : "NO GO"; banner.style.background = go ? COLORS.OK : COLORS.FAIL; }
+  const first = flying ? day.flight() : day.preflight(wallMs), second = flying ? day.preflight(wallMs) : day.flight();
+  const rows = items => items.map(i => '<div class="cl-row"><span class="cl-dot" style="color:' + COLORS[i.status] + '">'
+    + MARK[i.status] + '</span><span' + (i.status === "FAIL" ? ' style="color:' + COLORS.FAIL + '"' : "") + "><b>" + esc(i.title)
+    + "</b><small>" + (i.detail ? esc(i.detail) : "&nbsp;") + "</small></span></div>").join("");
+  $("clRows").innerHTML = '<div class="cl-sec">' + (flying ? "Flight" : "Before launch") + "</div>" + rows(first)
+    + '<div class="cl-sec">' + (flying ? "Before launch" : "Flight") + "</div>" + rows(second);
+}
+
+function appendEvent(text) {
+  const log = $("eventLog");
+  log.value += wallClock() + "  " + text + "\n";
+  if (log.value.length > 60000) log.value = log.value.slice(-50000);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ---- tabs ----
+const TABS = [["tab-live", "p-live"], ["tab-map", "p-map"], ["tab-packets", "p-packets"], ["tab-ld", "p-ld"]];
+function selectTab(id) {
+  for (const [t, p] of TABS) {
+    $(t).setAttribute("aria-selected", String(t === id));
+    $(p).hidden = t !== id;
+  }
+  charts.alt.dirty = charts.vz.dirty = charts.rpm.dirty = true;
+  mapView.dirty = true;
+}
+for (const [t] of TABS) $(t).addEventListener("click", () => selectTab(t));
+
+// ---- link listener ----
+const listener = {
+  telemetry(t, snr, stats) {
+    const now = Date.now();
+    app.lastPacketMs = now;
+    const gap = app.packetLastWall == null ? 0 : (now - app.packetLastWall) / 1000;
+    let lost = app.packetLastSeq < 0 ? 0 : ((t.seq - app.packetLastSeq - 1) & 0xFFFF);
+    if (lost > 1000) lost = 0;  // CanSat rebooted, seq restarted
+    app.packetLastWall = now; app.packetLastSeq = t.seq;
+    app.pendingRows.push(packetRowHtml(new Date(now), gap, t, lost, snr));
+    app.track.add(t);
+    app.launchDay.update(t, stats, now);
+    const ts = t.timeMs / 1000;
+    charts.alt.add(ts, t.altM); charts.vz.add(ts, t.vzMps); charts.rpm.add(ts, t.rotorRpm);
+    app.last = t; app.lastSnr = snr; app.lastStats = stats; app.uiDirty = true;
+  },
+  command(s) {
+    const now = new Date();
+    let row = app.cmdRows.get(s.no);
+    if (!row) {
+      row = { el: document.createElement("div"), queued: now, sent: null, done: null };
+      app.cmdRows.set(s.no, row);
+      $("cmdList").append(row.el);
+    }
+    if (!row.sent && (s.state === "ARMING" || s.state === "SENT")) row.sent = now;
+    if (s.state === "DONE" || s.state === "FAILED") row.done = now;
+    // one time per line: the list is narrow
+    let times = "queued&nbsp;" + wallClock(row.queued, true);
+    if (row.sent) times += "<br>sent&nbsp;&nbsp;&nbsp;" + wallClock(row.sent, true);
+    if (row.done) {
+      times += (s.state === "DONE" ? "<br>acked&nbsp;&nbsp;" : "<br>ended&nbsp;&nbsp;") + wallClock(row.done, true);
+      if (row.sent) times += "<br>round trip " + ((row.done - row.sent) / 1000).toFixed(2) + " s, " + s.attempts + (s.attempts === 1 ? " try" : " tries");
+    }
+    row.el.innerHTML = "<b>#" + s.no + " " + esc(s.cmd + argText(s.cmd, s.arg)) + "</b> " + s.state + "<small>" + times
+      + "<br><i>" + esc(s.text) + "</i></small>";
+    $("cmdList").scrollTop = $("cmdList").scrollHeight;
+    if (s.state === "FAILED") appendEvent("command " + s.cmd + " failed: " + s.text);
+  },
+};
+
+function packetFlags(t) {
+  const s = [];
+  if (!flag(t, FLAG_VZ_TRUSTED)) s.push("vz?");
+  if (flag(t, FLAG_ARMED)) s.push("ARM");
+  if (flag(t, FLAG_HEATER_ON)) s.push("HEAT");
+  if (flag(t, FLAG_SHAKING)) s.push("SHAKE");
+  if (flag(t, FLAG_RESTORED)) s.push("RST");
+  if (flag(t, FLAG_PI_ACTIVE)) s.push((t.health & HEALTH_PI_READY) !== 0 ? "PI-OK" : "PI");
+  return s.join(" ");
+}
+function packetRowHtml(when, gap, t, lost, snr) {
+  const cells = [wallClock(when, true), f2(gap), t.seq, lost === 0 ? "" : "+" + lost, f1(t.timeMs / 1000), PHASE[t.phase],
+    f1(t.altM), f1(t.vzMps), f2(t.vbatMv / 1000), t.rotorRpm, DEPLOY[t.deploy], packetFlags(t), snr, t.ackId + " " + ACK[t.ackResult]];
+  return "<tr" + (lost > 0 || gap > 2 ? ' class="gap"' : "") + "><td>" + cells.map(esc).join("</td><td>") + "</td></tr>";
+}
+function flushPacketRows() {
+  if (!app.pendingRows.length) return;
+  const body = $("packetBody");
+  body.insertAdjacentHTML("afterbegin", app.pendingRows.slice(-2000).reverse().join(""));
+  app.pendingRows = [];
+  while (body.rows.length > 2000) body.deleteRow(body.rows.length - 1);
+}
+
+function showState() {
+  const t = app.last, stats = app.lastStats;
+  const phase = $("phaseLabel");
+  phase.textContent = PHASE[t.phase];
+  phase.style.background = [COLORS.PENDING, "#1565c0", COLORS.WARN, COLORS.WARN, COLORS.OK, "#455a64"][t.phase];
+  $("causeLabel").textContent = "by " + CAUSE[t.cause];
+  for (const [bit, chip] of flagChips) {
+    const on = flag(t, bit);
+    const alarm = bit === FLAG_HEATER_ON || bit === FLAG_ARMED || bit === FLAG_SHAKING;
+    const trust = bit === FLAG_VZ_TRUSTED || bit === FLAG_ALT_TRUSTED;
+    chip.style.background = on ? (alarm ? COLORS.WARN : COLORS.OK) : trust && t.phase > 0 ? COLORS.FAIL : COLORS.PENDING;
+  }
+  // the Pi chip tells booting from ready (heartbeat, health bits 7/8)
+  const pi = app.launchDay.piStatus(), piChip = flagChips.get(FLAG_PI_ACTIVE);
+  piChip.textContent = PI_LABEL[pi];
+  piChip.style.background = pi === "STANDBY" ? COLORS.PENDING : pi === "BOOTING" ? COLORS.WARN : pi === "READY" ? COLORS.OK : COLORS.FAIL;
+  healthChips.forEach((c, i) => { c.style.background = (t.health & (1 << i)) !== 0 ? COLORS.OK : COLORS.FAIL; });
+  const deploy = DEPLOY[t.deploy];
+  values.Deploy.textContent = deploy;
+  values.Deploy.style.color = deploy === "NO_CURRENT" ? COLORS.FAIL : deploy === "OK" ? COLORS.OK : "";
+  values.Altitude.textContent = f1(t.altM) + " m";
+  values["Vertical speed"].textContent = f1(t.vzMps) + " m/s";
+  values["vz sigma / NIS"].textContent = f2(t.vzSigmaCms / 100) + " m/s / " + t.nis;
+  values.Pressure.textContent = f0(t.pressurePa) + " Pa";
+  values["Air temperature"].textContent = f2(t.airTempC) + " °C";
+  values.Battery.textContent = f2(t.vbatMv / 1000) + " V";
+  values.Rotor.textContent = t.rotorRpm + " rpm";
+  values.GPS.textContent = (t.health & (1 << 5)) !== 0 ? f5(t.latE7 / 1e7) + ", " + f5(t.lonE7 / 1e7) : "no fix";
+  values.Packet.textContent = "#" + t.seq + " at " + Math.trunc(t.timeMs / 1000) + " s";
+  values["Received / lost"].textContent = stats.received + " / " + stats.lost + " (" + f1(stats.lossPercent()) + " %)";
+  values.SNR.textContent = app.lastSnr + " dB";
+  values["Last ack"].textContent = "id " + t.ackId + " " + ACK[t.ackResult];
+}
+
+function updateAge() {
+  if (!app.lastPacketMs) return;
+  const now = Date.now();
+  if (now - app.lastPacketMs > 2500) {  // link age in the checklists
+    showChecklistPanel(now);
+    refreshLaunchDayTab(app.launchDay.auto(now));
+  }
+  const age = (now - app.lastPacketMs) / 1000, l = $("ageLabel");
+  l.textContent = "last packet " + f1(age) + " s ago";
+  l.style.color = age < 2.5 ? COLORS.OK : age < 5 ? COLORS.WARN : COLORS.FAIL;
+}
+
+// ---- connection ----
+function setConnected(on) {
+  $("simBtn").disabled = on;
+  $("discBtn").disabled = !on;
+  for (const b of document.querySelectorAll(".cmd")) b.disabled = !on;
+}
+function send(cmd, arg) { if (app.link) app.link.send(cmd, arg); }
+
+/** Run dialog, then the launch day rehearsal. */
+async function chooseSimulation() {
+  const form = document.createElement("div");
+  form.className = "form";
+  form.innerHTML = '<label for="runBox">Run</label><select class="b" id="runBox"><option>Pi manual + random faults</option></select>'
+    + '<div class="about">' + esc(RUN_DESC) + '</div>'
+    + '<label for="padMin-input">Launch after (simulated minutes on the pad)</label><span class="spinner" id="padMin"></span>'
+    + '<label for="speed-input">Speed (1 = real time)</label><span class="spinner" id="speed"></span>';
+  const padMin = new Spinner(form.querySelector("#padMin"), 10, 0.5, 240, 0.5);
+  const speed = new Spinner(form.querySelector("#speed"), 10, 1, 60, 1);
+  if (!(await dialog("Launch day simulation", form, [["OK", true], ["Cancel", false]], ""))) return;
+  connectSimulator(padMin.value * 60, speed.value);
+}
+
+function connectSimulator(padHoldS, speed) {
+  disconnect();
+  app.clock = new SimClock(speed);
+  app.cansat = new SimCanSat(padHoldS);
+  app.link = new Link(app.cansat, app.clock, listener);
+  app.launchDay = new LaunchDay();
+  app.track.clear();
+  mapView.centered = false;
+  charts.alt.clear(); charts.vz.clear(); charts.rpm.clear();
+  $("packetBody").innerHTML = "";
+  app.packetLastWall = null; app.packetLastSeq = -1; app.pendingRows = []; app.last = null; app.lastPacketMs = 0;
+  $("linkLabel").textContent = "simulator: RN2483 1.0.5 Oct 31 2018 15:06:52 (simulated)";
+  appendEvent("simulator: RN2483 1.0.5 Oct 31 2018 15:06:52 (simulated)");
+  appendEvent("simulation: Pi manual + random faults, launch after " + (padHoldS / 60) + " min, " + speed + "x");
+  app.faultsShown = false;
+  $("revealBtn").textContent = "Reveal";
+  $("simWin").hidden = false;
+  setConnected(true);
+  refreshSim();
+}
+
+function disconnect() {
+  if (!app.link) return;
+  app.link = null;
+  app.cansat = null;
+  app.clock = null;
+  $("simWin").hidden = true;
+  $("linkLabel").textContent = "disconnected";
+  appendEvent("disconnected");
+  setConnected(false);
+}
+
+// ---- instructor window (ui/SimControlWindow.java) ----
+function clockText(s) {
+  const v = Math.trunc(Math.abs(s));
+  return pad2(Math.trunc(v / 3600)) + ":" + pad2(Math.trunc(v / 60) % 60) + ":" + pad2(v % 60);
+}
+function refreshSim() {
+  const cs = app.cansat, clock = app.clock;
+  if (!cs) return;
+  const tr = cs.truth();
+  // fast forward through the pad wait, fly in real time
+  if ($("slowForLaunch").checked && isNaN_(tr.launchT) && !isNaN_(tr.autoLaunchT) && tr.autoLaunchT - tr.t < 30 && clock.speed > 1) clock.setSpeed(1);
+  const tMinus = !isNaN_(tr.launchT) ? "T+" + clockText(tr.t - tr.launchT)
+    : !isNaN_(tr.autoLaunchT) ? "T-" + clockText(tr.autoLaunchT - tr.t) : "launch on button";
+  $("simClock").textContent = "sim " + clockText(tr.t) + "   " + tMinus + "   " + (clock.paused ? "PAUSED" : clock.speed + "×");
+  $("pauseBtn").textContent = clock.paused ? "Resume" : "Pause";
+  // hidden while the team works, so the instructor can sit next to them
+  const fl = $("faultsLabel");
+  if (!app.faultsShown) fl.textContent = "0 to 2, drawn at random: hidden until the debrief";
+  else fl.innerHTML = cs.planned.length === 0 ? "none drawn this time"
+    : cs.planned.map(f => "<b>" + f + "</b>: " + esc(FAULTS[f])).join("<br>");
+  const T = x => isNaN_(x) ? "–" : "T+" + clockText(x - tr.launchT);
+  $("truthLabel").textContent = "stage " + tr.stage + "\naltitude " + f1(tr.altM) + " m, vz " + f1(tr.vzMps) + " m/s\nblades "
+    + (tr.bladesFree ? "free" : "folded") + ", rotor " + tr.rotorRpm + " rpm\ndrift " + f0(tr.driftM) + " m\napogee "
+    + (isNaN_(tr.apogeeT) ? "–" : f0(tr.apogeeM) + " m") + "\nejection " + T(tr.ejectT) + ", landing " + T(tr.landT)
+    + "\npi " + tr.pi.split("; ").join("\n   ");
+}
+
+$("runDesc").textContent = RUN_DESC;
+for (const s of [1, 5, 10, 30, 60]) {
+  const b = document.createElement("button");
+  b.className = "b"; b.textContent = s + "×";
+  b.onclick = () => { if (app.clock) { app.clock.setSpeed(s); app.clock.setPaused(false); refreshSim(); } };
+  $("speedBtns").append(b);
+}
+const autoMin = new Spinner($("autoMin"), 10, 0.5, 240, 0.5);
+$("pauseBtn").onclick = () => { if (app.clock) { app.clock.setPaused(!app.clock.paused); refreshSim(); } };
+$("launchNow").onclick = () => { if (!app.cansat) return; if ($("slowForLaunch").checked) app.clock.setSpeed(1); app.cansat.launch(); };
+$("autoLaunchBtn").onclick = () => { if (app.cansat) app.cansat.setAutoLaunch(app.cansat.truth().t + autoMin.value * 60); };
+$("revealBtn").onclick = () => { app.faultsShown = !app.faultsShown; $("revealBtn").textContent = app.faultsShown ? "Hide" : "Reveal"; refreshSim(); };
+$("offBtn").onclick = () => { if (app.cansat) app.cansat.switchOff(); };
+$("simMin").onclick = () => {
+  const hidden = $("simWin").classList.toggle("collapsed");
+  $("simMin").textContent = hidden ? "Show" : "Hide";
+};
+
+// ---- buttons of the main window ----
+$("simBtn").onclick = chooseSimulation;
+$("discBtn").onclick = disconnect;
+$("cPing").onclick = () => send("PING", 0);
+$("cPhase").onclick = async () => {
+  const ph = +$("phaseBox").value;
+  if (await confirmDlg("Force phase " + PHASE[ph] + "?\n\nForcing EJECTION releases the rotor if it has not burned yet.")) send("SET_PHASE", ph);
+};
+$("cFire").onclick = async () => { if (await confirmDlg("Heat the nichrome wire now?")) send("DEPLOY_FIRE", 0); };
+$("cShake").onclick = async () => {
+  const sp = +$("shakeBox").value;
+  if (await confirmDlg("Shake the swashplate (" + SHAKE[sp] + ") to free the blades?\nNormal rotor control is off meanwhile.")) send("SHAKE", sp);
+};
+$("cPiOn").onclick = () => send("PI_MODE", 1);
+$("cPiOff").onclick = async () => {
+  if (await confirmDlg("Put the Pi in standby?\n\nIt shuts down cleanly and the camera stops. The Pi chip shows PI STANDBY once it is in standby (at most 30 s); only then switch the CanSat off.")) send("PI_MODE", 0);
+};
+$("cStop").onclick = () => send("SHAKE_STOP", 0);
+$("cDisarm").onclick = () => send("DISARM", 0);
+$("cCancel").onclick = () => { if (app.link) app.link.cancelQueued(); };
+$("follow").addEventListener("change", () => mapView.refresh());
+$("fitBtn").onclick = () => { $("follow").checked = false; mapView.fitAll(); };
+$("zinBtn").onclick = () => mapView.setZoom(mapView.zoom + 1);
+$("zoutBtn").onclick = () => mapView.setZoom(mapView.zoom - 1);
+
+// Markdown report: every item with its tick time, downloaded as checklist-<time>.md
+$("exportBtn").onclick = () => {
+  const live = app.lastLive, d = new Date();
+  let md = "# Launch-Day-Checkliste\n\nExport: " + d.toLocaleDateString("de-AT") + " " + wallClock(d) + ", "
+    + ldRows.filter(r => ticks[r.e.id]).length + " von " + totalItems + " Punkten erledigt.\n";
+  for (const s of CHECKLIST) {
+    md += "\n## " + s.title + "\n\n";
+    for (const e of s.entries) {
+      const t = ticks[e.id];
+      md += (t ? "- [x] " : "- [ ] ") + e.text + (t ? " — " + wallClock(new Date(t)) : "");
+      const it = e.autoKey ? live[e.autoKey] : null;
+      if (it && it.detail) md += " (" + it.status + ": " + it.detail + ")";
+      md += "\n";
+    }
+  }
+  const stamp = d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
+  a.download = "checklist-" + stamp + ".md";
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  appendEvent("checklist exported to " + a.download + " (downloads folder)");
+};
+$("newDayBtn").onclick = async () => {
+  if (!(await confirmDlg("Untick all items for a new launch day?\nExport the report first if you need it."))) return;
+  for (const k of Object.keys(ticks)) delete ticks[k];
+  saveTicks();
+  refreshLaunchDayTab(app.lastLive);
+};
+
+// ======================================================================
+// Main loop: a timer, so the simulation keeps running in a background tab
+// ======================================================================
+let lastUi = 0, lastAge = 0, lastSim = 0;
+function frame() {
+  const now = performance.now();
+  if (app.link) app.link.tick();
+  if (app.uiDirty && now - lastUi > 100) {
+    lastUi = now;
+    app.uiDirty = false;
+    const wall = Date.now();
+    showState();
+    showChecklistPanel(wall);
+    refreshLaunchDayTab(app.launchDay.auto(wall));
+    mapView.refresh();
+  }
+  if (!$("p-packets").hidden) flushPacketRows();
+  else if (app.pendingRows.length > 2000) app.pendingRows.splice(0, app.pendingRows.length - 2000);
+  if (now - lastAge > 250) { lastAge = now; updateAge(); }
+  if (now - lastSim > 200) { lastSim = now; refreshSim(); }
+  if (!$("p-live").hidden) { charts.alt.draw(); charts.vz.draw(); charts.rpm.draw(); }
+  if (!$("p-map").hidden) mapView.draw();
+}
+setInterval(frame, 40);
+new ResizeObserver(() => { charts.alt.dirty = charts.vz.dirty = charts.rpm.dirty = true; mapView.dirty = true; })
+  .observe($("mainWin"));
+
+setConnected(false);
+refreshLaunchDayTab({});
+showChecklistPanel(Date.now());
+chooseSimulation();
+</script>
+</body>
+</html>
