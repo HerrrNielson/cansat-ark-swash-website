@@ -17,6 +17,7 @@ index.html im Browser öffnen. Für eine Vorschau mit lokalem Webserver können 
 - Header und Footer zeigen das lokale SWASH-Logo aus assets/swash-logo.png.
 - impressum.html – österreichisches Impressum-Muster
 - datenschutz.html – Datenschutz-Muster passend zur statischen Demo
+- robots.txt und sitemap.xml – für Suchmaschinen; bei neuen Seiten die sitemap.xml ergänzen
 - assets/styles.css – responsive Gestaltung mit zurückhaltenden Marineblau- und Sandtönen und sanften Verläufen
 - assets/site.js – mobiles Menü, Hell-/Dunkelmodus, Datenschutz-Hinweis, Formularhinweis und dynamisches Jahr
 - assets/translations.js – deutsche und englische Texte für die Sprachumschaltung
