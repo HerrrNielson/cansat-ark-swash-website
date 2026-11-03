@@ -62,7 +62,7 @@ Die Website zählt zur Öffentlichkeitsarbeit, die die Jury mit 10 % bewertet (C
 | Element | Beispiel | Was dort hinkommen soll |
 |---|---|---|
 | Seitentitel (Browser-Tab, Suchergebnis) | „Über uns \| Team SWASH“ | Seitenname, dann „Team SWASH“. |
-| Meta-Beschreibung | „Die CanSat-Mission und das technische System …“ | Ein Satz mit ca. 120–155 Zeichen, den Google unter dem Link anzeigt. Jede Seite hat ihre eigene. Bei Impressum und AGB steht noch Firmen- bzw. Mustertext. |
+| Meta-Beschreibung | „Die CanSat-Mission und das technische System …“ | Ein Satz mit ca. 120–155 Zeichen, den Google unter dem Link anzeigt. Jede Seite hat ihre eigene. Beim Impressum steht noch Mustertext. |
 
 ---
 
@@ -260,33 +260,10 @@ Die Vorlage ist für eine **Unternehmenswebsite** geschrieben. Viele Angaben hä
 
 ---
 
-## AGB (`agb.html`)
-
-Das sind **Muster-AGB für Beratungs- und Kreativleistungen** eines Unternehmens. Team SWASH verkauft derzeit nichts, die Seite ist dann vermutlich überflüssig. Im Team (und mit der Schule) klären, ob sie wegfällt. Dann auch die AGB-Links im Fußbereich aller Seiten entfernen. Bleibt sie (z. B. für Merch oder Sponsorpakete), muss sie neu geschrieben werden.
-
-| Element | Aktuell | Was dort hinkommen soll, falls die Seite bleibt |
-|---|---|---|
-| Kicker, Überschrift, Einleitung | „Rechtliches“, „Allgemeine Geschäftsbedingungen“, „Muster für Dienstleistungen …“ | Titel und „Stand: Monat Jahr“. |
-| Hinweisbox | „Bitte vor Verwendung anpassen …“ | Fällt weg, wenn fertig. |
-| 1. Geltungsbereich | Platzhalter für Firmenname | Wer anbietet und für welche Leistungen die Bedingungen gelten. |
-| 2. Angebote und Vertragsabschluss | Platzhalter für Gültigkeit | Wann ein Kauf oder eine Vereinbarung zustande kommt. |
-| 3. Leistungen und Mitwirkung | Standardtext | Was geliefert wird und was der Kunde beitragen muss. |
-| 4. Entgelt und Zahlung | Platzhalter für Zahlungsfrist | Preise, Zahlungsart, Frist. |
-| 5. Termine und höhere Gewalt | Standardtext | Lieferzeiten, Verzögerungen. |
-| 6. Abnahme und Korrekturen | Platzhalter für Prüffrist | Nur bei Dienstleistungen, sonst streichen. |
-| 7. Nutzungsrechte | Standardtext | Nur bei Dienstleistungen, sonst streichen. |
-| 8. Rücktritt und Vertragsbeendigung | Platzhalter für Kündigungsfrist | Rücktrittsrecht für Verbraucher. |
-| 9. Gewährleistung und Haftung | Standardtext | Gesetzliche Gewährleistung, Haftung. |
-| 10. Vertraulichkeit und Datenschutz | Standardtext | Verweis auf die Datenschutzerklärung. |
-| 11. Schlussbestimmungen | Platzhalter für Firma und Fassung | Anwendbares Recht, Gerichtsstand, Datum der Fassung. |
-
----
-
 ## Offene Punkte vor der Veröffentlichung
 
 1. **Impressum und Datenschutz:** Medieninhaber bzw. Verantwortlicher und Hosting sind noch nicht festgelegt. Die bestehenden Rechtstexte bleiben bis dahin Vorlagen.
-2. **AGB:** Entscheiden, ob die Musterseite gelöscht wird; bis dahin bleiben Seite und Footer-Link bestehen.
-3. **Kontaktformular:** Entscheiden, ob ein Versanddienst angebunden oder das Formular entfernt wird. Bis dahin weist die Seite darauf hin, dass es nicht versendet.
-4. **Sponsoren:** Entscheiden, ob ein eigener Abschnitt für Sponsoren und Unterstützer ergänzt wird.
-5. **Datenschutzhinweis:** Sprache wird lokal gespeichert, ist dort aber noch nicht genannt. Der Verweis auf Wikimedia Commons in der Datenschutzerklärung ist ebenfalls zu prüfen.
-6. **Fotos und Video:** Platzhalter auf der Startseite erst ersetzen, wenn echte Medien samt passenden Bildunterschriften vorliegen.
+2. **Kontaktformular:** Entscheiden, ob ein Versanddienst angebunden oder das Formular entfernt wird. Bis dahin weist die Seite darauf hin, dass es nicht versendet.
+3. **Sponsoren:** Entscheiden, ob ein eigener Abschnitt für Sponsoren und Unterstützer ergänzt wird.
+4. **Datenschutzhinweis:** Sprache wird lokal gespeichert, ist dort aber noch nicht genannt. Der Verweis auf Wikimedia Commons in der Datenschutzerklärung ist ebenfalls zu prüfen.
+5. **Fotos und Video:** Platzhalter auf der Startseite erst ersetzen, wenn echte Medien samt passenden Bildunterschriften vorliegen.

@@ -17,7 +17,6 @@ index.html im Browser öffnen. Für eine Vorschau mit lokalem Webserver können 
 - Header und Footer zeigen das lokale SWASH-Logo aus assets/swash-logo.png.
 - impressum.html – österreichisches Impressum-Muster
 - datenschutz.html – Datenschutz-Muster passend zur statischen Demo
-- agb.html – AGB-Muster für Dienstleistungsunternehmen
 - assets/styles.css – responsive Gestaltung mit zurückhaltenden Marineblau- und Sandtönen und sanften Verläufen
 - assets/site.js – mobiles Menü, Hell-/Dunkelmodus, Datenschutz-Hinweis, Formularhinweis und dynamisches Jahr
 - assets/translations.js – deutsche und englische Texte für die Sprachumschaltung
@@ -27,5 +26,5 @@ index.html im Browser öffnen. Für eine Vorschau mit lokalem Webserver können 
 
 Ersetzen Sie alle gelb markierten rechtlichen Platzhalter und ergänzen Sie echte Kontaktinformationen. Das Video auf der Startseite ist ein Platzhalter. Das Kontaktformular validiert die Pflichtfelder, übermittelt aber keine Nachricht. Für serverseitigen Formularversand ist ein eigener Endpunkt oder Formularanbieter einzurichten und in der Datenschutzerklärung zu dokumentieren.
 
-Datenschutz, Impressum und AGB sind Mustertexte und müssen auf das tatsächliche Unternehmen, Geschäftsmodell, Hosting und alle eingesetzten Dienste abgestimmt werden.
+Datenschutz und Impressum sind Mustertexte und müssen auf das tatsächliche Unternehmen, Geschäftsmodell, Hosting und alle eingesetzten Dienste abgestimmt werden.
 
