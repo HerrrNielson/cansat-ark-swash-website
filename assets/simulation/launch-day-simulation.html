@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CanSat Launch Day Simulation</title>
 <!--
-  Browser version of the ground station's launch day rehearsal, run "Pi manual + random faults" only.
-  Port of ground-station/app (SimCanSat, SimTransport, GroundLink, LaunchDay, MainWindow,
-  SimControlWindow). No serial stick, no relay / passive stations, no internet: open the file in a browser.
+  Browser version of the ground station's launch day rehearsal. Port of ground-station/app (SimCanSat,
+  SimTransport, GroundLink, LaunchDay, Limits, Callouts, MainWindow, MissionTab with the 3D views and
+  gauges, SimControlWindow). Default run: Pi manual + random faults, launch 1 min after power-up.
+  No serial stick, no relay / passive stations, no internet: open the file in a browser.
 -->
 <style>
 /* A Windows desktop holding the Swing ground station window and the instructor window beside it. */
@@ -142,7 +143,7 @@ fieldset.tb {
 }
 fieldset.tb > legend { padding: 0 2px; margin-left: 2px; }
 .chip {
-  color: var(--white); background: var(--off); font-weight: 700; font-size: 11px;
+  color: var(--white); background: var(--off); font-weight: 700; font-size: 11px; border-radius: 6px;
   text-align: center; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 ::-webkit-scrollbar { width: 17px; height: 17px; background: var(--panel); }
@@ -160,7 +161,9 @@ fieldset.tb > legend { padding: 0 2px; margin-left: 2px; }
 }
 .col { min-height: 0; min-width: 0; overflow: auto; }
 .state { padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
-.phase { font-size: 30px; font-weight: 700; color: var(--white); background: var(--off); text-align: center; padding: 2px; }
+.phase { font-size: 30px; font-weight: 700; color: var(--white); background: var(--off); text-align: center; padding: 2px; border-radius: 6px; }
+.alert { color: var(--white); background: var(--bad); font-weight: 700; font-size: 13px; text-align: center; padding: 4px; border-radius: 6px; }
+.alert small { display: block; font-size: 11px; font-weight: 700; }
 .centered { text-align: center; }
 .chips2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
 .chips3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
@@ -205,7 +208,7 @@ table.jt tr.gap td { background: var(--orange-row); }
 table.jt tbody tr:hover td { background: var(--hover); }
 
 /* checklist panel (right) */
-.banner { color: var(--white); background: var(--off); font-weight: 700; font-size: 16px; text-align: center; padding: 4px; }
+.banner { color: var(--white); background: var(--off); font-weight: 700; font-size: 16px; text-align: center; padding: 4px; border-radius: 6px; }
 .cl-sec { font-weight: 700; margin: 6px 2px 1px; }
 .cl-row { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 4px; margin: 1px 2px; }
 .cl-dot { font-weight: 700; font-size: 14px; text-align: center; line-height: 16px; }
@@ -214,6 +217,28 @@ table.jt tbody tr:hover td { background: var(--hover); }
 /* commands */
 .cmdgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 .cmdgrid .wide { grid-column: span 2; }
+button.b.force { font-weight: 700; font-size: 13px; }
+button.b.force:not(:disabled) { color: var(--bad); }
+button.b.force.flash:not(:disabled) { background: #ffcdd2; }
+
+/* mission tab */
+.modebar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 3px 4px; }
+button.b.tg[aria-pressed="true"] { background: var(--press); border-color: var(--press-border); }
+.simbadge { color: var(--white); background: #6a1b9a; font-weight: 700; padding: 2px 10px; border-radius: 6px; margin-left: 10px; }
+.deck { flex: 1; min-height: 0; display: flex; }
+.screen { flex: 1; min-width: 0; min-height: 0; padding: 4px; gap: 6px; box-sizing: border-box; }
+.screen canvas { display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; }
+.s-pad { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(240px, 1fr); }
+.s-pad .side { display: grid; grid-template-rows: minmax(0, 1fr) 150px; gap: 4px; min-height: 0; }
+.g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; min-height: 0; }
+.g4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; min-height: 0; }
+.s-flight { display: grid; grid-template-rows: 175px minmax(0, 1fr); }
+.s-flight .row { display: grid; grid-template-columns: 86px minmax(0, 1.6fr) minmax(150px, 1fr); gap: 6px; min-height: 0; }
+.s-rec { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); }
+.summary { border: 1px solid var(--etched); padding: 2px 8px 6px; overflow: auto; min-height: 0; }
+.summary p { margin: 6px 0; }
+.summary .big { font-size: 15px; }
+.summary hr { border: 0; border-top: 1px solid var(--etched); }
 .cmdlist { flex: 1; min-height: 120px; overflow: auto; background: var(--white); border: 1px solid var(--field-border); font: 12px var(--font-mono); }
 .cmdlist div { padding: 2px 4px; border-bottom: 1px solid var(--panel); }
 .cmdlist small { font-size: 11px; display: block; }
@@ -258,6 +283,16 @@ code { font: 12px var(--font-mono); }
   .center { grid-template-columns: minmax(0, 1fr); }
   .col { overflow: visible; }
   .tabs { height: 560px; }
+  .tabs.mission-on { height: auto; }
+  #p-mission .deck { min-height: 0; }
+  .s-pad, .s-rec { grid-template-columns: minmax(0, 1fr); }
+  .s-pad .pre { height: 340px; }
+  .s-pad .side { grid-template-rows: 300px 150px; }
+  .s-flight { grid-template-rows: auto auto; }
+  .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 170px; }
+  .s-flight .row { grid-template-columns: 80px minmax(0, 1fr); grid-template-rows: 340px 280px; }
+  .s-flight .row .can { grid-column: span 2; }
+  .s-rec .path { height: 380px; }
   .right > .col, .right > .cmds { flex: none; }
   .cmdlist { max-height: 260px; }
   .ld-row { grid-template-columns: 18px minmax(0, 1fr); }
@@ -272,6 +307,7 @@ code { font: 12px var(--font-mono); }
       <div class="connbar">
         <button class="b" id="simBtn">Simulate</button>
         <button class="b" id="discBtn">Disconnect</button>
+        <label class="cb" title="cockpit-style chimes and spoken callouts (warnings, phases, altitude)"><input type="checkbox" class="cb" id="voiceBox" checked> Voice callouts</label>
         <span id="linkLabel">not connected</span>
       </div>
       <div class="center">
@@ -279,19 +315,53 @@ code { font: 12px var(--font-mono); }
           <div class="phase" id="phaseLabel">&#x2013;</div>
           <div class="centered" id="causeLabel">&nbsp;</div>
           <div class="centered" style="font-weight:700" id="ageLabel">no data</div>
+          <div class="alert" id="alertBanner" hidden></div>
           <fieldset class="tb"><legend>Flags</legend><div class="chips2" id="flagChips"></div></fieldset>
           <fieldset class="tb"><legend>Health</legend><div class="chips3" id="healthChips"></div></fieldset>
           <fieldset class="tb"><legend>Telemetry</legend><div class="kv" id="values"></div></fieldset>
         </div>
-        <div class="tabs">
+        <div class="tabs" id="tabsBox">
           <div class="tabstrip" role="tablist">
-            <button role="tab" id="tab-live" aria-selected="true" aria-controls="p-live">Live</button>
+            <button role="tab" id="tab-mission" aria-selected="true" aria-controls="p-mission">Mission</button>
+            <button role="tab" id="tab-live" aria-selected="false" aria-controls="p-live">Live</button>
             <button role="tab" id="tab-map" aria-selected="false" aria-controls="p-map">Map</button>
             <button role="tab" id="tab-packets" aria-selected="false" aria-controls="p-packets">Packets</button>
             <button role="tab" id="tab-ld" aria-selected="false" aria-controls="p-ld">Launch day checklist (simulation)</button>
           </div>
           <div class="tabbody">
-            <div class="tabpanel" role="tabpanel" id="p-live">
+            <div class="tabpanel" role="tabpanel" id="p-mission">
+              <div class="modebar">
+                <button class="b tg bold" id="mAuto" aria-pressed="true" title="follow the flight phase">AUTO</button>
+                <span>&nbsp;</span>
+                <button class="b tg" id="mPad" aria-pressed="true" title="pin this screen (AUTO goes back to following the phase)">Pad</button>
+                <button class="b tg" id="mFlight" aria-pressed="false" title="pin this screen (AUTO goes back to following the phase)">Flight</button>
+                <button class="b tg" id="mRec" aria-pressed="false" title="pin this screen (AUTO goes back to following the phase)">Recovery</button>
+                <span id="modeLabel">&nbsp;following the flight phase</span>
+                <span class="simbadge" id="simBadge" hidden>SIMULATION</span>
+              </div>
+              <div class="deck">
+                <div class="screen s-pad" id="scrPad">
+                  <canvas class="pre" id="preCanvas"></canvas>
+                  <div class="side">
+                    <canvas id="padCanCanvas" title="drag: turn, wheel: zoom, double click: auto"></canvas>
+                    <div class="g3"><canvas id="gPadBat"></canvas><canvas id="gPadSnr"></canvas><canvas id="gPadTilt"></canvas></div>
+                  </div>
+                </div>
+                <div class="screen s-flight" id="scrFlight" hidden>
+                  <div class="g4"><canvas id="gSink"></canvas><canvas id="gRotor"></canvas><canvas id="gBat"></canvas><canvas id="gLink"></canvas></div>
+                  <div class="row">
+                    <canvas id="tapeCanvas"></canvas>
+                    <canvas id="pathCanvas" title="drag: turn, wheel: zoom, double click: slow circle"></canvas>
+                    <canvas class="can" id="flightCanCanvas" title="drag: turn, wheel: zoom, double click: auto"></canvas>
+                  </div>
+                </div>
+                <div class="screen s-rec" id="scrRec" hidden>
+                  <canvas class="path" id="recPathCanvas" title="drag: turn, wheel: zoom, double click: slow circle"></canvas>
+                  <div class="summary" id="summary"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="p-live" hidden>
               <div class="charts"><canvas id="altChart"></canvas><canvas id="vzChart"></canvas><canvas id="rpmChart"></canvas></div>
             </div>
             <div class="tabpanel" role="tabpanel" id="p-map" hidden>
@@ -327,6 +397,7 @@ code { font: 12px var(--font-mono); }
           <div class="cmds">
             <fieldset class="tb"><legend>Commands</legend>
               <div class="cmdgrid">
+                <button class="b wide cmd force" id="cForce" title="for blades that do not come free: one command, wire and shake together">FORCE ROTOR DEPLOY (wire 1 s + shake 1 s)</button>
                 <button class="b wide cmd" id="cPing">Ping</button>
                 <select class="b cmd" id="phaseBox" aria-label="Phase"><option value="1">ASCENT</option><option value="2">EJECTION</option><option value="3">SPIN_UP</option><option value="4">DESCENT</option><option value="5">LANDED</option></select>
                 <button class="b cmd" id="cPhase">Set phase</button>
@@ -354,7 +425,7 @@ code { font: 12px var(--font-mono); }
   <div class="win simwin" id="simWin" hidden>
     <div class="body">
       <fieldset class="tb"><legend>Launch day simulation</legend>
-        <div class="sim-head">Run: Pi manual + random faults
+        <div class="sim-head"><span id="runTitle">Run</span>
           <button class="b" id="simMin" title="Hides clock, faults and truth from the team">Hide</button></div>
         <span id="runDesc"></span>
       </fieldset>
@@ -400,12 +471,23 @@ const C = Object.fromEntries(CAUSE.map((n, i) => [n, i]));
 const D = Object.fromEntries(DEPLOY.map((n, i) => [n, i]));
 const A = Object.fromEntries(ACK.map((n, i) => [n, i]));
 /** Critical commands need an ARM first; the ground station sends it automatically. */
-const CRITICAL = new Set(["SET_PHASE", "DEPLOY_FIRE", "SHAKE"]);
+const CRITICAL = new Set(["SET_PHASE", "DEPLOY_FIRE", "SHAKE", "DEPLOY_FORCE"]);
 const ARM_CONFIRM = 0xA5;
 const FLAG_RESTORED = 1, FLAG_SHAKING = 1 << 1, FLAG_ARMED = 1 << 2, FLAG_VZ_TRUSTED = 1 << 3,
   FLAG_ALT_TRUSTED = 1 << 4, FLAG_HEATER_ON = 1 << 5, FLAG_SERVOS_ON = 1 << 6, FLAG_PI_ACTIVE = 1 << 7;
 const HEALTH_BITS = ["IMU", "BARO", "TEMP", "POWER", "FLASH", "GPS", "RADIO"];
 const HEALTH_PI_READY = 1 << 7, HEALTH_PI_CAMERA = 1 << 8;
+/** health bit 5: GPS fix; bit 9: on the pad, gyro bias learned and the can still (Estimator::imuSettled). */
+const HEALTH_GPS = 1 << 5, HEALTH_IMU_SETTLED = 1 << 9;
+// Telemetry version 2: roll / pitch / yaw in 0.01°
+const gpsFix = t => (t.health & HEALTH_GPS) !== 0;
+const imuSettled = t => (t.health & HEALTH_IMU_SETTLED) !== 0;
+const hasAttitude = t => t.version >= 2;
+function tiltDeg(t) {
+  const r = t.rollDeg * Math.PI / 180, p = t.pitchDeg * Math.PI / 180;
+  return Math.acos(Math.max(-1, Math.min(1, Math.cos(r) * Math.cos(p)))) * 180 / Math.PI;
+}
+const centiDeg = deg => Math.round(((((deg + 180) % 360) + 360) % 360 - 180) * 100) / 100;
 const PI_LABEL = { STANDBY: "PI STANDBY", BOOTING: "PI BOOTING", READY: "PI READY", NO_CAMERA: "PI NO CAMERA",
   NO_HEARTBEAT: "PI NO HEARTBEAT", LOST: "PI LOST" };
 
@@ -441,31 +523,58 @@ const deg3 = x => String(Math.round(x) % 360).padStart(3, "0");
 // ======================================================================
 // Simulated CanSat (sim/SimCanSat.java): truth layer and firmware view
 // ======================================================================
-const FAULTS = {
-  STUCK_ROTOR: "Blades stay folded after the release (SHAKE frees them)",
-  RELEASE_FAILS: "First nichrome burn does not heat (DEPLOY_FIRE works)",
-  BARO_FREEZE: "Barometer frozen: altitude and vz untrusted",
-  RADIO_DROPOUT: "No radio link",
-  GPS_NO_FIX: "GPS without fix",
-  WEAK_BATTERY: "Battery starts at 7.35 V and drains fast",
-  PI_NO_HALT: "Pi hangs on shutdown: no PI_HALTED, the FC cuts its power after 30 s",
-  PI_CRASH: "Pi crashes: powered, but the heartbeat stops (PI LOST)",
-  PI_NO_CAMERA: "Pi runs without camera: heartbeat says no camera",
-  KNOCK_ON_PAD: "A knock on the pad: ASCENT, then LIFTOFF_ABORT back to PAD",
-  FC_RESET: "Flight computer reboots 15 s after ejection: RESTORED, no second burn",
+// [text, groundFix]: a command from the ground station fixes it; only these are drawn for a random run
+const FAULT_DEFS = {
+  STUCK_ROTOR: ["Blades stay folded after the release (SHAKE frees them)", true],
+  RELEASE_FAILS: ["First nichrome burn does not heat (DEPLOY_FIRE works)", true],
+  PI_CRASH: ["Pi crashes: powered, but the heartbeat stops (PI LOST; Pi standby, then Pi active)", true],
+  PI_NO_SERVICE: ["Payload service does not start: no heartbeat (Pi standby, then Pi active)", true],
+  BARO_FREEZE: ["Barometer frozen: altitude and vz untrusted", false],
+  RADIO_DROPOUT: ["No radio link", false],
+  GPS_NO_FIX: ["GPS without fix", false],
+  WEAK_BATTERY: ["Battery starts at 7.35 V and drains fast", false],
+  PI_NO_HALT: ["Pi hangs on shutdown: no PI_HALTED, the FC cuts its power after 30 s", false],
+  PI_NO_CAMERA: ["Pi runs without camera: heartbeat says no camera", false],
+  KNOCK_ON_PAD: ["A knock on the pad: ASCENT, then LIFTOFF_ABORT back to PAD", false],
+  FC_RESET: ["Flight computer reboots 15 s after ejection: RESTORED, no second burn", false],
 };
-const RUN_DESC = "Like Pi manual, plus 0 to 2 faults drawn at random, each at the point of the flight where it "
-  + "would happen. Handle them with the operator manual; the instructor reveals them in the debrief.";
+const FAULTS = Object.fromEntries(Object.entries(FAULT_DEFS).map(([k, v]) => [k, v[0]]));
+
+/** Training runs (sim/Scenario.java). What to do for each fault: ground-station/operator-manual.md. */
+const SCENARIOS = {
+  NOMINAL: { title: "Nominal run", piStandby: false, randomFaults: false,
+    description: "Everything works, the Pi is active from power-up. Practise the checklist, the flight and the recovery." },
+  PI_MANUAL: { title: "Pi manual", piStandby: true, randomFaults: false,
+    description: "The Pi is in standby at power-up. Press Pi active in time (it boots about 25 s, the camera must be "
+      + "ready at liftoff); after the landing Pi standby, then switch off." },
+  PI_MANUAL_RANDOM: { title: "Pi manual + random faults", piStandby: true, randomFaults: true,
+    description: "Like Pi manual, plus 0 to 2 faults drawn at random, each at the point of the flight where it "
+      + "would happen. Handle them with the operator manual; the instructor reveals them in the debrief." },
+};
+/** The standard run: what the dialog offers first. */
+const DEFAULT_SCENARIO = "PI_MANUAL_RANDOM", DEFAULT_PAD_MIN = 1, DEFAULT_SPEED = 1;
 
 const G = 9.80665, THRUST = 65, BURN_S = 2.0, ROCKET_DRAG = 0.0012, EJECT_AFTER_APOGEE_S = 0.5;
 const SINK_FREE = 9.0, SINK_STUCK = 25.0, WIND_E = 3.5, WIND_N = 1.2;
 const PAD_LAT_E7 = 476926000, PAD_LON_E7 = 162475000;  // placeholder launch site
+/** Landing target of the simulation, east/north of the pad in metres: about where the wind takes it. */
+const TARGET_EAST_M = 190, TARGET_NORTH_M = 40;
+/** Gyro bias learned after this long still on the pad (firmware EstimatorConfig::biasSettledS). */
+const IMU_SETTLE_S = 15, IMU_STILL_S = 1;
+/** cfg::kForceShakeS: shake of a DEPLOY_FORCE; shaking this long frees stuck blades. */
+const FORCE_SHAKE_S = 1, SHAKE_FREES_S = 0.9;
 const ARM_WINDOW_MS = 20000;
 const PI_BOOT_S = 25, PI_SHUTDOWN_S = 7, PI_TIMEOUT_S = 30, PI_MIN_OFF_S = 2;
 
-/** 0, 1 or 2 different faults, for training. */
+/** Landing target of the simulation, {lat, lon}: downwind of the pad. */
+function simTarget() {
+  const lat0 = PAD_LAT_E7 / 1e7, lon0 = PAD_LON_E7 / 1e7;
+  return { lat: lat0 + TARGET_NORTH_M / 111320.0, lon: lon0 + TARGET_EAST_M / (111320.0 * Math.cos(lat0 * Math.PI / 180)) };
+}
+
+/** 0, 1 or 2 different faults the team can fix from the ground station, for training. */
 function drawFaults() {
-  const all = Object.keys(FAULTS);
+  const all = Object.keys(FAULT_DEFS).filter(f => FAULT_DEFS[f][1]);
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [all[i], all[j]] = [all[j], all[i]];
@@ -474,15 +583,17 @@ function drawFaults() {
 }
 
 class SimCanSat {
-  constructor(autoLaunchT) {
+  constructor(scenario, autoLaunchT) {
+    this.scenario = scenario;
     this.autoLaunchT = autoLaunchT;
     this.done = new Set();
-    this.planned = drawFaults();
+    this.planned = SCENARIOS[scenario].randomFaults ? drawFaults() : [];
     this.faults = new Set();
     // truth
     this.stage = "PAD"; this.t = 0; this.h = 0; this.v = 0; this.east = 0; this.north = 0; this.rpm = 0;
     this.launchT = NaN; this.apogeeT = NaN; this.apogeeM = 0; this.ejectT = NaN; this.landT = NaN;
     this.released = false; this.shakeFreed = false; this.releaseFailUsed = false; this.battery = 8.30;
+    this.roll = 0; this.pitch = 0; this.yaw = 35; this.lastKnockT = -Infinity;  // attitude truth, degrees
     // firmware view
     this.phase = P.PAD; this.cause = C.NONE; this.enteredT = 0; this.liftoffT = 0; this.checkPending = false;
     this.maxEstAlt = 0; this.holdA = NaN; this.holdB = NaN; this.aborts = 0;
@@ -490,8 +601,9 @@ class SimCanSat {
     this.shakeStart = NaN; this.shakeUntil = NaN; this.benchDeploy = D.IDLE; this.benchUntil = NaN;
     this.restored = false; this.silentUntil = -1; this.baroFrozenAt = NaN; this.frozenAlt = 0;
     this.estAlt = 0; this.estVz = 0; this.impactSeen = false; this.seq = 0;
-    // Pi: this run is firmware with kPiActiveAtBoot = false, the team switches the Pi active itself
-    this.piActiveAtBoot = false; this.pi = "STANDBY"; this.piWantActive = false; this.piSince = 0;
+    // Pi: "Pi manual" runs are firmware with kPiActiveAtBoot = false, the team switches the Pi active itself
+    const manual = SCENARIOS[scenario].piStandby;
+    this.piActiveAtBoot = !manual; this.pi = manual ? "STANDBY" : "ACTIVE"; this.piWantActive = !manual; this.piSince = 0;
     this.piAtLiftoff = null; this.switchedOff = false; this.switchOffResult = null;
     // uplink guard
     this.armed = false; this.armedMs = 0; this.any = false; this.lastId = 0; this.lastResult = A.NONE;
@@ -527,6 +639,7 @@ class SimCanSat {
   setAutoLaunch(at) { this.autoLaunchT = at; }
   /** A knock on the CanSat on the pad: > 3 g for a moment. */
   knock() {
+    this.lastKnockT = this.t;
     if (this.phase === P.PAD) {
       this.liftoffT = this.t; this.checkPending = true; this.maxEstAlt = this.estAlt;
       this.enter(P.ASCENT, C.ACCEL);
@@ -551,6 +664,7 @@ class SimCanSat {
     if (this.stage === "PAD" && !isNaN_(this.autoLaunchT) && this.t >= this.autoLaunchT) this.launch();
     this.applyPlan();
     this.stepTruth(dt);
+    this.stepAttitude(dt);
     this.stepEstimate(dt);
     this.stepFirmware();
     this.battery -= (this.fault("WEAK_BATTERY") ? 0.0006 : 0.00025) * dt;
@@ -595,7 +709,8 @@ class SimCanSat {
         break;
       }
       case "FALL": {
-        if (this.shaking() && this.t - this.shakeStart >= 4) this.shakeFreed = true;
+        // stuck blades come free after a short shake (DEPLOY_FORCE or SHAKE)
+        if (this.shaking() && this.t - this.shakeStart >= SHAKE_FREES_S) this.shakeFreed = true;
         const free = this.bladesFree();
         const vt = free ? SINK_FREE : SINK_STUCK;
         const a = -G + G * (this.v / vt) * (this.v / vt);
@@ -608,6 +723,43 @@ class SimCanSat {
         break;
       }
     }
+  }
+  // Attitude truth: still on the pad, wobble on the rail, tumble after the
+  // ejection, coning and body spin under the rotor, lying on its side after the landing.
+  stepAttitude(dt) {
+    const n = gauss(), t = this.t;
+    switch (this.stage) {
+      case "PAD": {
+        const k = t - this.lastKnockT < 2 ? 12 * Math.exp(-3 * (t - this.lastKnockT)) : 0;
+        this.roll = 1.2 + k * Math.sin(17 * t) + 0.03 * n;
+        this.pitch = -0.7 + k * Math.cos(13 * t) + 0.03 * gauss();
+        break;
+      }
+      case "BOOST": case "COAST":
+        this.roll = 2.0 * Math.sin(3.1 * t) + 0.2 * n;
+        this.pitch = 1.5 * Math.cos(2.3 * t);
+        this.yaw += 25 * dt;
+        break;
+      case "FALL": {
+        const since = t - this.ejectT, free = this.bladesFree();
+        const tumble = 75 * Math.exp(-since / 1.2);
+        const cone = free ? 6 : 28;  // folded blades: no stable rotor disc
+        const w = free ? 2.2 : 4.5;
+        this.roll = tumble * Math.sin(6 * t) + cone * Math.sin(w * t) + 0.4 * n;
+        this.pitch = tumble * Math.cos(5 * t) + cone * Math.cos(w * t);
+        this.yaw += (free ? 0.05 * this.rpm : 40 + 150 * Math.exp(-since)) * dt;
+        break;
+      }
+      case "GROUND":
+        this.roll += (84 - this.roll) * Math.min(1, dt / 0.3);
+        this.pitch += (8 - this.pitch) * Math.min(1, dt / 0.3);
+        break;
+    }
+    this.yaw = (((this.yaw + 180) % 360) + 360) % 360 - 180;
+  }
+  // On the pad, gyro bias learned and still (firmware Estimator::imuSettled)
+  imuSettled() {
+    return this.stage === "PAD" && this.phase === P.PAD && this.t >= IMU_SETTLE_S && this.t - this.lastKnockT >= 2 + IMU_STILL_S;
   }
   bladesFree() { return this.released && (!this.fault("STUCK_ROTOR") || this.shakeFreed); }
   shaking() { return !isNaN_(this.shakeUntil) && this.t < this.shakeUntil; }
@@ -691,19 +843,26 @@ class SimCanSat {
         if (!this.piWantActive) { this.pi = "STOPPING"; this.piSince = this.t; }
         break;
       case "STOPPING":
-        if (this.t - this.piSince >= this.piStopS()) { this.pi = "STANDBY"; this.piSince = this.t; }
+        if (this.t - this.piSince >= this.piStopS()) {
+          this.pi = "STANDBY"; this.piSince = this.t;
+          // a clean restart brings the payload service back
+          this.faults.delete("PI_CRASH"); this.faults.delete("PI_NO_SERVICE");
+        }
         break;
     }
   }
   // a hanging Pi never sends PI_HALTED: the firmware cuts the power at its timeout
   piStopS() { return this.fault("PI_NO_HALT") ? PI_TIMEOUT_S : PI_SHUTDOWN_S; }
-  piHeartbeat() { return this.pi === "ACTIVE" && this.t - this.piSince >= PI_BOOT_S && !this.fault("PI_CRASH"); }
+  piHeartbeat() {
+    return this.pi === "ACTIVE" && this.t - this.piSince >= PI_BOOT_S && !this.fault("PI_CRASH") && !this.fault("PI_NO_SERVICE");
+  }
   piCameraReady() { return this.piHeartbeat() && !this.fault("PI_NO_CAMERA"); }
   piText() {
     switch (this.pi) {
       case "STANDBY": return "in standby (no power)";
       case "ACTIVE":
         if (this.fault("PI_CRASH") && this.t - this.piSince >= PI_BOOT_S) return "crashed (powered, no heartbeat)";
+        if (this.fault("PI_NO_SERVICE") && this.t - this.piSince >= PI_BOOT_S) return "booted, payload service not running (no heartbeat)";
         if (this.piHeartbeat()) return this.piCameraReady() ? "running, camera ready" : "running, no camera";
         return "booting, camera ready in " + f0(PI_BOOT_S - (this.t - this.piSince)) + " s";
       default:
@@ -758,7 +917,7 @@ class SimCanSat {
     const shown = this.deploy === D.IDLE ? this.benchDeploy : this.deploy;
     const pressure = 101325 * Math.pow(1 - (this.baroOk() ? this.estAlt : this.frozenAlt) / 44330, 5.255);
     const health = (0x7F & ~(gps ? 0 : 1 << 5)) | (this.piHeartbeat() ? HEALTH_PI_READY : 0)
-      | (this.piCameraReady() ? HEALTH_PI_CAMERA : 0);
+      | (this.piCameraReady() ? HEALTH_PI_CAMERA : 0) | (this.imuSettled() ? HEALTH_IMU_SETTLED : 0);
     const flags = (this.restored ? FLAG_RESTORED : 0) | (this.shaking() ? FLAG_SHAKING : 0)
       | (this.isArmed(Math.trunc(this.t * 1000)) ? FLAG_ARMED : 0)
       | (this.vzTrusted() ? FLAG_VZ_TRUSTED | FLAG_ALT_TRUSTED : 0) | (heater ? FLAG_HEATER_ON : 0)
@@ -773,6 +932,7 @@ class SimCanSat {
       vbatMv: Math.trunc(vbat * 1000), health, phase: this.phase, cause: this.cause, deploy: shown, flags,
       rotorRpm: Math.trunc(this.rpm), vzSigmaCms: Math.round(vzSigma * 100) & 0xFF, nis,
       ackId: this.lastId & 0xFF, ackResult: this.lastResult,
+      version: 2, rollDeg: centiDeg(this.roll), pitchDeg: centiDeg(this.pitch), yawDeg: centiDeg(this.yaw),
     };
     this.seq++;
     return t;
@@ -819,6 +979,11 @@ class SimCanSat {
         else if (this.deploy !== D.BURNING) this.burn();
         break;
       case "SHAKE": this.shakeStart = this.t; this.shakeUntil = this.t + 18; break;
+      case "DEPLOY_FORCE":  // firmware: DeployFire and a 1 s shake together
+        if (this.phase === P.PAD) { this.benchDeploy = D.BURNING; this.benchUntil = this.t + 1.0; }
+        else if (this.deploy !== D.BURNING) this.burn();
+        this.shakeStart = this.t; this.shakeUntil = this.t + FORCE_SHAKE_S;
+        break;
       default: return A.UNKNOWN;
     }
     return A.OK;
@@ -939,6 +1104,225 @@ class Link {
 }
 
 // ======================================================================
+// All warning thresholds in one place (mission/Limits.java). Severity: NONE, NORMAL, CAUTION, WARNING.
+// ======================================================================
+const SEV_RANK = { NONE: 0, NORMAL: 1, CAUTION: 2, WARNING: 3 };
+const worst = (a, b) => SEV_RANK[b] > SEV_RANK[a] ? b : a;
+const L = {
+  PACKET_AGE_CAUTION_S: 2.5, PACKET_AGE_WARNING_S: 5.0, LOSS_CAUTION_PCT: 5, LOSS_WARNING_PCT: 20,
+  SNR_CAUTION_DB: -5, SNR_WARNING_DB: -10,
+  VBAT_CAUTION_V: 7.6, VBAT_WARNING_V: 7.4, VBAT_FULL_V: 8.4, VBAT_EMPTY_V: 6.8,
+  SINK_RULE_MIN: 8, SINK_RULE_MAX: 11, SINK_TARGET: 9, SINK_WARNING_MIN: 4, SINK_WARNING_MAX: 13,
+  SINK_MIN_ALT_M: 20, SINK_GAUGE_MAX: 30,
+  RPM_SPINNING: 1000, RPM_CAUTION: 1500, RPM_GAUGE_MAX: 3000, RPM_PAD_MAX: 100, SPIN_UP_GRACE_MS: 4000,
+  VZ_SIGMA_CAUTION_MPS: 0.3, VZ_SIGMA_WARNING_MPS: 0.5, NIS_CAUTION: 5, NIS_WARNING: 25,
+  TILT_PAD_CAUTION_DEG: 10, TILT_PAD_WARNING_DEG: 30, ALT_ZERO_TOL_M: 3, DESCENT_MAX_MS: 120000,
+};
+const Limits = {
+  packetAge: s => s < L.PACKET_AGE_CAUTION_S ? "NORMAL" : s < L.PACKET_AGE_WARNING_S ? "CAUTION" : "WARNING",
+  loss: p => p > L.LOSS_WARNING_PCT ? "WARNING" : p > L.LOSS_CAUTION_PCT ? "CAUTION" : "NORMAL",
+  snr: db => db == null ? "NONE" : db < L.SNR_WARNING_DB ? "WARNING" : db < L.SNR_CAUTION_DB ? "CAUTION" : "NORMAL",
+  battery: v => v < L.VBAT_WARNING_V ? "WARNING" : v < L.VBAT_CAUTION_V ? "CAUTION" : "NORMAL",
+  /** Sink rate in m/s (positive down); only rated while coming down. */
+  sink(s, phase) {
+    if (phase !== P.DESCENT) return "NONE";
+    if (s < L.SINK_WARNING_MIN || s > L.SINK_WARNING_MAX) return "WARNING";
+    return s < L.SINK_RULE_MIN || s > L.SINK_RULE_MAX ? "CAUTION" : "NORMAL";
+  },
+  /** Rotor: tied down on the pad, spinning in the descent. */
+  rotor(rpm, phase) {
+    if (phase === P.PAD) return rpm > L.RPM_PAD_MAX ? "CAUTION" : "NORMAL";
+    if (phase === P.DESCENT) return rpm < L.RPM_SPINNING ? "WARNING" : rpm < L.RPM_CAUTION ? "CAUTION" : "NORMAL";
+    if (phase === P.SPIN_UP) return rpm < L.RPM_SPINNING ? "CAUTION" : "NORMAL";
+    return "NONE";
+  },
+  vzSigma: m => m >= L.VZ_SIGMA_WARNING_MPS ? "WARNING" : m >= L.VZ_SIGMA_CAUTION_MPS ? "CAUTION" : "NORMAL",
+  nis: n => n > L.NIS_WARNING ? "WARNING" : n > L.NIS_CAUTION ? "CAUTION" : "NORMAL",
+  baro(t) {
+    if ((t.health & (1 << 1)) === 0) return "WARNING";
+    return flag(t, FLAG_ALT_TRUSTED) ? "NORMAL" : "CAUTION";
+  },
+  gps: t => gpsFix(t) ? "NORMAL" : t.phase === P.PAD ? "WARNING" : "CAUTION",
+  /** Tilt matters on the pad only (in the descent the can cones and spins). */
+  tilt(t) {
+    if (!hasAttitude(t) || t.phase !== P.PAD) return "NONE";
+    const d = tiltDeg(t);
+    return d > L.TILT_PAD_WARNING_DEG ? "WARNING" : d > L.TILT_PAD_CAUTION_DEG ? "CAUTION" : "NORMAL";
+  },
+  deploy: d => d === D.NO_CURRENT ? "WARNING" : d === D.UNVERIFIED || d === D.SKIPPED ? "CAUTION" : "NORMAL",
+};
+const SEV_COLOR = { NORMAL: "#2e7d32", CAUTION: "#c77700", WARNING: "#c62828", NONE: "#9e9e9e" };
+/** Text colour for a value: the normal label colour when all is well. */
+const sevText = s => s === "CAUTION" || s === "WARNING" ? SEV_COLOR[s] : "";
+
+// ======================================================================
+// Voice callouts in the style of a cockpit (mission/Callouts.java): short, upper case,
+// each said once when it happens, never every packet.
+// ======================================================================
+const ALTITUDES = [500, 400, 300, 200, 100, 50];
+function words(n) {
+  const ones = ["", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"];
+  const tens = ["", "TEN", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"];
+  const p = [];
+  if (n >= 1000) { p.push(ones[Math.trunc(n / 1000)] + " THOUSAND"); n %= 1000; }
+  if (n >= 100) { p.push(ones[Math.trunc(n / 100)] + " HUNDRED"); n %= 100; }
+  if (n >= 10) { p.push(tens[Math.trunc(n / 10)]); n %= 10; }
+  if (n > 0) p.push(ones[n]);
+  return p.join(" ");
+}
+class Callouts {
+  constructor() { this.reset(); }
+  reset() {
+    this.prev = null; this.linkLost = false; this.nextAltIdx = 0; this.prevFailed = false; this.spinCalled = false;
+    this.prevSink = "NONE"; this.prevBat = "NONE"; this.prevPiBad = false; this.prevSettled = false;
+  }
+  /** A new packet. */
+  update(t, day) {
+    const out = [], say = (text, level) => out.push({ text, level });
+    if (this.linkLost) { say("LINK RESTORED", "INFO"); this.linkLost = false; }
+    const ph = t.phase, pph = this.prev ? this.prev.phase : -1;
+    if (this.prev && ph !== pph) {
+      const s = { [P.ASCENT]: pph === P.PAD ? "LIFTOFF" : null, [P.EJECTION]: "APOGEE. EJECTION", [P.SPIN_UP]: "ROTOR RELEASE",
+        [P.DESCENT]: "DESCENT", [P.LANDED]: pph >= P.ASCENT ? "TOUCHDOWN" : null, [P.PAD]: pph === P.ASCENT ? "LIFTOFF ABORTED" : null }[ph];
+      if (s) say(s, "INFO");
+      if (ph === P.SPIN_UP || ph === P.DESCENT) {
+        // altitude callouts start below the current height
+        this.nextAltIdx = 0;
+        while (this.nextAltIdx < ALTITUDES.length && ALTITUDES[this.nextAltIdx] >= t.altM) this.nextAltIdx++;
+      }
+    }
+    // No GO / NO GO callout: the rocket goes whether the CanSat is ready or not, the board shows it.
+    // IMU settled on the pad; said again after a knock unsettled it
+    const settled = ph === P.PAD && hasAttitude(t) && imuSettled(t);
+    if (settled && !this.prevSettled) say("IMU SETTLED", "INFO");
+    this.prevSettled = settled;
+    // rotor: automatic deploy failure detection, and spin-up
+    const failed = day.deployFailure() != null;
+    if (failed && !this.prevFailed) say("ROTOR DEPLOY FAILED. FORCE DEPLOY", "WARNING");
+    this.prevFailed = failed;
+    const spinOk = day.flight().some(i => i.title === "Rotor spinning" && i.status === "OK");
+    if (spinOk && t.rotorRpm > L.RPM_SPINNING && !this.spinCalled) { say("ROTOR SPINNING", "INFO"); this.spinCalled = true; }
+    if (failed) this.spinCalled = false;  // say it again once the fix worked
+    // sink rate (only trusted vz)
+    const sink = flag(t, FLAG_VZ_TRUSTED) && t.altM > L.SINK_MIN_ALT_M ? Limits.sink(-t.vzMps, ph) : "NONE";
+    if (sink === "WARNING" && this.prevSink !== "WARNING") say("SINK RATE", "WARNING");
+    this.prevSink = sink;
+    // altitude callouts on the way down; only the latest one when several passed
+    if ((ph === P.SPIN_UP || ph === P.DESCENT) && flag(t, FLAG_ALT_TRUSTED)) {
+      let said = null;
+      while (this.nextAltIdx < ALTITUDES.length && t.altM <= ALTITUDES[this.nextAltIdx]) said = words(ALTITUDES[this.nextAltIdx++]);
+      if (said) say(said, "INFO");
+    }
+    const bat = Limits.battery(t.vbatMv / 1000);
+    if (bat === "WARNING" && this.prevBat !== "WARNING") say("BATTERY LOW", "WARNING");
+    this.prevBat = bat;
+    // in flight: GPS and altitude trust
+    if (this.prev && day.inFlight() && ph !== P.LANDED) {
+      if (gpsFix(this.prev) && !gpsFix(t)) say("GPS LOST", "CAUTION");
+      if (!gpsFix(this.prev) && gpsFix(t)) say("GPS", "INFO");
+      if (flag(this.prev, FLAG_ALT_TRUSTED) && !flag(t, FLAG_ALT_TRUSTED)) say("ALTITUDE UNRELIABLE", "CAUTION");
+    }
+    const pi = day.piStatus(), piBad = pi === "LOST" || pi === "NO_HEARTBEAT";
+    if (piBad && !this.prevPiBad) say("PAYLOAD LOST", "CAUTION");
+    this.prevPiBad = piBad;
+    this.prev = t;
+    return out;
+  }
+  /** Called a few times a second: the link age. */
+  tick(ageS) {
+    if (this.prev && !this.linkLost && Limits.packetAge(ageS) === "WARNING") {
+      this.linkLost = true;
+      return [{ text: "LINK LOST", level: "WARNING" }];
+    }
+    return [];
+  }
+}
+
+// Master warning chime before a warning, a single chime before a caution, then the callout in the
+// browser's voice (ui/Announcer.java). Without speech synthesis only the chimes play. A warning goes
+// to the front of the queue and cuts off an info callout that is playing; old callouts are dropped.
+class Announcer {
+  constructor() { this.enabled = true; this.queue = []; this.playing = null; this.ctx = null; this.timer = 0; }
+  /** Audio needs a click first: called from the buttons. */
+  unlock() {
+    try {
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === "suspended") this.ctx.resume();
+    } catch (e) { this.ctx = null; }
+  }
+  setEnabled(on) {
+    this.enabled = on;
+    if (!on) { this.queue = []; this.stopSpeech(); }
+  }
+  stopSpeech() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) { /* none */ } }
+  say(c) {
+    if (!this.enabled) return;
+    const item = { c, at: Date.now() };
+    while (this.queue.length >= 3) {
+      const drop = this.queue.find(i => i.c.level === "INFO") || this.queue[0];
+      if (c.level === "INFO" && drop.c.level !== "INFO") return;
+      this.queue.splice(this.queue.indexOf(drop), 1);
+    }
+    if (c.level === "WARNING") {
+      const warn = this.queue.filter(i => i.c.level === "WARNING"), rest = this.queue.filter(i => i.c.level !== "WARNING");
+      this.queue = [...warn, item, ...rest];
+      if (this.playing === "INFO") this.stopSpeech();  // its onend plays the next one
+    } else {
+      this.queue.push(item);
+    }
+    this.pump();
+  }
+  pump() {
+    if (this.playing || !this.queue.length) return;
+    const it = this.queue.shift(), age = Date.now() - it.at;
+    if (!this.enabled || age > 6000 || (it.c.level === "INFO" && age > 3000)) { this.pump(); return; }
+    this.playing = it.c.level;
+    const chimeS = this.chime(it.c.level);
+    setTimeout(() => this.speak(it.c.text), chimeS * 1000 + 30);
+  }
+  done() {
+    clearTimeout(this.timer);
+    this.playing = null;
+    this.pump();
+  }
+  speak(text) {
+    const synth = window.speechSynthesis;
+    if (!synth || !window.SpeechSynthesisUtterance) { this.done(); return; }
+    // abbreviations letter by letter, full stops as short pauses
+    const u = new SpeechSynthesisUtterance(text.replace(/\bIMU\b/g, "I M U").replace(/\bGPS\b/g, "G P S").toLowerCase().replace(/\./g, ","));
+    u.lang = "en-US"; u.rate = 1.25; u.pitch = 0.9;
+    const v = synth.getVoices().find(x => /^en(-|_)(US|GB)/i.test(x.lang) && /male|david|daniel|alex|guy/i.test(x.name))
+      || synth.getVoices().find(x => /^en/i.test(x.lang));
+    if (v) u.voice = v;
+    u.onend = u.onerror = () => this.done();
+    this.timer = setTimeout(() => this.done(), 6000);  // some browsers never fire onend
+    try { synth.speak(u); } catch (e) { this.done(); }
+  }
+  /** Plays the chime of the level, returns its length in seconds. */
+  chime(level) {
+    if (level === "INFO" || !this.ctx || this.ctx.state !== "running") return 0;
+    const ctx = this.ctx, t0 = ctx.currentTime + 0.01, out = ctx.createGain();
+    out.gain.value = 0.25;
+    out.connect(ctx.destination);
+    const tone = (f, a, start, len, decay) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(a, start + 0.005);
+      if (decay) g.gain.exponentialRampToValueAtTime(0.0001, start + len);
+      else { g.gain.setValueAtTime(a, start + len - 0.01); g.gain.linearRampToValueAtTime(0, start + len); }
+      o.connect(g); g.connect(out); o.start(start); o.stop(start + len + 0.02);
+    };
+    if (level === "WARNING") {  // two short two-tone beeps, like a master warning
+      for (let k = 0; k < 2; k++) { tone(1000, 0.5, t0 + k * 0.13, 0.09); tone(1500, 0.3, t0 + k * 0.13, 0.09); }
+      return 0.26;
+    }
+    tone(1318.5, 0.6, t0, 0.25, true); tone(2637, 0.25, t0, 0.25, true);  // one bell-like chime, like a caution
+    return 0.25;
+  }
+}
+
+// ======================================================================
 // Launch day checklist filled from the telemetry (mission/LaunchDay.java).
 // Times are CanSat time, so it works with the accelerated simulator.
 // ======================================================================
@@ -947,7 +1331,8 @@ const PI_BOOT_LIMIT_MS = 60000;
 const KEY_BY_TITLE = { "Radio link": "link", "Sensors": "sensors", "GPS fix": "gps", "Battery": "battery",
   "Phase PAD": "phase_pad", "Altitude zeroed": "zeroed", "Safe": "safe", "Liftoff": "liftoff",
   "Apogee / ejection": "ejection", "Rotor release": "release", "Rotor spinning": "spinning",
-  "Steady descent": "descent", "Landed": "landed", "Recovery": "recovery", "Pi": "pi" };
+  "Steady descent": "descent", "Landed": "landed", "Recovery": "recovery", "Pi": "pi", "IMU settled": "imu",
+  "Rotor locked": "rotor_locked" };
 const item = (title, status, detail) => ({ title, status, detail });
 const flag = (t, bit) => (t.flags & bit) !== 0;
 const secs = ms => (ms / 1000).toFixed(1);
@@ -1006,6 +1391,25 @@ class LaunchDay {
     if (this.piReportedSinceActive) return "LOST";
     return this.nowMs - this.piActiveSinceMs > PI_BOOT_LIMIT_MS ? "NO_HEARTBEAT" : "BOOTING";
   }
+  /**
+   * Automatic rotor deploy failure detection, after the ejection and before the landing: the release
+   * burned without current, the rotor never got to speed, or it stopped again in the descent.
+   * null = no failure seen. The remedy is FORCE DEPLOY (DEPLOY_FORCE).
+   */
+  deployFailure() {
+    const t = this.last;
+    if (!t || this.ejectMs < 0 || this.landedMs >= 0 || t.phase === P.LANDED) return null;
+    if (t.deploy === D.NO_CURRENT) return "release burned without current";
+    const since = this.nowMs - this.ejectMs;
+    if (since > L.SPIN_UP_GRACE_MS && this.maxRpmAfterEject <= L.RPM_SPINNING) {
+      return "no rotor rpm " + f0(since / 1000) + " s after the ejection, sink " + f0(-t.vzMps) + " m/s";
+    }
+    // not near the ground: after the touchdown DESCENT holds 3 s with 0 rpm
+    if (this.maxRpmAfterEject > L.RPM_SPINNING && t.phase === P.DESCENT && t.rotorRpm < L.RPM_SPINNING / 2 && t.altM > 10) {
+      return "rotor stopped in the descent (" + t.rotorRpm + " rpm)";
+    }
+    return null;
+  }
   inFlight() { return this.liftoffMs >= 0; }
   go(wallMs) { return this.preflight(wallMs).every(i => i.status !== "FAIL" && i.status !== "PENDING"); }
   /** Live state by checklist key, for the full launch day checklist. */
@@ -1025,25 +1429,33 @@ class LaunchDay {
     const t = this.last;
     if (!t) { l.push(item("Radio link", "PENDING", "no packet yet")); return l; }
     const age = (wallMs - this.lastRxWallMs) / 1000, loss = this.stats.lossPercent();
-    l.push(item("Radio link", age > 5 ? "FAIL" : loss > 20 ? "WARN" : "OK",
+    l.push(item("Radio link", age > L.PACKET_AGE_WARNING_S ? "FAIL" : loss > L.LOSS_WARNING_PCT ? "WARN" : "OK",
       "last packet " + f0(age) + " s ago, loss " + f0(loss) + " %"));
     const missing = HEALTH_NEEDED & ~t.health;
     const miss = HEALTH_BITS.filter((_, i) => (missing & (1 << i)) !== 0).join(", ");
     l.push(item("Sensors", missing === 0 ? "OK" : "FAIL", missing === 0 ? "all answer" : "missing: " + miss));
     const fix = (t.health & (1 << 5)) !== 0;
     l.push(item("GPS fix", fix ? "OK" : "FAIL", fix ? f5(t.latE7 / 1e7) + ", " + f5(t.lonE7 / 1e7) : "no fix: wait, sky view"));
-    const v = t.vbatMv / 1000;
-    l.push(item("Battery", v >= 7.6 ? "OK" : v >= 7.4 ? "WARN" : "FAIL",
-      f2(v) + " V" + (v < 7.4 ? ": change the pack" : v < 7.6 ? ": low, change if the wait is long" : "")));
+    const v = t.vbatMv / 1000, bat = Limits.battery(v);
+    l.push(item("Battery", bat === "NORMAL" ? "OK" : bat === "CAUTION" ? "WARN" : "FAIL",
+      f2(v) + " V" + (bat === "WARNING" ? ": change the pack" : bat === "CAUTION" ? ": low, change if the wait is long" : "")));
     const pad = t.phase === P.PAD, restored = flag(t, FLAG_RESTORED);
     l.push(item("Phase PAD", pad && !restored ? "OK" : "FAIL", pad && !restored ? "ready"
       : "is " + PHASE[t.phase] + (restored ? " (restored)" : "") + ": 'phase reset' over USB"));
-    const altT = flag(t, FLAG_ALT_TRUSTED), zero = Math.abs(t.altM) < 3 && altT;
+    const altT = flag(t, FLAG_ALT_TRUSTED), zero = Math.abs(t.altM) < L.ALT_ZERO_TOL_M && altT;
     l.push(item("Altitude zeroed", zero ? "OK" : "WARN", zero ? f1(t.altM) + " m"
       : f1(t.altM) + " m" + (altT ? "" : ", untrusted") + ": 'zero' over USB"));
     const safe = !flag(t, FLAG_ARMED) && !flag(t, FLAG_HEATER_ON) && !flag(t, FLAG_SHAKING);
     l.push(item("Safe", safe ? "OK" : "FAIL", safe ? "not armed, heater off, no shake"
       : "armed, heater or shake active: Disarm / Stop shake"));
+    // gyro bias is learned while the can stands still on the pad (firmware Estimator::imuSettled)
+    if (!hasAttitude(t)) l.push(item("IMU settled", "WARN", "not reported (firmware with telemetry version 1)"));
+    else if (imuSettled(t)) l.push(item("IMU settled", "OK", "gyro bias learned, still, tilt " + f1(tiltDeg(t)) + "°"));
+    else l.push(item("IMU settled", "PENDING", "learning the gyro bias: do not touch (tilt " + f1(tiltDeg(t)) + "°)"));
+    // blades tied down by the nichrome wire until the release
+    const locked = t.rotorRpm <= L.RPM_PAD_MAX;
+    l.push(item("Rotor locked", locked ? "OK" : "WARN", locked ? "blades tied down, 0 rpm"
+      : t.rotorRpm + " rpm on the pad: blades loose? check the tie"));
     // WARN only: the team may keep the Pi in standby during a long wait to save the battery
     const activeS = this.piActiveSinceMs < 0 ? 0 : Math.trunc((this.nowMs - this.piActiveSinceMs) / 1000);
     l.push({
@@ -1079,29 +1491,28 @@ class LaunchDay {
     const d = DEPLOY[Math.min(t.deploy, DEPLOY.length - 1)];
     if (this.ejectMs < 0) l.push(item("Rotor release", "PENDING", ""));
     else if (d === "OK") l.push(item("Rotor release", "OK", "wire heated (current seen)"));
-    else if (d === "NO_CURRENT") l.push(item("Rotor release", "FAIL", "no current: send DEPLOY FIRE"));
+    else if (d === "NO_CURRENT") l.push(item("Rotor release", "FAIL", "no current: send FORCE DEPLOY (or DEPLOY FIRE)"));
     else if (d === "UNVERIFIED") l.push(item("Rotor release", "WARN", "burned, current not measured: watch the rpm"));
     else if (d === "SKIPPED") l.push(item("Rotor release", this.burnedOk ? "OK" : "WARN", "skipped after a reset" + (this.burnedOk ? " (burned before)" : ": watch the rpm")));
     else l.push(item("Rotor release", "PENDING", d.toLowerCase()));
 
     if (this.ejectMs < 0) l.push(item("Rotor spinning", "PENDING", ""));
-    else if (this.maxRpmAfterEject > 1000) l.push(item("Rotor spinning", "OK", "max " + this.maxRpmAfterEject + " rpm"));
-    else if (this.nowMs - this.ejectMs > 4000 && t.phase !== P.LANDED) {
-      l.push(item("Rotor spinning", "FAIL", t.rotorRpm + " rpm, sink " + f0(-t.vzMps) + " m/s: send SHAKE SERVOS"
-        + (d === "NO_CURRENT" ? " after DEPLOY FIRE" : "")));
+    else if (this.maxRpmAfterEject > L.RPM_SPINNING) l.push(item("Rotor spinning", "OK", "max " + this.maxRpmAfterEject + " rpm"));
+    else if (this.nowMs - this.ejectMs > L.SPIN_UP_GRACE_MS && t.phase !== P.LANDED) {
+      l.push(item("Rotor spinning", "FAIL", t.rotorRpm + " rpm, sink " + f0(-t.vzMps) + " m/s: send FORCE DEPLOY (or SHAKE SERVOS)"));
     } else l.push(item("Rotor spinning", t.phase === P.LANDED ? "FAIL" : "PENDING", t.rotorRpm + " rpm"));
 
     if (this.sinkSamples.length === 0) l.push(item("Steady descent", "PENDING", ""));
     else {
       const mean = this.sinkSamples.reduce((a, b) => a + b, 0) / this.sinkSamples.length;
-      const inRange = mean >= 8 && mean <= 11;
+      const inRange = mean >= L.SINK_RULE_MIN && mean <= L.SINK_RULE_MAX;
       l.push(item("Steady descent", !this.sinkTrusted ? "WARN" : inRange ? "OK" : "WARN",
         f1(mean) + " m/s" + (!this.sinkTrusted ? " (vz untrusted, rely on GPS)" : inRange ? "" : " (rules: 8-11)")));
     }
     if (this.landedMs < 0) l.push(item("Landed", "PENDING", ""));
     else {
       const descentMs = this.ejectMs >= 0 ? this.landedMs - this.ejectMs : -1;
-      const tooLong = descentMs > 120000;  // rules: descent at most 120 s
+      const tooLong = descentMs > L.DESCENT_MAX_MS;  // rules: descent at most 120 s
       l.push(item("Landed", tooLong ? "WARN" : "OK", "by " + this.landedCause + ", flight " + secs(this.landedMs - this.liftoffMs) + " s"
         + (descentMs < 0 ? "" : ", descent " + secs(descentMs) + " s") + (tooLong ? " (rules: max 120 s)" : "")));
     }
@@ -1264,7 +1675,7 @@ class Chart {
     // right of the dot, or left of it near the right edge; always inside the plot
     const bx = x + 10 + bw > left + pw ? x - 10 - bw : x + 10, by = Math.max(top, Math.min(top + ph - bh, y - bh / 2));
     g.fillStyle = "rgba(255,255,255,.9)"; g.strokeStyle = this.color;
-    g.beginPath(); g.rect(bx, by, bw, bh); g.fill(); g.stroke();
+    g.beginPath(); g.roundRect(bx, by, bw, bh, 6); g.fill(); g.stroke();
     g.fillStyle = "#000"; g.font = "bold 12px " + UI_FONT; g.fillText(value, bx + 6, by + 14);
     g.fillStyle = "#404040"; g.font = "11px " + UI_FONT; g.fillText(time, bx + 6, by + 28);
   }
@@ -1273,6 +1684,16 @@ class Chart {
 // Map without internet: a metre grid around the launch site, the track coloured by phase,
 // current position with height, predicted landing point (ui/MapTab.java, grid mode)
 const PHASE_COLORS = ["#757575", "#1565c0", "#ef6c00", "#ef6c00", "#2e7d32", "#455a64"];
+
+// Landing target {lat, lon} or null: the simulation sets its own near the pad, right click on the map moves it
+let target = null;
+/** Distance and bearing from a point to the target, "123 m 045° (NE)". */
+function describeTarget(lat, lon) {
+  if (!target) return "";
+  const b = Geo.bearingDeg(lat, lon, target.lat, target.lon);
+  return f0(Geo.distanceM(lat, lon, target.lat, target.lon)) + " m " + deg3(b) + "° (" + Geo.compass(b) + ")";
+}
+
 class MapView {
   constructor(cv, track) {
     this.cv = cv; this.track = track; this.centerLat = 47.6926; this.centerLon = 16.2475; this.zoom = 16;
@@ -1304,6 +1725,20 @@ class MapView {
       if ($("follow").checked && this.track.current()) $("follow").checked = false;
       this.dirty = true;
     }, { passive: false });
+    // right click: landing target here / clear it
+    cv.addEventListener("contextmenu", async e => {
+      e.preventDefault();
+      const r = cv.getBoundingClientRect();
+      const lon = Geo.lon(Geo.worldX(this.centerLon, this.zoom) + e.offsetX - r.width / 2, this.zoom);
+      const lat = Geo.lat(Geo.worldY(this.centerLat, this.zoom) + e.offsetY - r.height / 2, this.zoom);
+      const btns = [["Set target here", "set"]];
+      if (target) btns.push(["Clear target", "clear"]);
+      btns.push(["Cancel", false]);
+      const v = await dialog("Landing target", textNode("Set the landing target to " + f6(lat) + ", " + f6(lon) + "?"), btns, "");
+      if (v === "set") { target = { lat, lon }; appendEvent("landing target " + f6(lat) + ", " + f6(lon)); }
+      else if (v === "clear") target = null;
+      this.refresh();
+    });
   }
   /** New packet: follow the CanSat if wanted, update the text line. */
   refresh() {
@@ -1324,6 +1759,7 @@ class MapView {
           + deg3(Geo.bearingDeg(pad.lat, pad.lon, pr.lat, pr.lon)) + "° from the pad";
       }
       if (this.track.landed()) s += "  |  LANDED";
+      if (target) s += "  |  target " + describeTarget(cur.lat, cur.lon);
     }
     $("mapInfo").textContent = s;
     this.dirty = true;
@@ -1374,7 +1810,7 @@ class MapView {
   label(g, s, x, y) {
     g.font = "bold 12px " + UI_FONT;
     const sw = g.measureText(s).width;
-    g.fillStyle = "rgba(255,255,255,.82)"; g.fillRect(x - 3, y - 13, sw + 6, 17);
+    g.fillStyle = "rgba(255,255,255,.82)"; g.beginPath(); g.roundRect(x - 4, y - 14, sw + 8, 19, 6); g.fill();
     g.fillStyle = "#000"; g.fillText(s, x, y);
   }
   drawTrack(g) {
@@ -1390,6 +1826,11 @@ class MapView {
       const x = this.sx(pad.lon), y = this.sy(pad.lat);
       g.fillStyle = "#2e7d32"; g.beginPath(); g.moveTo(x, y - 9); g.lineTo(x - 8, y + 6); g.lineTo(x + 8, y + 6); g.closePath(); g.fill();
       this.label(g, "Launch site", x + 10, y + 4);
+    }
+    if (target) {
+      const x = this.sx(target.lon), y = this.sy(target.lat);
+      for (let i = 3; i >= 1; i--) { g.fillStyle = i % 2 === 1 ? "#c62828" : "#fff"; g.beginPath(); g.arc(x, y, 5 * i, 0, 7); g.fill(); }
+      this.label(g, "Target", x + 16, y + 4);
     }
     const pr = this.track.predictedLanding(), cur = this.track.current();
     if (pr && cur) {
@@ -1419,7 +1860,701 @@ class MapView {
     const nx = w - 30, ny = 40;
     g.beginPath(); g.moveTo(nx, ny - 18); g.lineTo(nx - 8, ny + 6); g.lineTo(nx, ny); g.lineTo(nx + 8, ny + 6); g.closePath(); g.fill();
     g.fillText("N", nx - 4, ny + 20);
-    g.fillStyle = "#404040"; g.fillText("zoom " + this.zoom, 8, 16);
+    g.fillStyle = "#404040"; g.fillText("zoom " + this.zoom + "   right click: landing target", 8, 16);
+  }
+}
+
+// ======================================================================
+// Mission tab: colours, a small software 3D renderer, the 3D CanSat, the 3D flight path,
+// dial gauges, altitude tape and the go/no-go board (ui/Palette, Gfx3D, CanModel, CanView3D,
+// TrajectoryView3D, DialGauge, AltitudeTape, PreLaunchPanel, MissionTab)
+// ======================================================================
+const PAL = { OK: "#2e7d32", WARN: "#c77700", BAD: "#c62828", OFF: "#9e9e9e", BLUE: "#1565c0", SLATE: "#455a64",
+  FG: "#000000", WELL: "#e2e2e2", WELL_TOP: "#ececec", SKY_TOP: "rgb(208,224,237)" };
+const phaseColor = p => PHASE_COLORS[Math.max(0, Math.min(p, 5))];
+const font = (px, bold) => (bold ? "bold " : "") + px + "px " + UI_FONT;
+const MONO = '"Courier New", Consolas, monospace';
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function rgba(h, a) { const [r, g, b] = hexRgb(h); return "rgba(" + r + "," + g + "," + b + "," + (a / 255).toFixed(3) + ")"; }
+/** Colour between a and b ("#rrggbb"), as "#rrggbb". */
+function mixHex(a, b, k) {
+  k = Math.max(0, Math.min(1, k));
+  const x = hexRgb(a), y = hexRgb(b);
+  return "#" + x.map((v, i) => Math.round(v + (y[i] - v) * k).toString(16).padStart(2, "0")).join("");
+}
+const angleDiff = (to, from) => ((to - from + 540) % 360 + 360) % 360 - 180;
+const shown = el => el.offsetParent !== null;
+
+// ---- vectors [x, y, z] (x east, y north, z up) and row-major 3x3 rotations ----
+const V3 = {
+  add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+  sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+  mul: (a, k) => [a[0] * k, a[1] * k, a[2] * k],
+  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+  cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+  len: a => Math.hypot(a[0], a[1], a[2]),
+  unit(a) { const l = V3.len(a); return l < 1e-12 ? a : V3.mul(a, 1 / l); },
+  lerp: (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k],
+};
+const M3 = {
+  I: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+  rotX(d) { const r = d * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); return [1, 0, 0, 0, c, -s, 0, s, c]; },
+  rotY(d) { const r = d * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); return [c, 0, s, 0, 1, 0, -s, 0, c]; },
+  rotZ(d) { const r = d * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); return [c, -s, 0, s, c, 0, 0, 0, 1]; },
+  mul(A, B) {
+    const o = new Array(9);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) o[r * 3 + c] = A[r * 3] * B[c] + A[r * 3 + 1] * B[3 + c] + A[r * 3 + 2] * B[6 + c];
+    return o;
+  },
+  apply: (A, v) => [A[0] * v[0] + A[1] * v[1] + A[2] * v[2], A[3] * v[0] + A[4] * v[1] + A[5] * v[2], A[6] * v[0] + A[7] * v[1] + A[8] * v[2]],
+  scale: (A, k) => A.map(x => x * k),
+  /** Body to world like the firmware's Euler angles: yaw, then pitch, then roll. */
+  attitude: (r, p, y) => M3.mul(M3.mul(M3.rotZ(-y), M3.rotY(p)), M3.rotX(r)),
+};
+const NEAR = 0.05;
+
+/** Orbit camera around a target point. yaw 0 = looking north, pitch = height angle. */
+class Camera {
+  constructor() { this.target = [0, 0, 0]; this.yawDeg = 30; this.pitchDeg = 20; this.distance = 10; this.fovDeg = 40; }
+  setup(w, h) {
+    this.w = w; this.h = h;
+    const yr = this.yawDeg * Math.PI / 180, pr = this.pitchDeg * Math.PI / 180;
+    const back = [-Math.sin(yr) * Math.cos(pr), -Math.cos(yr) * Math.cos(pr), Math.sin(pr)];
+    this.eye = V3.add(this.target, V3.mul(back, this.distance));
+    this.fwd = V3.unit(V3.sub(this.target, this.eye));
+    this.right = V3.unit(V3.cross(this.fwd, [0, 0, 1]));
+    this.up = V3.cross(this.right, this.fwd);
+    this.focal = h / 2 / Math.tan(this.fovDeg * Math.PI / 360);
+  }
+  view(p) { const d = V3.sub(p, this.eye); return [V3.dot(d, this.right), V3.dot(d, this.up), V3.dot(d, this.fwd)]; }
+  screen(c) { return [this.w / 2 + c[0] * this.focal / c[2], this.h / 2 - c[1] * this.focal / c[2]]; }
+  project(p) { const c = this.view(p); return c[2] < NEAR ? null : this.screen(c); }
+  scaleAt(p) { const c = this.view(p); return c[2] < NEAR ? 0 : this.focal / c[2]; }
+}
+
+// Triangles {a, b, c, col: [r, g, b, a], two}; two = no back face culling (blades, discs)
+const col = (h, a = 255) => [...hexRgb(h), a];
+const Mesh = {
+  tri(m, a, b, c, cl, two = false) { m.push({ a, b, c, col: cl, two }); },
+  quad(m, a, b, c, d, cl) { Mesh.tri(m, a, b, c, cl); Mesh.tri(m, a, c, d, cl); },
+  addAll(m, src, rot, off) {
+    for (const t of src) m.push({ a: V3.add(M3.apply(rot, t.a), off), b: V3.add(M3.apply(rot, t.b), off), c: V3.add(M3.apply(rot, t.c), off), col: t.col, two: t.two });
+  },
+  /** Closed cylinder along z from z0 to z1, outward normals. */
+  cylinder(m, r, z0, z1, n, side, cap) {
+    for (let k = 0; k < n; k++) {
+      const a0 = 2 * Math.PI * k / n, a1 = 2 * Math.PI * (k + 1) / n;
+      const p0 = [r * Math.cos(a0), r * Math.sin(a0), z0], p1 = [r * Math.cos(a1), r * Math.sin(a1), z0];
+      const q0 = [p0[0], p0[1], z1], q1 = [p1[0], p1[1], z1];
+      Mesh.quad(m, p0, p1, q1, q0, side);
+      if (cap) { Mesh.tri(m, [0, 0, z1], q0, q1, cap); Mesh.tri(m, [0, 0, z0], p1, p0, cap); }
+    }
+  },
+  box(m, lo, hi, cl) {
+    const p = [];
+    for (let k = 0; k < 8; k++) p.push([(k & 1) === 0 ? lo[0] : hi[0], (k & 2) === 0 ? lo[1] : hi[1], (k & 4) === 0 ? lo[2] : hi[2]]);
+    Mesh.quad(m, p[0], p[2], p[3], p[1], cl); Mesh.quad(m, p[4], p[5], p[7], p[6], cl);
+    Mesh.quad(m, p[0], p[1], p[5], p[4], cl); Mesh.quad(m, p[2], p[6], p[7], p[3], cl);
+    Mesh.quad(m, p[0], p[4], p[6], p[2], cl); Mesh.quad(m, p[1], p[3], p[7], p[5], cl);
+  },
+};
+const LIGHT = V3.unit([-0.4, -0.6, 0.7]);
+
+/** Flat shading, triangles sorted back to front. */
+function render3D(g, cam, tris) {
+  const faces = [], eye = cam.eye;
+  for (const t of tris) {
+    let n = V3.cross(V3.sub(t.b, t.a), V3.sub(t.c, t.a));
+    const nl = V3.len(n);
+    if (nl < 1e-12) continue;
+    n = V3.mul(n, 1 / nl);
+    const center = V3.mul(V3.add(V3.add(t.a, t.b), t.c), 1 / 3);
+    if (V3.dot(n, V3.sub(eye, center)) < 0) {
+      if (!t.two) continue;
+      n = V3.mul(n, -1);
+    }
+    const ca = cam.view(t.a), cb = cam.view(t.b), cc = cam.view(t.c);
+    if (ca[2] < NEAR || cb[2] < NEAR || cc[2] < NEAR) continue;
+    const k = 0.48 + 0.52 * Math.max(0, V3.dot(n, LIGHT));
+    const c = t.col, shade = "rgba(" + Math.min(255, Math.round(c[0] * k)) + "," + Math.min(255, Math.round(c[1] * k)) + ","
+      + Math.min(255, Math.round(c[2] * k)) + "," + (c[3] / 255).toFixed(3) + ")";
+    faces.push({ s: [cam.screen(ca), cam.screen(cb), cam.screen(cc)], depth: (ca[2] + cb[2] + cc[2]) / 3, shade, opaque: c[3] === 255 });
+  }
+  faces.sort((x, y) => y.depth - x.depth);
+  g.lineWidth = 0.8; g.lineJoin = "round";
+  for (const f of faces) {
+    g.beginPath(); g.moveTo(f.s[0][0], f.s[0][1]); g.lineTo(f.s[1][0], f.s[1][1]); g.lineTo(f.s[2][0], f.s[2][1]); g.closePath();
+    g.fillStyle = f.shade; g.fill();
+    if (f.opaque) { g.strokeStyle = f.shade; g.stroke(); }  // closes hairline gaps between triangles
+  }
+}
+/** A line in the world, clipped at the near plane (stroke set by the caller). */
+function line3D(g, cam, a, b) {
+  let ca = cam.view(a), cb = cam.view(b);
+  if (ca[2] < NEAR && cb[2] < NEAR) return;
+  if (ca[2] < NEAR) ca = V3.lerp(ca, cb, (NEAR - ca[2]) / (cb[2] - ca[2]));
+  if (cb[2] < NEAR) cb = V3.lerp(cb, ca, (NEAR - cb[2]) / (ca[2] - cb[2]));
+  const sa = cam.screen(ca), sb = cam.screen(cb);
+  g.beginPath(); g.moveTo(sa[0], sa[1]); g.lineTo(sb[0], sb[1]); g.stroke();
+}
+function groundCircle(g, cam, c, r, n) {
+  for (let k = 0; k < n; k++) {
+    const a0 = 2 * Math.PI * k / n, a1 = 2 * Math.PI * (k + 1) / n;
+    line3D(g, cam, V3.add(c, [r * Math.cos(a0), r * Math.sin(a0), 0]), V3.add(c, [r * Math.cos(a1), r * Math.sin(a1), 0]));
+  }
+}
+
+// Low-poly CanSat in body axes (z = can axis, up), units of the can radius (33 mm): can, mast,
+// swashplate, hub and three blades with the tip colours of the swashplate drawings
+const CanModel = {
+  HUB_Z: 5.15, BLADE_LEN: 6.0, _body: null,
+  body() {
+    if (!this._body) {
+      const m = [], BODY = col("#b0bec5"), CAP = col("#78909c"), MAST = col("#455a64");
+      Mesh.cylinder(m, 1.0, 0, 1.4, 20, BODY, CAP);
+      Mesh.cylinder(m, 1.01, 1.4, 2.0, 20, col("#1565c0"), null);
+      Mesh.cylinder(m, 1.0, 2.0, 3.5, 20, BODY, CAP);
+      Mesh.cylinder(m, 0.14, 3.5, 5.3, 8, MAST, MAST);
+      Mesh.cylinder(m, 0.75, 4.25 - 0.08, 4.25 + 0.08, 16, col("#ef6c00"), col("#ef6c00"));
+      Mesh.cylinder(m, 0.32, this.HUB_Z - 0.15, this.HUB_Z + 0.15, 10, MAST, MAST);
+      Mesh.cylinder(m, 0.06, -0.9, 0, 6, MAST, MAST);  // antenna stub at the bottom
+      this._body = m;
+    }
+    return this._body;
+  },
+  /** Blades at rotor angle spinDeg; fold 0 = spread (5° cone), 1 = folded down along the can; a disc when fast. */
+  rotor(spinDeg, fold, discAlpha) {
+    const m = [], theta = 85 + fold * (172 - 85), TIPS = ["#1e88e5", "#e53935", "#43a047"], L_ = this.BLADE_LEN;
+    for (let k = 0; k < 3; k++) {
+      const rot = M3.mul(M3.mul(M3.rotZ(spinDeg + 120 * k), M3.rotY(theta - 90)), M3.rotX(6));
+      const blade = [], chord = 0.9, th = 0.08;
+      Mesh.box(blade, [0.3, -chord / 2, -th / 2], [L_ - 0.8, chord / 2, th / 2], col("#eceff1"));
+      Mesh.box(blade, [L_ - 0.8, -chord / 2, -th / 2], [L_, chord / 2, th / 2], col(TIPS[k]));
+      Mesh.addAll(m, blade, rot, [0, 0, this.HUB_Z]);
+    }
+    if (discAlpha > 0.01) {
+      const c = col("#cfd8dc", Math.round(discAlpha * 110)), n = 28;
+      const r = L_ * Math.sin(theta * Math.PI / 180), z = this.HUB_Z + L_ * Math.cos(theta * Math.PI / 180);
+      for (let k = 0; k < n; k++) {
+        const a0 = 2 * Math.PI * k / n, a1 = 2 * Math.PI * (k + 1) / n;
+        Mesh.tri(m, [0, 0, this.HUB_Z], [r * Math.cos(a0), r * Math.sin(a0), z], [r * Math.cos(a1), r * Math.sin(a1), z], c, true);
+      }
+    }
+    return m;
+  },
+};
+
+/** Drag to turn, wheel to zoom, double click back to the slow circle. */
+function orbitControls(cv, view, pitchMin, pitchMax, yawK, pitchK, holdMs, onWheel, onReset) {
+  let drag = null;
+  cv.addEventListener("pointerdown", e => { if (e.button === 0) { drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId); } });
+  cv.addEventListener("pointerup", () => { drag = null; });
+  cv.addEventListener("pointermove", e => {
+    if (!drag) return;
+    view.cam.yawDeg -= (e.clientX - drag.x) * yawK;
+    view.cam.pitchDeg = Math.max(pitchMin, Math.min(pitchMax, view.cam.pitchDeg + (e.clientY - drag.y) * pitchK));
+    drag = { x: e.clientX, y: e.clientY };
+    view.manualUntil = Date.now() + holdMs;
+  });
+  cv.addEventListener("wheel", e => { e.preventDefault(); onWheel(Math.sign(e.deltaY)); }, { passive: false });
+  cv.addEventListener("dblclick", () => { view.manualUntil = 0; onReset(); });
+}
+
+// Live 3D CanSat: tilts with roll / pitch / yaw, rotor folded until the release and spinning with
+// the measured rpm; the camera circles slowly; a bubble level shows the tilt (ui/CanView3D.java)
+class CanView3D {
+  constructor(cv, title) {
+    this.cv = cv; this.title = title; this.cam = new Camera(); this.last = null;
+    this.roll = 0; this.pitch = 0; this.yaw = 0; this.fold = 1; this.spin = 0; this.rpmShown = 0; this.manualUntil = 0;
+    Object.assign(this.cam, { target: [0, 0, 2.6], distance: 17, pitchDeg: 16, yawDeg: 210 });
+    orbitControls(cv, this, -10, 80, 0.5, 0.4, 10000,
+      s => { this.cam.distance = Math.max(10, Math.min(60, this.cam.distance * Math.pow(1.1, s))); },
+      () => { this.cam.pitchDeg = 16; this.cam.distance = 17; });
+  }
+  show(t) { this.last = t; }
+  clear() { this.last = null; this.fold = 1; }
+  animate(dt) {
+    const t = this.last, k = 1 - Math.exp(-dt / 0.25);
+    if (t && hasAttitude(t)) {
+      this.roll += angleDiff(t.rollDeg, this.roll) * k;
+      this.pitch += angleDiff(t.pitchDeg, this.pitch) * k;
+      this.yaw += angleDiff(t.yawDeg, this.yaw) * k;
+    }
+    const rpm = t ? t.rotorRpm : 0;
+    this.rpmShown += (rpm - this.rpmShown) * (1 - Math.exp(-dt / 0.6));
+    // blades come out with the release (or as soon as the rotor turns)
+    const released = t && (rpm > 50 || (t.deploy === D.OK && t.phase >= P.EJECTION) || t.phase === P.DESCENT);
+    this.fold += ((released ? 0 : 1) - this.fold) * (1 - Math.exp(-dt / 0.35));
+    // the eye cannot follow 2000 rpm: turn visibly, the disc shows the speed
+    this.spin = (this.spin + Math.min(this.rpmShown * 6, 620) * dt) % 360;
+    if (Date.now() > this.manualUntil) this.cam.yawDeg += 7 * dt;
+  }
+  draw() {
+    const { g, w, h } = fitCanvas(this.cv), cam = this.cam;
+    const grad = g.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, PAL.WELL_TOP); grad.addColorStop(1, PAL.WELL);
+    g.fillStyle = grad; g.fillRect(0, 0, w, h);
+    cam.setup(w, h);
+    // floor: rings and compass ticks around the can
+    g.lineWidth = 1;
+    for (const r of [2.5, 4.5, 7]) { g.strokeStyle = rgba(PAL.FG, r === 7 ? 60 : 30); groundCircle(g, cam, [0, 0, -1], r, 48); }
+    g.font = font(11, true);
+    ["N", "E", "S", "W"].forEach((d, i) => {
+      const a = (90 - 90 * i) * Math.PI / 180;
+      g.strokeStyle = rgba(PAL.FG, 70);
+      line3D(g, cam, [7 * Math.cos(a), 7 * Math.sin(a), -1], [7.4 * Math.cos(a), 7.4 * Math.sin(a), -1]);
+      const s = cam.project([7.8 * Math.cos(a), 7.8 * Math.sin(a), -1]);
+      if (s) { g.fillStyle = rgba(PAL.FG, i === 0 ? 200 : 110); g.fillText(d, s[0] - 4, s[1] + 4); }
+    });
+    // shadow
+    const off = Math.sin(Math.hypot(this.roll, this.pitch) * Math.PI / 180) * 1.5;
+    g.beginPath();
+    let first = true;
+    for (let k = 0; k <= 24; k++) {
+      const a = 2 * Math.PI * k / 24, s = cam.project([1.3 * Math.cos(a) + off, 1.3 * Math.sin(a), -1]);
+      if (!s) continue;
+      if (first) g.moveTo(s[0], s[1]); else g.lineTo(s[0], s[1]);
+      first = false;
+    }
+    g.fillStyle = "rgba(0,0,0,.16)"; g.fill();
+    // the can, turned about its centre of gravity (~1.7 up)
+    const rot = M3.attitude(this.roll, this.pitch, this.yaw), pivot = [0, 0, 1.7], offv = V3.sub(pivot, M3.apply(rot, pivot));
+    const world = [];
+    Mesh.addAll(world, CanModel.body(), rot, offv);
+    const disc = Math.max(0, Math.min(1, (this.rpmShown - 200) / 900)) * (1 - this.fold);
+    Mesh.addAll(world, CanModel.rotor(this.spin, this.fold, disc), rot, offv);
+    render3D(g, cam, world);
+    this.overlay(g, w, h);
+  }
+  overlay(g, w, h) {
+    const t = this.last;
+    g.fillStyle = PAL.FG; g.font = font(13, true); g.fillText(this.title, 10, 18);
+    g.font = "bold 12px " + MONO;
+    if (!t) { g.fillText("no data", 10, 36); return; }
+    const p6 = x => f1(x).padStart(6);
+    g.fillText("roll  " + p6(t.rollDeg) + "°", 10, 36);
+    g.fillText("pitch " + p6(t.pitchDeg) + "°", 10, 51);
+    g.fillText("yaw   " + p6(t.yawDeg) + "°", 10, 66);
+    const ts = Limits.tilt(t);
+    g.fillStyle = ts === "NONE" ? PAL.FG : SEV_COLOR[ts];
+    g.fillText("tilt  " + p6(tiltDeg(t)) + "°", 10, 81);
+    const rs = Limits.rotor(t.rotorRpm, t.phase);
+    g.fillStyle = rs === "NONE" || rs === "NORMAL" ? PAL.FG : SEV_COLOR[rs];
+    g.fillText(this.fold > 0.5 ? "rotor folded" : "rotor " + t.rotorRpm + " rpm", 10, h - 10);
+    this.bubble(g, w - 62, 10, 52);
+  }
+  // Bubble level: the dot moves away from the centre with the tilt (outer ring 30°)
+  bubble(g, x, y, d) {
+    const t = this.last, s = Limits.tilt(t), c = s === "NONE" ? PAL.OFF : SEV_COLOR[s], cx = x + d / 2, cy = y + d / 2;
+    g.fillStyle = "rgba(255,255,255,.67)"; g.beginPath(); g.arc(cx, cy, d / 2, 0, 7); g.fill();
+    g.strokeStyle = rgba(PAL.FG, 90); g.lineWidth = 1; g.stroke();
+    g.beginPath(); g.arc(cx, cy, d / 2 * L.TILT_PAD_CAUTION_DEG / 30, 0, 7); g.stroke();
+    g.beginPath(); g.moveTo(cx, y + 4); g.lineTo(cx, y + d - 4); g.moveTo(x + 4, cy); g.lineTo(x + d - 4, cy); g.stroke();
+    const k = d / 2 / 30, bx = Math.max(-30, Math.min(30, t.rollDeg)) * k, by = Math.max(-30, Math.min(30, t.pitchDeg)) * k;
+    g.fillStyle = c; g.beginPath(); g.arc(cx + bx, cy - by, 6, 0, 7); g.fill();
+  }
+}
+
+// The flight in 3D: ground grid around the launch site, landing target, path coloured by phase with
+// its shadow, a drop line, the predicted landing point and the CanSat. Between packets the CanSat
+// moves on with its last velocity, the path is a Catmull-Rom spline (ui/TrajectoryView3D.java)
+class TrajectoryView3D {
+  constructor(cv, track) {
+    this.cv = cv; this.track = track; this.cam = new Camera(); this.last = null;
+    Object.assign(this.cam, { pitchDeg: 24, yawDeg: 200, fovDeg: 45 });
+    this.focus = [0, 0, 0]; this.distance = 120; this.zoom = 1; this.spin = 0; this.roll = 0; this.pitch = 0; this.yaw = 0;
+    this.manualUntil = 0; this.fixTimeMs = -1; this.fixWallMs = 0; this.prevFixTimeMs = -1; this.prevFixWallMs = 0; this.pos = null;
+    orbitControls(cv, this, 3, 85, 0.4, 0.3, 12000,
+      s => { this.zoom = Math.max(0.15, Math.min(6, this.zoom * Math.pow(1.12, s))); },
+      () => { this.zoom = 1; this.cam.pitchDeg = 24; });
+  }
+  show(t) {
+    this.last = t;
+    const cur = this.track.current();
+    if (cur && cur.timeMs !== this.fixTimeMs) {
+      this.prevFixTimeMs = this.fixTimeMs; this.prevFixWallMs = this.fixWallMs;
+      this.fixTimeMs = cur.timeMs; this.fixWallMs = Date.now();
+    }
+  }
+  clear() { this.last = null; this.pos = null; this.fixTimeMs = this.prevFixTimeMs = -1; }
+  origin() {
+    const pad = this.track.pad, cur = this.track.current();
+    if (pad) return pad;
+    if (cur) return cur;
+    return target;
+  }
+  local(o, lat, lon, alt) { const en = Geo.offsetM(o.lat, o.lon, lat, lon); return [en[0], en[1], alt]; }
+  /** The newest fix moved on with its velocity, at most 1.5 packet intervals ahead (scaled to sim speed). */
+  predicted(o) {
+    const pts = this.track.points;
+    if (!pts.length) return null;
+    const cur = pts[pts.length - 1], p = this.local(o, cur.lat, cur.lon, Math.max(0, cur.altM)), t = this.last;
+    const moving = t && t.phase > P.PAD && t.phase < P.LANDED;
+    if (!moving || pts.length < 2 || this.prevFixTimeMs < 0) return p;
+    const prev = pts[pts.length - 2], dt = (cur.timeMs - prev.timeMs) / 1000;
+    if (dt <= 0 || dt > 5) return p;
+    const pv = this.local(o, prev.lat, prev.lon, Math.max(0, prev.altM));
+    const vz = flag(t, FLAG_VZ_TRUSTED) ? t.vzMps : (p[2] - pv[2]) / dt;
+    const vel = [(p[0] - pv[0]) / dt, (p[1] - pv[1]) / dt, vz];
+    const wallDt = (this.fixWallMs - this.prevFixWallMs) / 1000;
+    const rate = wallDt > 0.05 ? Math.max(0.2, Math.min(100, (this.fixTimeMs - this.prevFixTimeMs) / 1000 / wallDt)) : 1;
+    const ahead = Math.min((Date.now() - this.fixWallMs) / 1000 * rate, dt * 1.5);
+    const q = V3.add(p, V3.mul(vel, ahead));
+    return [q[0], q[1], Math.max(0, q[2])];
+  }
+  animate(dt) {
+    const o = this.origin();
+    let want = [0, 0, 0], extent = 60;
+    if (o) {
+      let maxAlt = 0;
+      for (const p of this.track.points) maxAlt = Math.max(maxAlt, p.altM);
+      const now = this.predicted(o);
+      if (now) this.pos = !this.pos || V3.len(V3.sub(this.pos, now)) > 300 ? now : V3.lerp(this.pos, now, 1 - Math.exp(-dt / 0.25));
+      if (this.pos) want = this.pos;
+      // between the CanSat and the ground, at least half way up the whole flight
+      want = [want[0], want[1], Math.max(want[2] * 0.6, maxAlt * 0.45)];
+      let maxR = 40;
+      for (const p of this.track.points) maxR = Math.max(maxR, V3.len(V3.sub(this.local(o, p.lat, p.lon, p.altM), want)));
+      if (target) maxR = Math.max(maxR, V3.len(V3.sub(this.local(o, target.lat, target.lon, 0), want)));
+      const pr = this.track.predictedLanding();
+      if (pr) maxR = Math.max(maxR, V3.len(V3.sub(this.local(o, pr.lat, pr.lon, 0), want)));
+      extent = maxR;
+    }
+    const k = 1 - Math.exp(-dt / 0.8);
+    this.focus = V3.lerp(this.focus, want, k);
+    this.distance += (Math.min(4000, extent * 3) * this.zoom - this.distance) * k;
+    if (Date.now() > this.manualUntil) this.cam.yawDeg += 6 * dt;
+    const t = this.last;
+    if (t && hasAttitude(t)) {
+      this.roll += angleDiff(t.rollDeg, this.roll) * 0.2;
+      this.pitch += angleDiff(t.pitchDeg, this.pitch) * 0.2;
+      this.yaw += angleDiff(t.yawDeg, this.yaw) * 0.2;
+    }
+    this.spin = (this.spin + Math.min((t ? t.rotorRpm : 0) * 6, 620) * dt) % 360;
+  }
+  draw() {
+    const { g, w, h } = fitCanvas(this.cv), cam = this.cam;
+    const grad = g.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, PAL.SKY_TOP); grad.addColorStop(1, PAL.WELL);
+    g.fillStyle = grad; g.fillRect(0, 0, w, h);
+    cam.target = this.focus; cam.distance = Math.max(8, this.distance); cam.setup(w, h);
+    const o = this.origin();
+    this.drawGrid(g, h);
+    g.lineCap = "round";
+    if (!o) {
+      g.fillStyle = PAL.FG; g.font = font(12, true); g.fillText("3D flight path: waiting for a GPS fix", 12, 20);
+      return;
+    }
+    const pts = this.track.points, cur = this.track.current();
+    const curV = !cur ? null : this.pos || this.local(o, cur.lat, cur.lon, Math.max(0, cur.altM));
+    // landing target: rings on the ground and a thin pole
+    if (target) {
+      const tv = this.local(o, target.lat, target.lon, 0), r = Math.max(4, this.distance / 60);
+      for (let i = 3; i >= 1; i--) {
+        g.strokeStyle = i % 2 === 1 ? rgba(PAL.BAD, 220) : "rgba(255,255,255,.86)"; g.lineWidth = i === 1 ? 3 : 2.5;
+        groundCircle(g, cam, tv, r * i, 40);
+      }
+      g.lineWidth = 1.2; g.strokeStyle = rgba(PAL.BAD, 150);
+      line3D(g, cam, tv, V3.add(tv, [0, 0, r * 5]));
+      this.label(g, V3.add(tv, [0, 0, r * 5]), "TARGET" + (cur ? "  " + describeTarget(cur.lat, cur.lon) : ""), PAL.BAD);
+    }
+    // launch site
+    const pad = this.track.pad;
+    if (pad) {
+      const pv = this.local(o, pad.lat, pad.lon, 0), s = Math.max(3, this.distance / 70), m = [], c = col(PAL.OK);
+      const a = V3.add(pv, [-s, -s, 0]), b = V3.add(pv, [s, -s, 0]), cc = V3.add(pv, [s, s, 0]), d = V3.add(pv, [-s, s, 0]), top = V3.add(pv, [0, 0, s * 2.2]);
+      Mesh.tri(m, a, b, top, c); Mesh.tri(m, b, cc, top, c); Mesh.tri(m, cc, d, top, c); Mesh.tri(m, d, a, top, c);
+      render3D(g, cam, m);
+      this.label(g, top, "LAUNCH", PAL.OK);
+    }
+    // path: spline through the fixes plus the stretch to the predicted position; shadow first
+    const n = pts.length, path = pts.map(p => this.local(o, p.lat, p.lon, Math.max(0, p.altM)));
+    if (curV && n > 0) path.push(curV);
+    const spline = (a, b, c, d, t) => {
+      const t2 = t * t, t3 = t2 * t;
+      return V3.add(V3.add(V3.mul(a, -0.5 * t3 + t2 - 0.5 * t), V3.mul(b, 1.5 * t3 - 2.5 * t2 + 1)),
+        V3.add(V3.mul(c, -1.5 * t3 + 2 * t2 + 0.5 * t), V3.mul(d, 0.5 * t3 - 0.5 * t2)));
+    };
+    for (let pass = 0; pass < 2; pass++) {
+      g.lineWidth = pass === 0 ? 2 : 3.2;
+      for (let i = 1; i < path.length; i++) {
+        const a = path[Math.max(0, i - 2)], b = path[i - 1], c = path[i], d = path[Math.min(path.length - 1, i + 1)];
+        g.strokeStyle = pass === 0 ? "rgba(0,0,0,.18)" : phaseColor(pts[Math.min(i, n - 1)].phase);
+        let from = b;
+        for (let s = 1; s <= 6; s++) {
+          let to = spline(a, b, c, d, s / 6);
+          to = [to[0], to[1], Math.max(0, to[2])];
+          if (pass === 0) line3D(g, cam, [from[0], from[1], 0], [to[0], to[1], 0]); else line3D(g, cam, from, to);
+          from = to;
+        }
+      }
+    }
+    // apogee marker
+    let top = null;
+    for (const p of pts) if (!top || p.altM > top.altM) top = p;
+    if (top && top.altM > 20) this.label(g, this.local(o, top.lat, top.lon, top.altM), "apogee " + f0(top.altM) + " m", PAL.SLATE);
+    // predicted landing
+    const pr = this.track.predictedLanding();
+    if (pr && curV) {
+      const pv = this.local(o, pr.lat, pr.lon, 0), s = Math.max(3, this.distance / 70);
+      g.strokeStyle = PAL.BAD; g.lineWidth = 2; g.setLineDash([6, 5]); line3D(g, cam, curV, pv); g.setLineDash([]);
+      g.lineWidth = 3;
+      line3D(g, cam, V3.add(pv, [-s, -s, 0]), V3.add(pv, [s, s, 0])); line3D(g, cam, V3.add(pv, [-s, s, 0]), V3.add(pv, [s, -s, 0]));
+      let txt = "predicted ~" + f0(pr.secondsToGround) + " s";
+      if (target) txt += ", " + f0(Geo.distanceM(pr.lat, pr.lon, target.lat, target.lon)) + " m from target";
+      this.label(g, pv, txt, PAL.BAD);
+    }
+    // drop line and the CanSat
+    if (curV) {
+      g.strokeStyle = rgba(PAL.FG, 140); g.lineWidth = 1.3; g.setLineDash([6, 5]);
+      line3D(g, cam, curV, [curV[0], curV[1], 0]); g.setLineDash([]);
+      g.lineWidth = 1.5; groundCircle(g, cam, [curV[0], curV[1], 0], Math.max(1.5, this.distance / 120), 20);
+      this.drawCan(g, curV);
+      const txt = this.track.landed() ? "LANDED" : f0(cur.altM) + " m  " + PHASE[Math.min(cur.phase, 5)];
+      this.label(g, V3.add(curV, [0, 0, Math.max(6, this.distance / 25)]), txt, phaseColor(cur.phase));
+    }
+    this.drawCompass(g, w);
+    g.fillStyle = PAL.FG; g.font = font(13, true); g.fillText("FLIGHT PATH 3D", 10, 18);
+  }
+  // grid around the focus, step from the view size; a darker line every 5 steps
+  drawGrid(g, h) {
+    const nice = m => { for (const s of [2, 5, 10, 20, 50, 100, 200, 500, 1000]) if (s >= m) return s; return 2000; };
+    const step = nice(this.distance / 8), half = step * 12, cam = this.cam;
+    const cx = Math.round(this.focus[0] / step) * step, cy = Math.round(this.focus[1] / step) * step;
+    g.lineWidth = 1;
+    for (let i = -12; i <= 12; i++) {
+      const x = cx + i * step, y = cy + i * step;
+      g.strokeStyle = rgba(PAL.FG, Math.round(x / step) % 5 === 0 ? 55 : 25);
+      line3D(g, cam, [x, cy - half, 0], [x, cy + half, 0]);
+      g.strokeStyle = rgba(PAL.FG, Math.round(y / step) % 5 === 0 ? 55 : 25);
+      line3D(g, cam, [cx - half, y, 0], [cx + half, y, 0]);
+    }
+    g.fillStyle = rgba(PAL.FG, 120); g.font = font(11); g.fillText("grid " + step + " m", 10, h - 10);
+  }
+  // the CanSat at its position, scaled up so it is always a few dozen pixels tall
+  drawCan(g, at) {
+    const px = this.cam.scaleAt(at);
+    if (px <= 0) return;
+    const scaled = M3.scale(M3.attitude(this.roll, this.pitch, this.yaw), 7 / px), off = V3.sub(at, M3.apply(scaled, [0, 0, 1.7]));
+    const t = this.last, rpm = t ? t.rotorRpm : 0, released = t && (rpm > 50 || t.phase === P.DESCENT || t.phase === P.LANDED);
+    const world = [];
+    Mesh.addAll(world, CanModel.body(), scaled, off);
+    Mesh.addAll(world, CanModel.rotor(this.spin, released ? 0 : 1, released ? Math.min(1, rpm / 1100) : 0), scaled, off);
+    render3D(g, this.cam, world);
+  }
+  // north arrow turning with the camera
+  drawCompass(g, w) {
+    const cx = w - 34, cy = 34, a = -this.cam.yawDeg * Math.PI / 180;
+    g.fillStyle = "rgba(255,255,255,.67)"; g.beginPath(); g.arc(cx, cy, 22, 0, 7); g.fill();
+    g.fillStyle = PAL.BAD; g.beginPath();
+    g.moveTo(cx + 16 * Math.sin(a), cy - 16 * Math.cos(a)); g.lineTo(cx + 6 * Math.cos(a), cy + 6 * Math.sin(a));
+    g.lineTo(cx - 6 * Math.cos(a), cy - 6 * Math.sin(a)); g.closePath(); g.fill();
+    g.fillStyle = PAL.FG; g.font = font(10, true); g.fillText("N", cx + 19 * Math.sin(a) - 3, cy - 19 * Math.cos(a) + 4);
+  }
+  label(g, p, s, c) {
+    const sp = this.cam.project(p);
+    if (!sp) return;
+    g.font = font(11, true);
+    const sw = g.measureText(s).width, x = sp[0] + 8, y = sp[1] - 6;
+    g.beginPath(); g.roundRect(x - 4, y - 13, sw + 10, 18, 6);
+    g.fillStyle = "rgba(255,255,255,.84)"; g.fill();
+    g.strokeStyle = c; g.lineWidth = 1.6; g.stroke();
+    g.fillStyle = "#000"; g.fillText(s, x + 1, y);
+  }
+}
+
+// Round instrument: a 240° scale with coloured bands, a value arc and needle that sweep to each
+// new reading, the number in the colour of its severity; a warning makes the rim pulse (ui/DialGauge.java)
+class DialGauge {
+  constructor(cv, title, unit, digits, min, max) {
+    Object.assign(this, { cv, title, unit, digits, min, max, bands: [], target: NaN, shownV: NaN, severity: "NONE", sub: "", pulse: 0 });
+  }
+  band(from, to, sev) { this.bands.push({ from, to, color: SEV_COLOR[sev] }); return this; }
+  set(v, sev, sub) { this.target = v; this.severity = sev; this.sub = sub || ""; if (isNaN_(this.shownV)) this.shownV = this.min; }
+  clear() { this.target = this.shownV = NaN; this.severity = "NONE"; this.sub = ""; }
+  animate(dt) {
+    if (!isNaN_(this.target)) {
+      const d = this.target - this.shownV;
+      this.shownV = Math.abs(d) > (this.max - this.min) * 1e-4 ? this.shownV + d * (1 - Math.exp(-dt / 0.35)) : this.target;
+    }
+    this.pulse = this.severity === "WARNING" ? (this.pulse + dt * 2.2) % 1 : 0;
+  }
+  angleOf(v) { return 210 - (Math.max(this.min, Math.min(this.max, v)) - this.min) / (this.max - this.min) * 240; }
+  draw() {
+    const { g, w, h } = fitCanvas(this.cv), rad = d => -d * Math.PI / 180;
+    g.clearRect(0, 0, w, h);
+    const size = Math.min(w - 10, h - 40), r = size / 2, cx = w / 2, cy = 6 + r;
+    if (r < 10) return;
+    g.fillStyle = PAL.WELL; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+    if (this.severity === "WARNING") {
+      const a = 0.5 + 0.5 * Math.sin(this.pulse * 2 * Math.PI);
+      g.strokeStyle = rgba(PAL.BAD, 60 + 150 * a); g.lineWidth = Math.max(3, r * 0.06);
+      g.beginPath(); g.arc(cx, cy, r - 2, 0, 7); g.stroke();
+    }
+    const ring = r * 0.8, trackW = Math.max(4, r * 0.11);
+    g.lineCap = "butt"; g.lineWidth = trackW; g.strokeStyle = rgba(PAL.FG, 30);
+    g.beginPath(); g.arc(cx, cy, ring, rad(210), rad(-30)); g.stroke();
+    const bandR = ring + trackW * 0.95;
+    g.lineWidth = trackW * 0.35;
+    for (const b of this.bands) {
+      g.strokeStyle = rgba(b.color, 200);
+      g.beginPath(); g.arc(cx, cy, bandR, rad(this.angleOf(b.from)), rad(this.angleOf(b.to))); g.stroke();
+    }
+    g.lineWidth = 1.2; g.strokeStyle = rgba(PAL.FG, 120); g.fillStyle = rgba(PAL.FG, 120);
+    g.font = font(Math.max(9, r * 0.12));
+    for (let i = 0; i <= 10; i++) {
+      const v = this.min + (this.max - this.min) * i / 10, a = this.angleOf(v) * Math.PI / 180;
+      const r0 = ring - trackW * (i % 5 === 0 ? 1.4 : 0.9), r1 = ring - trackW * 0.55;
+      g.beginPath(); g.moveTo(cx + r0 * Math.cos(a), cy - r0 * Math.sin(a)); g.lineTo(cx + r1 * Math.cos(a), cy - r1 * Math.sin(a)); g.stroke();
+      if (i % 5 === 0 && r > 55) {
+        const s = Math.abs(v) >= 1000 ? f0(v / 1000) + "k" : v === Math.round(v) ? f0(v) : f1(v), rt = ring - trackW * 2.4;
+        g.fillText(s, cx + rt * Math.cos(a) - g.measureText(s).width / 2, cy - rt * Math.sin(a) + r * 0.12 / 2.5);
+      }
+    }
+    const sev = this.severity === "NONE" ? PAL.OFF : SEV_COLOR[this.severity];
+    if (!isNaN_(this.shownV)) {
+      const a = this.angleOf(this.shownV), ar = a * Math.PI / 180;
+      g.lineCap = "round"; g.lineWidth = trackW; g.strokeStyle = sev;
+      g.beginPath(); g.arc(cx, cy, ring, rad(210), rad(a)); g.stroke();
+      g.lineWidth = Math.max(2, r * 0.035); g.strokeStyle = PAL.FG;
+      g.beginPath(); g.moveTo(cx + r * 0.12 * Math.cos(ar), cy - r * 0.12 * Math.sin(ar));
+      g.lineTo(cx + (ring - trackW) * Math.cos(ar), cy - (ring - trackW) * Math.sin(ar)); g.stroke();
+      g.fillStyle = PAL.FG; g.beginPath(); g.arc(cx, cy, r * 0.07, 0, 7); g.fill();
+    }
+    const val = isNaN_(this.target) ? "–" : this.target.toFixed(this.digits);
+    const vs = Math.max(12, r * 0.3);
+    g.font = font(vs, true);
+    g.fillStyle = this.severity === "NORMAL" || this.severity === "NONE" ? PAL.FG : sev;
+    const valY = cy + r * 0.3 + vs * 0.36;
+    g.fillText(val, cx - g.measureText(val).width / 2, valY);
+    const us = Math.max(9, r * 0.13);
+    g.font = font(us); g.fillStyle = rgba(PAL.FG, 170);
+    g.fillText(this.unit, cx - g.measureText(this.unit).width / 2, valY + us + 1);
+    g.font = font(12, true); g.fillStyle = PAL.FG;
+    const ty = cy + r + 14;
+    g.fillText(this.title, cx - g.measureText(this.title).width / 2, ty);
+    if (this.sub) {
+      g.font = font(10); g.fillStyle = rgba(PAL.FG, 170);
+      g.fillText(this.sub, cx - g.measureText(this.sub).width / 2, ty + 13);
+    }
+  }
+}
+
+// Altitude tape like on a primary flight display: the scale scrolls past a fixed pointer box,
+// the maximum altitude is marked, a vertical speed arrow beside it, the ground shaded (ui/AltitudeTape.java)
+class AltitudeTape {
+  constructor(cv) { this.cv = cv; this.target = NaN; this.shownV = 0; this.vz = 0; this.maxAlt = 0; this.trusted = true; }
+  set(alt, vz, maxAlt, trusted) {
+    if (isNaN_(this.target)) this.shownV = alt;
+    Object.assign(this, { target: alt, vz, maxAlt, trusted });
+  }
+  clear() { this.target = NaN; this.maxAlt = 0; }
+  animate(dt) { if (!isNaN_(this.target)) this.shownV += (this.target - this.shownV) * (1 - Math.exp(-dt / 0.4)); }
+  draw() {
+    const { g, w, h } = fitCanvas(this.cv), SPAN = 160;
+    g.clearRect(0, 0, w, h);
+    const top = 22, bottom = h - 6, mid = (top + bottom) / 2, pxPerM = (bottom - top) / SPAN;
+    const alt = isNaN_(this.target) ? 0 : this.shownV, tx = 6, tw = w - 30;
+    g.save();
+    g.beginPath(); g.roundRect(tx, top, tw, bottom - top, 6); g.fillStyle = PAL.WELL; g.fill(); g.clip();
+    const groundY = mid + alt * pxPerM;
+    if (groundY < bottom) { g.fillStyle = "#8d6e63"; g.fillRect(tx, groundY, tw, bottom - groundY); }
+    g.font = font(11); g.lineWidth = 1;
+    for (let m = Math.floor((alt - SPAN / 2) / 10) * 10; m <= alt + SPAN / 2 + 10; m += 10) {
+      const y = Math.round(mid - (m - alt) * pxPerM) + 0.5, major = m % 50 === 0;
+      g.strokeStyle = rgba(PAL.FG, major ? 170 : 90);
+      g.beginPath(); g.moveTo(tx + tw - (major ? 14 : 8), y); g.lineTo(tx + tw, y); g.stroke();
+      if (major) { g.fillStyle = rgba(PAL.FG, 170); g.fillText(String(m), tx + 4, y + 4); }
+    }
+    if (this.maxAlt > 5) {
+      const y = mid - (this.maxAlt - alt) * pxPerM;
+      g.strokeStyle = PAL.BLUE; g.lineWidth = 2; g.beginPath(); g.moveTo(tx, y); g.lineTo(tx + tw, y); g.stroke();
+    }
+    g.restore();
+    // pointer box
+    g.fillStyle = "#000"; g.beginPath();
+    g.moveTo(tx, mid - 13); g.lineTo(tx + tw - 6, mid - 13); g.lineTo(tx + tw + 4, mid); g.lineTo(tx + tw - 6, mid + 13); g.lineTo(tx, mid + 13);
+    g.closePath(); g.fill();
+    g.font = font(16, true); g.fillStyle = this.trusted ? "#fff" : "#ffb74d";
+    g.fillText(isNaN_(this.target) ? "–" : f0(this.target), tx + 6, mid + 6);
+    // vertical speed arrow, 0..30 m/s over half the height
+    const ax = w - 12, len = Math.max(-1, Math.min(1, this.vz / 30)) * (bottom - top) / 2;
+    g.strokeStyle = rgba(PAL.FG, 50); g.lineWidth = 1; g.beginPath(); g.moveTo(ax, top); g.lineTo(ax, bottom); g.stroke();
+    if (!isNaN_(this.target) && Math.abs(len) > 2) {
+      const c = this.vz < 0 ? PAL.BLUE : PAL.OK, y1 = mid - len, dir = len > 0 ? -1 : 1;
+      g.strokeStyle = c; g.fillStyle = c; g.lineWidth = 4; g.lineCap = "butt";
+      g.beginPath(); g.moveTo(ax, mid); g.lineTo(ax, y1); g.stroke();
+      g.beginPath(); g.moveTo(ax - 6, y1); g.lineTo(ax + 6, y1); g.lineTo(ax, y1 + dir * 9); g.closePath(); g.fill();
+    }
+    g.fillStyle = PAL.FG; g.font = font(12, true); g.fillText("ALT m", tx, 15);
+  }
+}
+
+// Pre-launch go/no-go board like a cockpit annunciator panel: one tile per check, unlit while open,
+// lit green / amber / red, a failed one blinking slowly; above it the verdict (ui/PreLaunchPanel.java)
+class PreLaunchPanel {
+  constructor(cv) { this.cv = cv; this.clear(); }
+  clear() { this.items = []; this.go = this.wasGo = this.haveData = false; this.goSince = this.onPadSince = -1; this.time = 0; this.goFlash = 0; }
+  show(pre, goNow, wallMs) {
+    this.items = pre;
+    this.haveData = pre.length > 0 && !(pre.length === 1 && pre[0].status === "PENDING");
+    if (this.onPadSince < 0 && this.haveData) this.onPadSince = wallMs;
+    if (goNow && !this.wasGo) { this.goSince = wallMs; this.goFlash = 1; }
+    if (!goNow) this.goSince = -1;
+    this.go = this.wasGo = goNow;
+  }
+  animate(dt) { this.time += dt; this.goFlash = Math.max(0, this.goFlash - dt / 1.2); }
+  draw() {
+    const { g, w, h } = fitCanvas(this.cv);
+    g.clearRect(0, 0, w, h);
+    const clk = ms => { const s = Math.max(0, Math.trunc(ms / 1000)); return pad2(Math.trunc(s / 60)) + ":" + pad2(s % 60); };
+    // verdict
+    const open = this.items.filter(i => i.status === "FAIL" || i.status === "PENDING").length, bh = 54, bw = w - 12;
+    const c = !this.haveData ? PAL.OFF : this.go ? PAL.OK : PAL.BAD;
+    g.fillStyle = mixHex(c, "#ffffff", this.goFlash * 0.45); g.beginPath(); g.roundRect(6, 6, bw, bh, 6); g.fill();
+    g.fillStyle = "#fff"; g.font = font(24, true);
+    g.fillText(!this.haveData ? "NO DATA" : this.go ? "GO FOR LAUNCH" : "NO GO", 22, 6 + bh / 2 + 8);
+    const now = Date.now(), right = !this.haveData ? "waiting for telemetry" : this.go ? "GO for " + clk(now - this.goSince)
+      : open + " open   on pad " + clk(now - this.onPadSince);
+    g.font = "bold 15px " + MONO;
+    if (w > 420) g.fillText(right, 6 + bw - g.measureText(right).width - 16, 6 + bh / 2 + 5);
+    // tiles
+    const n = this.items.length, x0 = 6, y0 = bh + 16, aw = w - 12, ah = h - bh - 22;
+    if (!n) return;
+    const cols = Math.min(n, aw >= 760 ? 5 : aw >= 480 ? 4 : aw >= 330 ? 3 : 2), rows = Math.ceil(n / cols), gap = 8;
+    const tw = (aw - gap * (cols - 1)) / cols, th = Math.min(96, (ah - gap * (rows - 1)) / rows);
+    this.items.forEach((it, i) => this.tile(g, it, x0 + (i % cols) * (tw + gap), y0 + Math.floor(i / cols) * (th + gap), tw, th));
+  }
+  tile(g, it, x, y, w, h) {
+    const UNLIT = "#37474f", lit = it.status !== "PENDING";
+    let c = { OK: PAL.OK, WARN: PAL.WARN, FAIL: PAL.BAD, PENDING: UNLIT }[it.status];
+    if (it.status === "FAIL") {  // slow blink between full and dimmed red, like a warning light
+      const k = 0.5 + 0.5 * Math.cos(this.time * 2 * Math.PI / 1.4);
+      c = mixHex(mixHex(PAL.BAD, UNLIT, 0.55), PAL.BAD, k);
+    }
+    g.beginPath(); g.roundRect(x, y, w, h, 6); g.fillStyle = c; g.fill();
+    g.strokeStyle = "rgba(0,0,0,.24)"; g.lineWidth = 1; g.stroke();
+    const title = it.title.toUpperCase();
+    let size = h >= 70 ? 15 : 13;
+    g.font = font(size, true);
+    while (size > 9 && g.measureText(title).width > w - 16) { size -= 0.5; g.font = font(size, true); }
+    g.fillStyle = lit ? "#fff" : "#90a4ae";
+    const titleY = y + 10 + size;
+    g.fillText(this.fit(g, title, w - 16), x + 8, titleY);
+    g.font = font(11); g.fillStyle = lit ? "rgba(255,255,255,.88)" : "#90a4ae";
+    // the detail on up to two lines
+    const wordsArr = (it.detail || "").split(" ");
+    let line1 = "";
+    while (wordsArr.length && g.measureText(line1 + (line1 ? " " : "") + wordsArr[0]).width <= w - 16) line1 += (line1 ? " " : "") + wordsArr.shift();
+    let ly = titleY + 16;
+    if (line1 && ly < y + h - 4) { g.fillText(line1, x + 8, ly); ly += 14; }
+    const rest = wordsArr.join(" ");
+    if (rest && ly < y + h - 2) g.fillText(this.fit(g, rest, w - 16), x + 8, ly);
+  }
+  fit(g, s, width) {
+    if (g.measureText(s).width <= width) return s;
+    while (s.length > 3 && g.measureText(s + "…").width > width) s = s.slice(0, -1);
+    return s + "…";
   }
 }
 
@@ -1525,6 +2660,8 @@ const CHECKLIST = [
     "Phase PAD, nicht RESTORED (sonst `phase reset` über USB) [auto:phase_pad]",
     "Höhe am Startplatz genullt (`zero` über USB) [auto:zeroed]",
     "Nichts scharf, Heizdraht aus, kein Rütteln [auto:safe]",
+    "IMU ruhig: CanSat steht still, Gyro-Bias gelernt (nach dem Aufstellen ca. 15 s nicht berühren) [auto:imu]",
+    "Rotor festgebunden, 0 U/min [auto:rotor_locked]",
     "Pi bereit (PI READY, Kamera OK): sonst Knopf „Pi active“ und warten, bis er gebootet hat [auto:pi]",
     "Ping über Funk bestätigt (Knopf „Ping“)",
     "Rotor gefaltet, Heizdraht-Schlaufe sitzt, nichts klemmt",
@@ -1583,6 +2720,7 @@ const app = {
   link: null, cansat: null, clock: null, launchDay: new LaunchDay(), track: new FlightTrack(),
   lastPacketMs: 0, last: null, lastSnr: null, lastStats: null, uiDirty: false, lastLive: {},
   packetLastWall: null, packetLastSeq: -1, pendingRows: [], cmdRows: new Map(), faultsShown: false,
+  scenario: DEFAULT_SCENARIO, callouts: new Callouts(), announcer: new Announcer(), blink: false,
 };
 
 const charts = {
@@ -1591,6 +2729,101 @@ const charts = {
   rpm: new Chart($("rpmChart"), "Rotor", "rpm", "#f4511e", 120),
 };
 const mapView = new MapView($("mapCanvas"), app.track);
+
+// ---- Mission tab: one screen per part of the flight, following the phase (AUTO) or pinned (ui/MissionTab.java) ----
+const SCREENS = { PAD: ["mPad", "scrPad"], FLIGHT: ["mFlight", "scrFlight"], RECOVERY: ["mRec", "scrRec"] };
+const bandsBattery = gg => gg.band(6.8, L.VBAT_WARNING_V, "WARNING").band(L.VBAT_WARNING_V, L.VBAT_CAUTION_V, "CAUTION")
+  .band(L.VBAT_CAUTION_V, 8.6, "NORMAL");
+const mission = {
+  auto: true, shownScreen: "PAD", phaseScreen: "PAD", maxAlt: 0, last: null,
+  pre: new PreLaunchPanel($("preCanvas")),
+  padCan: new CanView3D($("padCanCanvas"), "CANSAT ON THE PAD"),
+  padBattery: bandsBattery(new DialGauge($("gPadBat"), "BATTERY", "V", 2, 6.8, 8.6)),
+  padSnr: new DialGauge($("gPadSnr"), "LINK SNR", "dB", 0, -20, 15).band(-20, L.SNR_WARNING_DB, "WARNING")
+    .band(L.SNR_WARNING_DB, L.SNR_CAUTION_DB, "CAUTION").band(L.SNR_CAUTION_DB, 15, "NORMAL"),
+  padTilt: new DialGauge($("gPadTilt"), "TILT", "°", 1, 0, 45).band(0, L.TILT_PAD_CAUTION_DEG, "NORMAL")
+    .band(L.TILT_PAD_CAUTION_DEG, L.TILT_PAD_WARNING_DEG, "CAUTION").band(L.TILT_PAD_WARNING_DEG, 45, "WARNING"),
+  path: new TrajectoryView3D($("pathCanvas"), app.track),
+  flightCan: new CanView3D($("flightCanCanvas"), "ATTITUDE"),
+  tape: new AltitudeTape($("tapeCanvas")),
+  sink: new DialGauge($("gSink"), "SINK RATE", "m/s", 1, 0, L.SINK_GAUGE_MAX).band(0, L.SINK_WARNING_MIN, "WARNING")
+    .band(L.SINK_WARNING_MIN, L.SINK_RULE_MIN, "CAUTION").band(L.SINK_RULE_MIN, L.SINK_RULE_MAX, "NORMAL")
+    .band(L.SINK_RULE_MAX, L.SINK_WARNING_MAX, "CAUTION").band(L.SINK_WARNING_MAX, L.SINK_GAUGE_MAX, "WARNING"),
+  rotor: new DialGauge($("gRotor"), "ROTOR", "rpm", 0, 0, L.RPM_GAUGE_MAX).band(0, L.RPM_SPINNING, "WARNING")
+    .band(L.RPM_SPINNING, L.RPM_CAUTION, "CAUTION").band(L.RPM_CAUTION, L.RPM_GAUGE_MAX, "NORMAL"),
+  battery: bandsBattery(new DialGauge($("gBat"), "BATTERY", "V", 2, 6.8, 8.6)),
+  link: new DialGauge($("gLink"), "LAST PACKET", "s ago", 1, 0, 10).band(0, L.PACKET_AGE_CAUTION_S, "NORMAL")
+    .band(L.PACKET_AGE_CAUTION_S, L.PACKET_AGE_WARNING_S, "CAUTION").band(L.PACKET_AGE_WARNING_S, 10, "WARNING"),
+  recPath: new TrajectoryView3D($("recPathCanvas"), app.track),
+  parts() {
+    return [this.pre, this.padCan, this.padBattery, this.padSnr, this.padTilt, this.path, this.flightCan, this.tape,
+      this.sink, this.rotor, this.battery, this.link, this.recPath];
+  },
+  select(s) {
+    this.shownScreen = s;
+    for (const [k, [b, scr]] of Object.entries(SCREENS)) { $(b).setAttribute("aria-pressed", String(k === s)); $(scr).hidden = k !== s; }
+    $("mAuto").setAttribute("aria-pressed", String(this.auto));
+    $("modeLabel").textContent = " " + (this.auto ? "following the flight phase" : "pinned: AUTO to follow the phase");
+  },
+  screenFor: phase => phase === P.PAD ? "PAD" : phase === P.LANDED ? "RECOVERY" : "FLIGHT",
+  show(t, day, stats, snr, wallMs) {
+    this.last = t;
+    this.phaseScreen = this.screenFor(t.phase);
+    if (this.auto && this.phaseScreen !== this.shownScreen) this.select(this.phaseScreen);
+    if (t.phase !== P.PAD) this.maxAlt = Math.max(this.maxAlt, t.altM);
+    const v = t.vbatMv / 1000;
+    this.pre.show(day.preflight(wallMs), day.go(wallMs), wallMs);
+    this.padCan.show(t);
+    this.padBattery.set(v, Limits.battery(v));
+    this.padSnr.set(snr, Limits.snr(snr), "loss " + f0(stats.lossPercent()) + " %");
+    this.padTilt.set(tiltDeg(t), Limits.tilt(t), imuSettled(t) ? "IMU settled" : "settling");
+    this.path.show(t); this.flightCan.show(t); this.recPath.show(t);
+    this.tape.set(t.altM, t.vzMps, this.maxAlt, flag(t, FLAG_ALT_TRUSTED));
+    const sinkMps = -t.vzMps;
+    this.sink.set(Math.max(0, sinkMps), t.phase === P.DESCENT ? Limits.sink(sinkMps, t.phase) : "NONE",
+      flag(t, FLAG_VZ_TRUSTED) ? "rules 8–11" : "vz untrusted");
+    this.rotor.set(t.rotorRpm, Limits.rotor(t.rotorRpm, t.phase), DEPLOY[t.deploy]);
+    this.battery.set(v, Limits.battery(v));
+    this.link.set(0, "NORMAL", snr + " dB SNR");
+    this.summary(day);
+  },
+  /** Link age between packets. */
+  tick(ageS) { if (this.last) { const sub = this.link.sub; this.link.set(Math.min(10, ageS), Limits.packetAge(ageS), sub); } },
+  summary(day) {
+    const cur = app.track.current(), pad = app.track.pad, c = { OK: "#2e7d32", WARN: "#c77700", FAIL: "#c62828", PENDING: "#9e9e9e" };
+    let s = "";
+    if (cur) {
+      s += "<p><b>" + (app.track.landed() ? "Landing point" : "Last position") + '</b><br><span class="big">' + f6(cur.lat) + ", " + f6(cur.lon) + "</span></p>";
+      if (pad && cur !== pad) {
+        const b = Geo.bearingDeg(pad.lat, pad.lon, cur.lat, cur.lon);
+        s += "<p>from the pad: <b>" + f0(Geo.distanceM(pad.lat, pad.lon, cur.lat, cur.lon)) + " m " + deg3(b) + "° (" + Geo.compass(b) + ")</b></p>";
+      }
+      if (target) {
+        s += '<p>to the target: <b style="color:#c62828">' + f0(Geo.distanceM(cur.lat, cur.lon, target.lat, target.lon))
+          + " m</b> (" + esc(describeTarget(cur.lat, cur.lon)) + ")</p>";
+      }
+    } else s += "<p>no GPS position</p>";
+    s += "<p>max altitude: <b>" + f0(this.maxAlt) + " m</b></p><hr>";
+    for (const i of day.flight()) {
+      s += '<p><span style="color:' + c[i.status] + '">●</span> <b>' + esc(i.title) + "</b><br>" + esc(i.detail) + "</p>";
+    }
+    $("summary").innerHTML = '<div style="font-weight:700;margin-top:4px">Recovery</div>' + s;
+  },
+  clear() {
+    this.last = null; this.maxAlt = 0;
+    for (const p of this.parts()) p.clear();
+    $("summary").innerHTML = "";
+    this.phaseScreen = "PAD";
+    if (this.auto) this.select("PAD");
+  },
+  frame(dt) {
+    if (!shown($("p-mission"))) return;
+    for (const p of this.parts()) if (shown(p.cv)) { p.animate(dt); p.draw(); }
+  },
+};
+$("mAuto").onclick = () => { mission.auto = true; mission.select(mission.phaseScreen); };
+for (const [k, [b]] of Object.entries(SCREENS)) $(b).onclick = () => { mission.auto = false; mission.select(k); };
+mission.select("PAD");
 
 // ---- state panel ----
 const FLAG_DEFS = [["VZ TRUSTED", FLAG_VZ_TRUSTED], ["ALT TRUSTED", FLAG_ALT_TRUSTED], ["ARMED", FLAG_ARMED],
@@ -1602,9 +2835,13 @@ for (const [name, bit] of FLAG_DEFS) {
   flagChips.set(bit, c); $("flagChips").append(c);
 }
 const healthChips = HEALTH_BITS.map(n => { const c = document.createElement("div"); c.className = "chip"; c.textContent = n; $("healthChips").append(c); return c; });
+const settledChip = document.createElement("div");
+settledChip.className = "chip"; settledChip.textContent = "SETTLED";
+settledChip.title = "IMU: gyro bias learned and the can still (on the pad)";
+$("healthChips").append(settledChip);
 const values = {};
 for (const k of ["Deploy", "Altitude", "Vertical speed", "vz sigma / NIS", "Pressure", "Air temperature", "Battery",
-  "Rotor", "GPS", "Packet", "Received / lost", "SNR", "Last ack"]) {
+  "Rotor", "Attitude", "Tilt", "GPS", "Target", "Packet", "Received / lost", "SNR", "Last ack"]) {
   const l = document.createElement("span"); l.textContent = k;
   const v = document.createElement("b"); v.textContent = "–";
   $("values").append(l, v); values[k] = v;
@@ -1679,12 +2916,13 @@ function appendEvent(text) {
 }
 
 // ---- tabs ----
-const TABS = [["tab-live", "p-live"], ["tab-map", "p-map"], ["tab-packets", "p-packets"], ["tab-ld", "p-ld"]];
+const TABS = [["tab-mission", "p-mission"], ["tab-live", "p-live"], ["tab-map", "p-map"], ["tab-packets", "p-packets"], ["tab-ld", "p-ld"]];
 function selectTab(id) {
   for (const [t, p] of TABS) {
     $(t).setAttribute("aria-selected", String(t === id));
     $(p).hidden = t !== id;
   }
+  $("tabsBox").classList.toggle("mission-on", id === "tab-mission");
   charts.alt.dirty = charts.vz.dirty = charts.rpm.dirty = true;
   mapView.dirty = true;
 }
@@ -1702,6 +2940,8 @@ const listener = {
     app.pendingRows.push(packetRowHtml(new Date(now), gap, t, lost, snr));
     app.track.add(t);
     app.launchDay.update(t, stats, now);
+    mission.show(t, app.launchDay, stats, snr, now);
+    for (const c of app.callouts.update(t, app.launchDay)) callout(c);
     const ts = t.timeMs / 1000;
     charts.alt.add(ts, t.altM); charts.vz.add(ts, t.vzMps); charts.rpm.add(ts, t.rotorRpm);
     app.last = t; app.lastSnr = snr; app.lastStats = stats; app.uiDirty = true;
@@ -1770,21 +3010,42 @@ function showState() {
   piChip.textContent = PI_LABEL[pi];
   piChip.style.background = pi === "STANDBY" ? COLORS.PENDING : pi === "BOOTING" ? COLORS.WARN : pi === "READY" ? COLORS.OK : COLORS.FAIL;
   healthChips.forEach((c, i) => { c.style.background = (t.health & (1 << i)) !== 0 ? COLORS.OK : COLORS.FAIL; });
-  const deploy = DEPLOY[t.deploy];
-  values.Deploy.textContent = deploy;
-  values.Deploy.style.color = deploy === "NO_CURRENT" ? COLORS.FAIL : deploy === "OK" ? COLORS.OK : "";
-  values.Altitude.textContent = f1(t.altM) + " m";
-  values["Vertical speed"].textContent = f1(t.vzMps) + " m/s";
-  values["vz sigma / NIS"].textContent = f2(t.vzSigmaCms / 100) + " m/s / " + t.nis;
-  values.Pressure.textContent = f0(t.pressurePa) + " Pa";
-  values["Air temperature"].textContent = f2(t.airTempC) + " °C";
-  values.Battery.textContent = f2(t.vbatMv / 1000) + " V";
-  values.Rotor.textContent = t.rotorRpm + " rpm";
-  values.GPS.textContent = (t.health & (1 << 5)) !== 0 ? f5(t.latE7 / 1e7) + ", " + f5(t.lonE7 / 1e7) : "no fix";
-  values.Packet.textContent = "#" + t.seq + " at " + Math.trunc(t.timeMs / 1000) + " s";
-  values["Received / lost"].textContent = stats.received + " / " + stats.lost + " (" + f1(stats.lossPercent()) + " %)";
-  values.SNR.textContent = app.lastSnr + " dB";
-  values["Last ack"].textContent = "id " + t.ackId + " " + ACK[t.ackResult];
+  settledChip.style.background = !hasAttitude(t) || t.phase !== P.PAD ? COLORS.PENDING : imuSettled(t) ? COLORS.OK : COLORS.WARN;
+  const set = (k, text, sev) => { values[k].textContent = text; values[k].style.color = sev ? sevText(sev) : ""; };
+  const deploy = DEPLOY[t.deploy], v = t.vbatMv / 1000, vzs = t.vzSigmaCms / 100;
+  set("Deploy", deploy, Limits.deploy(t.deploy));
+  if (deploy === "OK") values.Deploy.style.color = COLORS.OK;
+  set("Altitude", f1(t.altM) + " m", Limits.baro(t));
+  set("Vertical speed", f1(t.vzMps) + " m/s", Limits.sink(-t.vzMps, t.phase));
+  set("vz sigma / NIS", f2(vzs) + " m/s / " + t.nis, worst(Limits.vzSigma(vzs), Limits.nis(t.nis)));
+  set("Pressure", f0(t.pressurePa) + " Pa", Limits.baro(t));
+  set("Air temperature", f2(t.airTempC) + " °C");
+  set("Battery", f2(v) + " V", Limits.battery(v));
+  set("Rotor", t.rotorRpm + " rpm", Limits.rotor(t.rotorRpm, t.phase));
+  set("Attitude", "r " + f1(t.rollDeg) + "° p " + f1(t.pitchDeg) + "° y " + f0(t.yawDeg) + "°");
+  set("Tilt", f1(tiltDeg(t)) + "°" + (t.phase === P.PAD ? (imuSettled(t) ? ", IMU settled" : ", IMU settling") : ""), Limits.tilt(t));
+  set("GPS", gpsFix(t) ? f5(t.latE7 / 1e7) + ", " + f5(t.lonE7 / 1e7) : "no fix", Limits.gps(t));
+  set("Target", !target ? "not set (map: right click)" : gpsFix(t) ? describeTarget(t.latE7 / 1e7, t.lonE7 / 1e7) : "set, no fix");
+  set("Packet", "#" + t.seq + " at " + Math.trunc(t.timeMs / 1000) + " s");
+  set("Received / lost", stats.received + " / " + stats.lost + " (" + f1(stats.lossPercent()) + " %)", Limits.loss(stats.lossPercent()));
+  set("SNR", app.lastSnr + " dB", Limits.snr(app.lastSnr));
+  set("Last ack", "id " + t.ackId + " " + ACK[t.ackResult]);
+}
+
+function callout(c) {
+  appendEvent("» " + c.text);
+  app.announcer.say(c);
+}
+
+// Rotor deploy failure: banner and FORCE DEPLOY button flash
+function blinkAlert() {
+  const fail = app.lastPacketMs === 0 ? null : app.launchDay.deployFailure(), banner = $("alertBanner");
+  app.blink = !app.blink;
+  $("cForce").classList.toggle("flash", fail != null && app.blink);
+  if (fail == null) { banner.hidden = true; return; }
+  banner.innerHTML = "ROTOR DEPLOY FAILED<small>" + esc(fail) + "<br>press FORCE ROTOR DEPLOY</small>";
+  banner.hidden = false;
+  banner.style.background = app.blink ? COLORS.FAIL : "#8e0000";
 }
 
 function updateAge() {
@@ -1796,7 +3057,9 @@ function updateAge() {
   }
   const age = (now - app.lastPacketMs) / 1000, l = $("ageLabel");
   l.textContent = "last packet " + f1(age) + " s ago";
-  l.style.color = age < 2.5 ? COLORS.OK : age < 5 ? COLORS.WARN : COLORS.FAIL;
+  l.style.color = SEV_COLOR[Limits.packetAge(age)];
+  mission.tick(age);
+  for (const c of app.callouts.tick(age)) callout(c);
 }
 
 // ---- connection ----
@@ -1811,32 +3074,50 @@ function send(cmd, arg) { if (app.link) app.link.send(cmd, arg); }
 async function chooseSimulation() {
   const form = document.createElement("div");
   form.className = "form";
-  form.innerHTML = '<label for="runBox">Run</label><select class="b" id="runBox"><option>Pi manual + random faults</option></select>'
-    + '<div class="about">' + esc(RUN_DESC) + '</div>'
+  form.innerHTML = '<label for="runBox">Run</label><select class="b" id="runBox">'
+    + Object.entries(SCENARIOS).map(([k, s]) => '<option value="' + k + '"' + (k === DEFAULT_SCENARIO ? " selected" : "") + ">"
+      + esc(s.title) + "</option>").join("") + "</select>"
+    + '<div class="about" id="runAbout"></div>'
     + '<label for="padMin-input">Launch after (simulated minutes on the pad)</label><span class="spinner" id="padMin"></span>'
     + '<label for="speed-input">Speed (1 = real time)</label><span class="spinner" id="speed"></span>';
-  const padMin = new Spinner(form.querySelector("#padMin"), 10, 0.5, 240, 0.5);
-  const speed = new Spinner(form.querySelector("#speed"), 10, 1, 60, 1);
+  const run = form.querySelector("#runBox"), about = form.querySelector("#runAbout");
+  const describe = () => { about.textContent = SCENARIOS[run.value].description; };
+  run.addEventListener("change", describe);
+  describe();
+  const padMin = new Spinner(form.querySelector("#padMin"), DEFAULT_PAD_MIN, 0.5, 240, 0.5);
+  const speed = new Spinner(form.querySelector("#speed"), DEFAULT_SPEED, 1, 60, 1);
   if (!(await dialog("Launch day simulation", form, [["OK", true], ["Cancel", false]], ""))) return;
-  connectSimulator(padMin.value * 60, speed.value);
+  app.announcer.unlock();  // the click on OK lets the page play the chimes
+  connectSimulator(run.value, padMin.value * 60, speed.value);
 }
 
-function connectSimulator(padHoldS, speed) {
+function connectSimulator(scenario, padHoldS, speed) {
   disconnect();
+  app.scenario = scenario;
   app.clock = new SimClock(speed);
-  app.cansat = new SimCanSat(padHoldS);
+  app.cansat = new SimCanSat(scenario, padHoldS);
   app.link = new Link(app.cansat, app.clock, listener);
   app.launchDay = new LaunchDay();
+  app.callouts.reset();
   app.track.clear();
+  mission.clear();
+  $("simBadge").hidden = false;
+  target = simTarget();  // the simulation's own target near the pad
   mapView.centered = false;
   charts.alt.clear(); charts.vz.clear(); charts.rpm.clear();
   $("packetBody").innerHTML = "";
+  app.cmdRows.clear(); $("cmdList").innerHTML = "";  // request numbers start at 1 again
   app.packetLastWall = null; app.packetLastSeq = -1; app.pendingRows = []; app.last = null; app.lastPacketMs = 0;
+  $("alertBanner").hidden = true;
   $("linkLabel").textContent = "simulator: RN2483 1.0.5 Oct 31 2018 15:06:52 (simulated)";
   appendEvent("simulator: RN2483 1.0.5 Oct 31 2018 15:06:52 (simulated)");
-  appendEvent("simulation: Pi manual + random faults, launch after " + (padHoldS / 60) + " min, " + speed + "x");
+  appendEvent("simulation: " + SCENARIOS[scenario].title + ", launch after " + (padHoldS / 60) + " min, " + speed + "x");
   app.faultsShown = false;
   $("revealBtn").textContent = "Reveal";
+  $("revealBtn").hidden = !SCENARIOS[scenario].randomFaults;
+  $("runTitle").textContent = "Run: " + SCENARIOS[scenario].title;
+  $("runDesc").textContent = SCENARIOS[scenario].description;
+  autoMin.set(padHoldS / 60);
   $("simWin").hidden = false;
   setConnected(true);
   refreshSim();
@@ -1847,6 +3128,7 @@ function disconnect() {
   app.link = null;
   app.cansat = null;
   app.clock = null;
+  $("simBadge").hidden = true;
   $("simWin").hidden = true;
   $("linkLabel").textContent = "disconnected";
   appendEvent("disconnected");
@@ -1870,7 +3152,8 @@ function refreshSim() {
   $("pauseBtn").textContent = clock.paused ? "Resume" : "Pause";
   // hidden while the team works, so the instructor can sit next to them
   const fl = $("faultsLabel");
-  if (!app.faultsShown) fl.textContent = "0 to 2, drawn at random: hidden until the debrief";
+  if (!SCENARIOS[cs.scenario].randomFaults) fl.textContent = "none: this run has no faults";
+  else if (!app.faultsShown) fl.textContent = "0 to 2, drawn at random: hidden until the debrief";
   else fl.innerHTML = cs.planned.length === 0 ? "none drawn this time"
     : cs.planned.map(f => "<b>" + f + "</b>: " + esc(FAULTS[f])).join("<br>");
   const T = x => isNaN_(x) ? "–" : "T+" + clockText(x - tr.launchT);
@@ -1880,14 +3163,13 @@ function refreshSim() {
     + "\npi " + tr.pi.split("; ").join("\n   ");
 }
 
-$("runDesc").textContent = RUN_DESC;
 for (const s of [1, 5, 10, 30, 60]) {
   const b = document.createElement("button");
   b.className = "b"; b.textContent = s + "×";
   b.onclick = () => { if (app.clock) { app.clock.setSpeed(s); app.clock.setPaused(false); refreshSim(); } };
   $("speedBtns").append(b);
 }
-const autoMin = new Spinner($("autoMin"), 10, 0.5, 240, 0.5);
+const autoMin = new Spinner($("autoMin"), DEFAULT_PAD_MIN, 0.5, 240, 0.5);
 $("pauseBtn").onclick = () => { if (app.clock) { app.clock.setPaused(!app.clock.paused); refreshSim(); } };
 $("launchNow").onclick = () => { if (!app.cansat) return; if ($("slowForLaunch").checked) app.clock.setSpeed(1); app.cansat.launch(); };
 $("autoLaunchBtn").onclick = () => { if (app.cansat) app.cansat.setAutoLaunch(app.cansat.truth().t + autoMin.value * 60); };
@@ -1901,6 +3183,13 @@ $("simMin").onclick = () => {
 // ---- buttons of the main window ----
 $("simBtn").onclick = chooseSimulation;
 $("discBtn").onclick = disconnect;
+$("cForce").onclick = async () => {
+  if (await confirmDlg("FORCE ROTOR DEPLOY?\n\nHeats the nichrome wire for 1 s and shakes the swashplate for 1 s, both at once (DEPLOY_FORCE).")) {
+    send("DEPLOY_FORCE", 0);
+  }
+};
+$("voiceBox").addEventListener("change", () => { app.announcer.unlock(); app.announcer.setEnabled($("voiceBox").checked); });
+document.addEventListener("pointerdown", () => app.announcer.unlock(), { once: true });
 $("cPing").onclick = () => send("PING", 0);
 $("cPhase").onclick = async () => {
   const ph = +$("phaseBox").value;
@@ -1958,9 +3247,10 @@ $("newDayBtn").onclick = async () => {
 // ======================================================================
 // Main loop: a timer, so the simulation keeps running in a background tab
 // ======================================================================
-let lastUi = 0, lastAge = 0, lastSim = 0;
+let lastUi = 0, lastAge = 0, lastSim = 0, lastBlink = 0, lastFrame = performance.now();
 function frame() {
-  const now = performance.now();
+  const now = performance.now(), dt = Math.min(0.2, (now - lastFrame) / 1000);
+  lastFrame = now;
   if (app.link) app.link.tick();
   if (app.uiDirty && now - lastUi > 100) {
     lastUi = now;
@@ -1975,6 +3265,8 @@ function frame() {
   else if (app.pendingRows.length > 2000) app.pendingRows.splice(0, app.pendingRows.length - 2000);
   if (now - lastAge > 250) { lastAge = now; updateAge(); }
   if (now - lastSim > 200) { lastSim = now; refreshSim(); }
+  if (now - lastBlink > 400) { lastBlink = now; blinkAlert(); }
+  mission.frame(dt);
   if (!$("p-live").hidden) { charts.alt.draw(); charts.vz.draw(); charts.rpm.draw(); }
   if (!$("p-map").hidden) mapView.draw();
 }
@@ -1983,6 +3275,7 @@ new ResizeObserver(() => { charts.alt.dirty = charts.vz.dirty = charts.rpm.dirty
   .observe($("mainWin"));
 
 setConnected(false);
+selectTab("tab-mission");
 refreshLaunchDayTab({});
 showChecklistPanel(Date.now());
 chooseSimulation();
