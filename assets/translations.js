@@ -266,6 +266,8 @@ window.swashTranslations = {
   "fällt mit 13,4 m/s": "falls at 13.4 m/s",
   "erkannt, 8,7 m/s": "detected, 8.7 m/s",
   "Das sind Simulationen, keine Messungen. Masse, Schwerpunkt, Blattmaße, Reibung und Servos sind angenommen. Abwurfversuche werden das Modell prüfen.": "These are simulations, not measurements. Mass, centre of gravity, blade dimensions, friction and servos are assumed. Drop tests will check the model.",
+  'Instagram: @cansat.swash27 ↗': 'Instagram: @cansat.swash27 ↗',
+  'Jedes Foto der Woche erscheint zuerst auf Instagram:': 'Every photo of the week appears on Instagram first:',
   // WOCHENFOTO:START
   "Foto der Woche · KW 45": "Photo of the week · Week 45",
   "KW 45 · 2026": "Week 45 · 2026",
