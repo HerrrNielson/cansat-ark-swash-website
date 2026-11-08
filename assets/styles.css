@@ -91,14 +91,30 @@ body::after {
   mix-blend-mode: multiply;
 }
 
+/* Interaction rule: only clickable elements react to hover, and every
+   element of the same kind reacts the same way. Text links change colour
+   and get a thicker underline, buttons and toggles lift or light up, and
+   static boxes (cards, tiles, table rows) never move. */
+
 a {
   color: var(--link);
   text-underline-offset: .2em;
   text-decoration-thickness: 1.5px;
+  transition: color .15s ease, text-decoration-color .15s ease;
 }
 
 a:hover {
   color: var(--accent-dark);
+  text-decoration-thickness: 2.5px;
+}
+
+a, button:not(:disabled), summary, label[for], select {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
 button, input, textarea {
@@ -165,8 +181,20 @@ img, svg {
   text-transform: uppercase;
 }
 
+.brand-title, .logo-frame {
+  transition: color .15s ease, outline-color .15s ease;
+}
+
 .brand:hover {
   color: white;
+}
+
+.brand:hover .brand-title {
+  color: var(--logo-orange);
+}
+
+.brand:hover .logo-frame {
+  outline-style: solid;
 }
 
 .logo-frame {
@@ -261,6 +289,7 @@ img, svg {
   background: transparent;
   font-size: 1.15rem;
   cursor: pointer;
+  transition: border-color .2s ease, color .2s ease;
 }
 
 .theme-nav-item {
@@ -297,7 +326,7 @@ img, svg {
   letter-spacing: .08em;
 }
 
-.theme-toggle:hover, .language-toggle:hover {
+.theme-toggle:hover, .language-toggle:hover, .menu-toggle:hover {
   border-color: var(--logo-orange);
   color: var(--logo-orange);
 }
@@ -432,7 +461,7 @@ a.button::after, .button[type="submit"]::after {
   transition: transform .2s ease;
 }
 
-.button:hover {
+.button:hover, .button:focus-visible {
   color: white;
   box-shadow: 6px 6px 0 var(--button-shadow);
   transform: translate(-2px, -2px);
@@ -443,7 +472,16 @@ a.button::after, .button[type="submit"]::after {
   transform: translate(3px, 3px);
 }
 
-.button:hover::after {
+.button:disabled, .button:disabled:hover {
+  box-shadow: 4px 4px 0 var(--button-shadow);
+  transform: none;
+}
+
+.button:disabled::after {
+  transform: none;
+}
+
+.button:hover::after, .button:focus-visible::after {
   transform: translateX(4px);
 }
 
@@ -453,7 +491,7 @@ a.button::after, .button[type="submit"]::after {
   box-shadow: 4px 4px 0 var(--rule);
 }
 
-.button.secondary:hover {
+.button.secondary:hover, .button.secondary:focus-visible {
   color: var(--navy);
   box-shadow: 6px 6px 0 var(--rule);
 }
@@ -476,11 +514,11 @@ a.button::after, .button[type="submit"]::after {
   transition: transform .2s ease;
 }
 
-.text-link:hover {
+.text-link:hover, .text-link:focus-visible {
   color: var(--accent-dark);
 }
 
-.text-link:hover::after {
+.text-link:hover::after, .text-link:focus-visible::after {
   transform: translateX(4px);
 }
 
@@ -747,12 +785,6 @@ a.button::after, .button[type="submit"]::after {
   border-radius: var(--radius-hand);
   color: var(--ink);
   background: var(--paper);
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-
-.card:hover {
-  box-shadow: 7px 7px 0 var(--card-color);
-  transform: translate(-3px, -3px);
 }
 
 .grid-3 > .card:nth-child(4n+1), .grid-2 > .card:nth-child(4n+1) {
@@ -816,10 +848,6 @@ a.button::after, .button[type="submit"]::after {
   color: white;
   background: var(--logo-purple);
   box-shadow: 7px 7px 0 var(--logo-navy);
-}
-
-.feature-tile:hover {
-  box-shadow: 10px 10px 0 var(--logo-navy);
 }
 
 .feature-tile::before {
@@ -1018,6 +1046,7 @@ a.button::after, .button[type="submit"]::after {
 
 .breadcrumb a:hover {
   color: var(--logo-orange);
+  text-decoration: underline;
 }
 
 /* Team, results and legal pages */
@@ -1194,10 +1223,6 @@ a.button::after, .button[type="submit"]::after {
 .results-table tbody th {
   color: var(--accent-dark);
   font: 700 1.15rem/1 var(--font-display);
-}
-
-.results-table tbody tr:hover {
-  background: var(--wash);
 }
 
 .results-table tbody tr:last-child th, .results-table tbody tr:last-child td {
@@ -1748,12 +1773,14 @@ a.button::after, .button[type="submit"]::after {
   color: var(--logo-navy);
 }
 
-:root[data-theme="dark"] .button:hover {
+:root[data-theme="dark"] .button:hover,
+:root[data-theme="dark"] .button:focus-visible {
   color: var(--logo-navy);
 }
 
 :root[data-theme="dark"] .button.secondary,
-:root[data-theme="dark"] .button.secondary:hover {
+:root[data-theme="dark"] .button.secondary:hover,
+:root[data-theme="dark"] .button.secondary:focus-visible {
   color: white;
 }
 
