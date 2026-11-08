@@ -133,9 +133,11 @@ function initializeSite() {
     }
   }
 
-  const currentPage = location.pathname.split('/').pop() || 'index.html';
+  // Links use clean URLs (/team); also accept /team.html and /index.html.
+  const pageKey = (path) => path.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/(.)\/$/, '$1');
+  const currentPage = pageKey(location.pathname);
   document.querySelectorAll('.site-nav a').forEach((link) => {
-    if (link.getAttribute('href') === currentPage) link.setAttribute('aria-current', 'page');
+    if (pageKey(new URL(link.href).pathname) === currentPage) link.setAttribute('aria-current', 'page');
   });
 
   const menuToggle = document.querySelector('.menu-toggle');

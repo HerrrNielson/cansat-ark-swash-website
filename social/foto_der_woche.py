@@ -271,7 +271,7 @@ def update_website(entries, sizes):
     w, h = sizes[name_of(latest)]
     ind = " " * 10
     home = (
-        f'{ind}<a class="weekly-link" href="foto-der-woche.html">\n'
+        f'{ind}<a class="weekly-link" href="/foto-der-woche">\n'
         f'{ind}  <figure class="mission-image weekly-photo">\n'
         f'{ind}    <div class="mission-image-frame"><img src="assets/wochenfoto/{name_of(latest)}.jpg" alt="{esc(latest["alt"])}" width="{w}" height="{h}"></div>\n'
         f'{ind}    <figcaption><strong class="weekly-label">Foto der Woche · KW {latest["kw"]}</strong> {esc(latest["titel"])}<span class="weekly-more">Alle Wochenfotos</span></figcaption>\n'

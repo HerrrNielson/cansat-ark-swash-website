@@ -4,7 +4,11 @@ Statische, responsive Mehrseiten-Website mit HTML5, CSS3 und JavaScript. Es wird
 
 ## Lokal öffnen
 
-index.html im Browser öffnen. Für eine Vorschau mit lokalem Webserver können Sie im Projektordner beispielsweise python -m http.server 8000 starten und http://localhost:8000 öffnen.
+Die Links nutzen saubere URLs wie auf der Live-Seite (/team statt team.html). Deshalb die Vorschau mit dem kleinen Server im Projekt starten, nicht per Doppelklick auf index.html:
+
+    python tools/serve.py
+
+und http://localhost:8000 öffnen. Der normale python -m http.server findet /team nicht.
 
 ## Seiten
 
