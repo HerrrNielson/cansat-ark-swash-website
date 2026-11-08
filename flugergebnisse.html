@@ -99,46 +99,32 @@
           <div class="section-heading">
             <p class="eyebrow section-label">Simulation</p>
             <h2>Wir fliegen am Computer, bevor wir fliegen.</h2>
-            <p>Unsere Flugsoftware läuft unverändert in einer Simulation am PC. Ein Rotormodell antwortet auf jeden Einstellwinkel der Blätter mit Drehzahl und Sinkrate. So testen wir in Sekunden Hunderte Flüge, auch mit kaputten Sensoren.</p>
+            <p>Unsere Flugsoftware läuft unverändert in einer 3D-Simulation am PC: Rakete, Auswurf, Wind mit Böen, GPS und ein Rotor, dessen drei Blätter einzeln gerechnet werden. So testen wir 31 Flugszenarien, auch mit kaputten Sensoren.</p>
           </div>
           <div class="grid-2 chart-grid">
             <figure class="card chart-card chart-card-wide">
-              <img src="assets/simulation/flug.svg" width="576" height="317" loading="lazy" alt="Diagramm: Höhe und Sinkrate eines simulierten Flugs, die Schätzung der Firmware liegt fast deckungsgleich auf dem simulierten Verlauf.">
+              <img src="assets/simulation/flug.svg" width="576" height="403" loading="lazy" alt="Diagramm: Höhe und Sinkrate eines simulierten Flugs mit Gipfel in 560 m und 8,9 m/s Sinkrate; die Schätzung der Firmware liegt fast deckungsgleich auf dem simulierten Verlauf.">
               <figcaption>
                 <h3>Ein ganzer Flug</h3>
-                <p>Start, Gipfel in ca. 520 m, Rotorsinkflug, Landung. Die Firmware schätzt Höhe und Sinkrate auf etwa einen Meter genau.</p>
+                <p>Start, Gipfel in ca. 560 m, Rotorsinkflug mit 8,9 m/s, Landung. Die Firmware kennt ihre Höhe auf etwa 1,5 m genau.</p>
               </figcaption>
             </figure>
             <figure class="card chart-card">
-              <img src="assets/simulation/andrehen.svg" width="576" height="317" loading="lazy" alt="Diagramm: Mit 20° Startwinkel erreicht der Rotor in zwei Sekunden über 3000 U/min. Mit 8° und zu frühem Umschalten bleibt ein schwergängiger Rotor bei 1100 U/min hängen.">
+              <img src="assets/simulation/zielanflug.svg" width="576" height="389" loading="lazy" alt="Bahn von oben: Ohne Zielanflug treibt der CanSat mit dem Wind 189 m nach Nordosten. Mit Zielanflug landet er 3 m neben der Startschiene bzw. 6 m neben einem Ziel 300 m nördlich.">
               <figcaption>
-                <h3>Rotor andrehen</h3>
-                <p>Aus dem Stand läuft der Rotor nur an, wenn die Blätter mit der Vorderkante nach unten stehen. Mit 20° dreht er in zwei Sekunden auf.</p>
+                <h3>Zielanflug</h3>
+                <p>Der Rotor neigt sich und lenkt den CanSat zum Ziel: Landung 3 m neben der Startschiene. Ohne Lenkung treibt ihn der Wind 189 m weit.</p>
               </figcaption>
             </figure>
             <figure class="card chart-card">
-              <img src="assets/simulation/blattwinkel.svg" width="576" height="317" loading="lazy" alt="Diagramm: Zwischen 2° und 8° Einstellwinkel sinkt der CanSat mit 6,9 bis 10,7 m/s, unter etwa 1° reißt die Strömung am Rotor ab.">
+              <img src="assets/simulation/blattwinkel.svg" width="576" height="331" loading="lazy" alt="Diagramm: Zwischen 2° und 8° Einstellwinkel sinkt der CanSat mit 7,2 bis 14,5 m/s, im Flug sind es 4,5° und 9,4 m/s. Unter etwa 1,5° reißt die Strömung am Rotor ab.">
               <figcaption>
                 <h3>Einstellwinkel als Bremse</h3>
-                <p>Zwischen 2° und 8° stellt der Einstellwinkel die Sinkrate ein. Darunter reißt die Strömung ab, und der CanSat fällt.</p>
-              </figcaption>
-            </figure>
-            <figure class="card chart-card">
-              <img src="assets/simulation/masse.svg" width="576" height="317" loading="lazy" alt="Säulendiagramm: Geregelt sinkt der CanSat bei allen Massen mit 8,8 m/s, mit festem Einstellwinkel zwischen 8,3 und 8,9 m/s.">
-              <figcaption>
-                <h3>Geregelt statt fest</h3>
-                <p>Die Firmware stellt den Einstellwinkel laufend nach und hält 8,8 m/s, egal ob der CanSat 300 oder 350 g wiegt.</p>
-              </figcaption>
-            </figure>
-            <figure class="card chart-card">
-              <img src="assets/simulation/zyklik.svg" width="576" height="317" loading="lazy" alt="Diagramm: Ohne Ausgleich wächst der Fehler bis 90 %, mit Servomodell bleibt er bis 5 Umdrehungen pro Sekunde unter 5 %.">
-              <figcaption>
-                <h3>Drehender Rumpf</h3>
-                <p>Die Lagerreibung dreht den Rumpf mit. Die Firmware rechnet die Drehung aus der Steuerung heraus, der Fehler bleibt unter 5 %.</p>
+                <p>Der Einstellwinkel der Blätter stellt die Sinkrate ein, im Flug sind es 4,5°. Unter 1,5° reißt die Strömung ab, und der CanSat fällt.</p>
               </figcaption>
             </figure>
           </div>
-          <h3 class="sim-subheading">Was passiert, wenn ein Sensor ausfällt?</h3>
+          <h3 class="sim-subheading">Was passiert, wenn etwas schiefgeht?</h3>
           <div class="table-wrap">
             <table class="results-table results-table-wrap">
               <thead>
@@ -150,30 +136,30 @@
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Luftdrucksensor friert ein</th>
-                  <td>Firmware glaubt, sie sinkt nicht, fällt mit 13,4 m/s</td>
-                  <td>erkannt, sicherer Blattwinkel, 8,7 m/s</td>
+                  <th scope="row">Auswurf 3 s zu spät</th>
+                  <td>Rotor öffnet nie, Aufprall mit 45 m/s</td>
+                  <td>Rotor dreht nach 1,2 s, 8,9 m/s</td>
                 </tr>
                 <tr>
-                  <th scope="row">Lagesensor fällt 2 s aus</th>
-                  <td>Höhe springt um 21 m</td>
-                  <td>kein Sprung</td>
-                </tr>
-                <tr>
-                  <th scope="row">Beschleunigungssensor verschoben</th>
-                  <td>hält 10,1 statt 9 m/s</td>
-                  <td>korrigiert, 8,9 m/s</td>
+                  <th scope="row">Lagesensor fällt beim Andrehen aus</th>
+                  <td>Dose hängt 60° schräg, bis 16 m/s</td>
+                  <td>Lage nach GPS korrigiert, 9,0 m/s</td>
                 </tr>
                 <tr>
                   <th scope="row">Drehzahlsensor tot</th>
-                  <td>–</td>
-                  <td>Umschalten nach Zeit, Flug normal</td>
+                  <td>13,5 m/s</td>
+                  <td>erkannt am Bremsen, 9,4 m/s</td>
+                </tr>
+                <tr>
+                  <th scope="row">Luftdrucksensor friert ein</th>
+                  <td>fällt mit 13,4 m/s</td>
+                  <td>erkannt, 8,7 m/s</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <p class="sim-cta"><a class="button" href="/simulation">Simulation selbst ausprobieren</a></p>
-          <div class="notice results-note"><strong>Einordnung:</strong> Das sind Simulationen, keine Messungen. Rotorgröße, Profil, Reibung und Servos sind angenommen. Mit den Maßen unseres Autofenster-Rotors kommt das Modell auf ähnliche Sinkraten wie unsere Auswertung des Versuchs. Abwurfversuche werden es genauer prüfen.</div>
+          <div class="notice results-note"><strong>Einordnung:</strong> Das sind Simulationen, keine Messungen. Masse, Schwerpunkt, Blattmaße, Reibung und Servos sind angenommen. Abwurfversuche werden das Modell prüfen.</div>
         </div>
       </section>
       <section class="section">
