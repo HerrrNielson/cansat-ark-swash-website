@@ -26,11 +26,14 @@ Das Skript erneuert die Website immer aus der ganzen JSON-Datei. Ein Tippfehler 
 {
   "jahr": 2026,
   "kw": 46,
+  "suchzeile": "Suchbegriffe zuerst: was man sieht, in Worten, nach denen jemand sucht 🛰️",
   "bilder": ["social/fotos/2026-kw46.jpg", "social/fotos/2026-kw46-2.jpg"],
   "titel": "Kurzer Titel",
   "text": "Ein bis zwei Sätze, was man sieht und warum es wichtig ist.",
   "alt": "Bildbeschreibung für Screenreader: was ist auf dem Hauptbild zu sehen",
   "unterschriften": ["Ein Satz zur zweiten Folie."],
+  "frage": "Eine Frage an euch, die zum Kommentieren einlädt? 👀",
+  "thema_tag": "#elektronik",
   "titel_en": "Short title",
   "text_en": "One or two sentences …",
   "alt_en": "Image description …"
@@ -55,31 +58,40 @@ Optional: `"ausschnitte": ["x,y,breite,hoehe", null]` in Pixeln des Originalbild
 
 ## Texte
 
-Anrede: keine direkte Anrede („Sie“/„ihr“) im Post, sachlich in der Wir-Form, wie auf der Website. Fakten nur aus dem Repo oder vom Team bestätigt; ein 3D-Modell heißt „3D-Modell“, nicht „Foto“ oder „fertige Platine“.
+Für die Bildunterschrift gelten die Instagram-Regeln des Teams aus dem Haupt-Repo ([`outreach/video-guideline.md`](https://github.com/HerrrNielson/cansat-ark-swash/blob/main/outreach/video-guideline.md), Abschnitt 7, und [`outreach/DESIGN.md`](https://github.com/HerrrNielson/cansat-ark-swash/blob/main/outreach/DESIGN.md)). Fakten nur aus dem Repo oder vom Team bestätigt; ein 3D-Modell heißt „3D-Modell“, nicht „Foto“ oder „fertige Platine“.
+
+**Anrede:** auf Instagram **„ihr“** (in `frage` und überall, wo die Leser angesprochen werden). Die Website-Texte (`titel`, `text`, `alt`) bleiben sachlich in der Wir-Form, weil sie auch auf der Website stehen, und dort gilt „Sie“.
 
 | Feld | Länge | Beispiel |
 |---|---|---|
+| `suchzeile` | 1 Satz, erste Zeile der Bildunterschrift: **Suchbegriffe zuerst** (Instagram durchsucht Bildunterschriften wie eine Suchmaschine), ein Emoji am Ende | „CanSat-Elektronik im 3D-Modell: zwei runde Platinen für eine Getränkedose 🛰️“ |
 | `titel` | 2–5 Wörter, höchstens 2 Zeilen im Post | „Zwei Platinen, eine Dose“ |
 | `text` | 1–2 Sätze, höchstens 3 Zeilen im Post (ca. 170 Zeichen) | „Unsere Elektronik im 3D-Modell: …“ |
 | `unterschriften` | je 1 Satz pro weitere Folie | „Die andere Seite: …“ |
+| `frage` | eine Frage mit „ihr“, die zum Kommentieren einlädt | „Welche Bauteile erkennt ihr? 👀“ |
+| `thema_tag` | genau **ein** Hashtag zum Thema der Woche, klein geschrieben | `#elektronik`, `#rotor`, `#test` |
 | `alt` | was zu sehen ist, ohne „Bild von“ | „3D-Modell der zwei gestapelten runden Platinen unseres CanSat“ |
 
-Ist ein Text zu lang, **bricht das Skript mit einer Meldung ab** statt ihn abzuschneiden. Dann kürzen.
+Ist ein Text zu lang, **bricht das Skript mit einer Meldung ab** statt ihn abzuschneiden. Dann kürzen. Fehlt `suchzeile`, `frage` oder `thema_tag`, bricht es ebenfalls ab.
 
-Die Bildunterschrift für Instagram baut das Skript immer gleich:
+Die Bildunterschrift für Instagram baut das Skript immer gleich (Kernaussagen mit Emoji-Ziffern, eine je Folie; bei nur einer Folie ohne Ziffer):
 
 ```
-Foto der Woche · KW 46
-<titel>
+<suchzeile>
 
-<text>
+Foto der Woche · KW 46: <titel>
+1️⃣ <text>
+2️⃣ <unterschrift der Folie 2>
 
-Alle Wochenfotos auf unserer Website, Link in der Bio.
+🔗 Alle Wochenfotos findet ihr auf unserer Website, Link in der Bio
+💬 <frage>
 
-#TeamSWASH #CanSat #CanSatAustria #ESEROAustria #HTLKaindorf #Raumfahrt #Technik
+#cansat #raumfahrt #physik #htlkaindorf <thema_tag>
 ```
 
-Die Hashtags stehen im Skript (`HASHTAGS`) und werden nur dort geändert, damit sie überall gleich sind. Der Link in der Instagram-Bio zeigt auf `https://cansat-swash.org/foto-der-woche`.
+**Höchstens 5 Hashtags:** die vier Standard-Tags des Teams stehen im Skript (`HASHTAGS`) und werden nur dort geändert, dazu kommt der `thema_tag` der Woche. Der Link in der Instagram-Bio zeigt auf `cansat-swash.org`; von der Startseite führt ein Klick aufs Wochenfoto zu allen Wochen.
+
+Beim **Posten** gelten ebenfalls die Team-Regeln (`video-guideline.md`, Abschnitt 8), z. B. als Collab-Post mit dem Account der HTL Kaindorf und in der ersten Stunde auf Kommentare antworten.
 
 ---
 

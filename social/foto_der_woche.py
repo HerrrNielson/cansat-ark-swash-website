@@ -36,7 +36,10 @@ LIGHT = (245, 247, 250)
 GRAY = (169, 180, 194)
 DOTS = [(44, 85, 162), (181, 33, 58), (199, 114, 20), (42, 138, 58)]
 
-HASHTAGS = "#TeamSWASH #CanSat #CanSatAustria #ESEROAustria #HTLKaindorf #Raumfahrt #Technik"
+# Instagram-Regeln des Teams (Haupt-Repo: outreach/video-guideline.md, Abschnitt 7):
+# höchstens 5 Hashtags, Standard plus ein Themen-Tag je Woche.
+HASHTAGS = "#cansat #raumfahrt #physik #htlkaindorf"
+EMOJI_DIGITS = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
 
 W, H = 1080, 1350
 M = 72  # Außenrand
@@ -202,9 +205,13 @@ def name_of(e):
 def load_entries():
     entries = json.loads(DATA.read_text(encoding="utf-8"))
     for e in entries:
-        for key in ("jahr", "kw", "bilder", "titel", "text", "alt", "titel_en", "text_en", "alt_en"):
+        for key in ("jahr", "kw", "suchzeile", "bilder", "titel", "text", "alt", "frage", "thema_tag",
+                    "titel_en", "text_en", "alt_en"):
             if not e.get(key):
                 raise SystemExit(f"KW {e.get('kw')}: Feld '{key}' fehlt in {DATA.name}.")
+        tag = e["thema_tag"]
+        if not tag.startswith("#") or " " in tag or tag != tag.lower():
+            raise SystemExit(f"KW {e['kw']}: thema_tag muss genau ein Hashtag in Kleinbuchstaben sein, z. B. #elektronik.")
     return sorted(entries, key=lambda e: (e["jahr"], e["kw"]), reverse=True)
 
 
@@ -242,9 +249,19 @@ def build_instagram(e):
         path = out / f"{name_of(e)}-{slot + 1}.png"
         slide.save(path, optimize=True)
         files.append(path)
+    # Aufbau wie in outreach/video-guideline.md: Suchbegriffe, Kernaussagen mit
+    # Emoji-Ziffern (eine je Folie), Frage, höchstens 5 Hashtags. Anrede: ihr.
+    points = [e["text"]] + [subs[i - 1] for i in images[1:] if i - 1 < len(subs)]
+    if len(points) > 1:
+        body = "\n".join(f"{EMOJI_DIGITS[k]} {p}" for k, p in enumerate(points))
+    else:
+        body = points[0]
     caption = (
-        f"Foto der Woche · KW {e['kw']}\n{e['titel']}\n\n{e['text']}\n\n"
-        f"Alle Wochenfotos auf unserer Website, Link in der Bio.\n\n{HASHTAGS}\n"
+        f"{e['suchzeile']}\n\n"
+        f"Foto der Woche · KW {e['kw']}: {e['titel']}\n{body}\n\n"
+        f"🔗 Alle Wochenfotos findet ihr auf unserer Website, Link in der Bio\n"
+        f"💬 {e['frage']}\n\n"
+        f"{HASHTAGS} {e['thema_tag']}\n"
     )
     cap_path = out / f"{name_of(e)}.txt"
     cap_path.write_text(caption, encoding="utf-8")

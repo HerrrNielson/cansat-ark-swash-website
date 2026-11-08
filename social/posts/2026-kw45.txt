@@ -1,8 +1,10 @@
-Foto der Woche · KW 45
-Zwei Platinen, eine Dose
+CanSat-Elektronik im 3D-Modell: zwei runde Platinen für eine Getränkedose 🛰️
 
-Unsere Elektronik im 3D-Modell: zwei runde Platinen übereinander. Darauf sitzen Kamerarechner, Stromversorgung und die Flugsteuerung mit GPS und Funk.
+Foto der Woche · KW 45: Zwei Platinen, eine Dose
+1️⃣ Unsere Elektronik im 3D-Modell: zwei runde Platinen übereinander. Darauf sitzen Kamerarechner, Stromversorgung und die Flugsteuerung mit GPS und Funk.
+2️⃣ Die andere Seite: Funkmodule mit Antennenanschlüssen, zwei Taster, ein Summer und die USB-C-Buchse.
 
-Alle Wochenfotos auf unserer Website, Link in der Bio.
+🔗 Alle Wochenfotos findet ihr auf unserer Website, Link in der Bio
+💬 Welche Bauteile erkennt ihr? 👀
 
-#TeamSWASH #CanSat #CanSatAustria #ESEROAustria #HTLKaindorf #Raumfahrt #Technik
+#cansat #raumfahrt #physik #htlkaindorf #elektronik
