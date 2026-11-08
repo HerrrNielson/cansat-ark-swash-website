@@ -8,7 +8,7 @@ Die Website zählt zur Öffentlichkeitsarbeit, die die Jury mit 10 % bewertet (C
 
 ## Vor dem Schreiben
 
-- **Englische Version mitpflegen.** Die Sprachumschaltung sucht jeden deutschen Text *wortgleich* in `assets/translations.js`. Wer einen deutschen Text im HTML ändert, muss denselben Text dort als Schlüssel ändern und die englische Übersetzung anpassen. Sonst bleibt der Text beim Umschalten auf EN deutsch.
+- **Englische Version mitpflegen.** Die Sprachumschaltung sucht jeden deutschen Text *wortgleich* in `assets/translations.js`. Wer einen deutschen Text im HTML ändert, muss denselben Text dort als Schlüssel ändern und die englische Übersetzung anpassen. Danach `python tools/build_en.py` starten, das die englischen Seiten unter `en/` neu baut und fehlende Übersetzungen auflistet. Sonst bleibt der Text auf der englischen Seite deutsch.
 - **Fakten aus dem Repo oder vom Team bestätigt.** Schätzungen immer als Schätzung kennzeichnen.
 - **Anrede:** Das Team hat die höfliche Anrede „Sie“ bestätigt.
 - **Richtwerte für die Länge** im aktuellen Layout:

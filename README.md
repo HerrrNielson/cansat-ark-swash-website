@@ -10,6 +10,14 @@ Die Links nutzen saubere URLs wie auf der Live-Seite (/team statt team.html). De
 
 und http://localhost:8000 öffnen. Der normale python -m http.server findet /team nicht.
 
+## Englische Seiten
+
+Die englischen Seiten unter en/ werden aus den deutschen erzeugt, nicht von Hand bearbeitet:
+
+    python tools/build_en.py
+
+Die Übersetzungen stehen in assets/translations.js (deutscher Text -> englischer Text). Nach jeder Textänderung an einer deutschen Seite den neuen Text dort mit Übersetzung eintragen und das Skript starten. Es listet fehlende Übersetzungen auf, setzt hreflang-Verweise in beide Sprachversionen und schreibt die sitemap.xml neu. Der DE/EN-Schalter im Kopf ist ein Link zur jeweils anderen Version.
+
 ## Seiten
 
 - index.html – kurze Vorstellung der Mission mit Video-Platzhalter
@@ -17,14 +25,16 @@ und http://localhost:8000 öffnen. Der normale python -m http.server findet /tea
 - team.html – Aufgabenbereiche des Teams
 - flugergebnisse.html – Vorversuche und spätere Flugmessungen
 - simulation.html – Launch-Day-Simulation der Bodenstation zum Ausprobieren, eingebettet aus assets/simulation/launch-day-simulation.html (Kopie aus dem Haupt-Repo, ground-station/web-sim/). Beim ersten Besuch erscheint eine kurze Anleitung, danach nur über „Anleitung anzeigen“.
+- news.html – Neuigkeiten aus dem Projekt
+- unterstuetzen.html – Unterstützung und Sponsoring
 - kontakt.html – Kontaktangaben und Formular
 - Header und Footer zeigen das lokale SWASH-Logo aus assets/swash-logo.png.
 - impressum.html – österreichisches Impressum-Muster
 - datenschutz.html – Datenschutz-Muster passend zur statischen Demo
-- robots.txt und sitemap.xml – für Suchmaschinen; bei neuen Seiten die sitemap.xml ergänzen
+- robots.txt und sitemap.xml – für Suchmaschinen; die sitemap.xml schreibt tools/build_en.py (neue Seiten dort in PAGES eintragen)
 - assets/styles.css – responsive Gestaltung mit zurückhaltenden Marineblau- und Sandtönen und sanften Verläufen
 - assets/site.js – mobiles Menü, Hell-/Dunkelmodus, Datenschutz-Hinweis, Formularhinweis und dynamisches Jahr
-- assets/translations.js – deutsche und englische Texte für die Sprachumschaltung
+- assets/translations.js – Übersetzungen, aus denen tools/build_en.py die englischen Seiten unter en/ baut
 - Beim ersten Besuch erscheint ein Datenschutz- und Cookie-Hinweis; seine Bestätigung wird lokal im Browser gespeichert.
 
 ## Vor Veröffentlichung anpassen

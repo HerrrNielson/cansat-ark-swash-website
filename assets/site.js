@@ -1,5 +1,3 @@
-const swashTranslations = window.swashTranslations || {};
-
 document.addEventListener('DOMContentLoaded', initializeSite);
 
 function initializeSite() {
@@ -8,66 +6,19 @@ function initializeSite() {
   const themeIcon = document.querySelector('.theme-icon');
   const themeNavItem = document.querySelector('.theme-nav-item');
   let theme = getStoredValue('team-swash-theme') || getStoredValue('nordlicht-theme') || 'light';
-  let language = getStoredValue('team-swash-language') || 'de';
-
-  const languageToggle = document.createElement('button');
+  // Each language has its own pages (/team and /en/team, built by tools/build_en.py).
+  // The switch is a plain link to the same page in the other language.
+  const language = root.lang.startsWith('en') ? 'en' : 'de';
+  const other = language === 'en' ? 'de' : 'en';
+  const alternate = document.querySelector(`link[rel="alternate"][hreflang="${other === 'de' ? 'de-AT' : 'en'}"]`);
+  const languageToggle = document.createElement('a');
   languageToggle.className = 'language-toggle';
-  languageToggle.type = 'button';
-  languageToggle.textContent = 'DE';
+  languageToggle.textContent = other.toUpperCase();
+  languageToggle.href = alternate ? new URL(alternate.href).pathname : (other === 'en' ? '/en/' : '/');
+  languageToggle.hreflang = other;
+  languageToggle.lang = other;
+  languageToggle.setAttribute('aria-label', other === 'en' ? 'English version' : 'Deutsche Version');
   if (themeNavItem) themeNavItem.append(languageToggle);
-
-  const originalText = new Map();
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  while (walker.nextNode()) originalText.set(walker.currentNode, walker.currentNode.nodeValue);
-  const originalAttributes = [];
-  document.querySelectorAll('[aria-label], [alt], [placeholder], [title]').forEach((element) => {
-    ['aria-label', 'alt', 'placeholder', 'title'].forEach((name) => {
-      if (element.hasAttribute(name)) originalAttributes.push({ element, name, value: element.getAttribute(name) });
-    });
-  });
-  const description = document.querySelector('meta[name="description"]');
-  const originalDescription = description?.content || '';
-  const originalTitle = document.title;
-
-  const translated = (value) => swashTranslations[value] || value;
-  const setLanguage = (nextLanguage) => {
-    language = nextLanguage;
-    const isEnglish = language === 'en';
-    root.lang = isEnglish ? 'en' : 'de-AT';
-    originalText.forEach((value, node) => {
-      const trimmed = value.trim();
-      const leading = value.match(/^\s*/)?.[0] || '';
-      const trailing = value.match(/\s*$/)?.[0] || '';
-      const replacement = isEnglish
-        ? (Object.prototype.hasOwnProperty.call(swashTranslations, value) ? swashTranslations[value] : translated(trimmed))
-        : trimmed;
-      node.nodeValue = leading + replacement + trailing;
-    });
-    originalAttributes.forEach(({ element, name, value }) => {
-      element.setAttribute(name, isEnglish ? translated(value) : value);
-    });
-    document.title = isEnglish ? translated(originalTitle) : originalTitle;
-    if (description) description.content = isEnglish ? translated(originalDescription) : originalDescription;
-    if (languageToggle) {
-      languageToggle.textContent = isEnglish ? 'EN' : 'DE';
-      languageToggle.setAttribute('aria-label', isEnglish ? 'Switch language to German' : 'Sprache auf Englisch umstellen');
-      languageToggle.setAttribute('aria-pressed', String(isEnglish));
-    }
-    if (themeToggle) {
-      const isDark = theme === 'dark';
-      themeToggle.setAttribute('aria-pressed', String(isDark));
-      themeToggle.setAttribute('aria-label', isEnglish
-        ? (isDark ? 'Switch to light mode' : 'Switch to dark mode')
-        : (isDark ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren'));
-    }
-    const menuToggle = document.querySelector('.menu-toggle');
-    if (menuToggle) {
-      const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
-      menuToggle.setAttribute('aria-label', isEnglish
-        ? (isOpen ? 'Close menu' : 'Open menu')
-        : (isOpen ? 'Menü schließen' : 'Menü öffnen'));
-    }
-  };
 
   const setTheme = (nextTheme) => {
     theme = nextTheme;
@@ -82,13 +33,8 @@ function initializeSite() {
     }
   };
 
-  setLanguage(language === 'en' ? 'en' : 'de');
   setTheme(theme === 'dark' ? 'dark' : 'light');
   // Store a setting only once the visitor changes it, as the privacy policy states.
-  languageToggle.addEventListener('click', () => {
-    setLanguage(language === 'de' ? 'en' : 'de');
-    setStoredValue('team-swash-language', language);
-  });
   if (themeToggle) themeToggle.addEventListener('click', () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
     setStoredValue('team-swash-theme', theme);

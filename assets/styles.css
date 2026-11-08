@@ -326,6 +326,22 @@ img, svg {
   letter-spacing: .08em;
 }
 
+/* The language switch is a link inside the nav list: undo the nav link styles. */
+.nav-list .language-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font: 700 .72rem/1 var(--font-display);
+  letter-spacing: .08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.nav-list .language-toggle::after {
+  display: none;
+}
+
 .theme-toggle:hover, .language-toggle:hover, .menu-toggle:hover {
   border-color: var(--logo-orange);
   color: var(--logo-orange);
@@ -1194,6 +1210,27 @@ a.button::after, .button[type="submit"]::after {
 
 .weekly-link:hover .weekly-more::after, .weekly-link:focus-visible .weekly-more::after {
   transform: translateX(4px);
+}
+
+.news-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.news-entry {
+  max-width: 820px;
+}
+
+.news-entry .text-link {
+  margin-top: .4rem;
+}
+
+.news-entry .eyebrow {
+  margin-bottom: .5rem;
+}
+
+.news-entry h2 {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
 }
 
 .weekly-archive {

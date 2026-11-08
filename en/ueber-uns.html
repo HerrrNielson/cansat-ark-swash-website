@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Team SWASH’s mission and technology: how our CanSat measures temperature and air pressure, sends data to the ground station and lands with a rotor.">
+    <meta name="theme-color" content="#0b1f3a">
+    <title>About us | Team SWASH</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="canonical" href="https://cansat-swash.org/en/ueber-uns">
+    <link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/ueber-uns">
+    <link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/ueber-uns">
+    <link rel="alternate" hreflang="x-default" href="https://cansat-swash.org/ueber-uns">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Team SWASH">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:locale:alternate" content="de_AT">
+    <meta property="og:title" content="About us | Team SWASH">
+    <meta property="og:description" content="Team SWASH’s mission and technology: how our CanSat measures temperature and air pressure, sends data to the ground station and lands with a rotor.">
+    <meta property="og:url" content="https://cansat-swash.org/en/ueber-uns">
+    <meta property="og:image" content="https://cansat-swash.org/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Group photo of Team SWASH with logo and mission description">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+    <link rel="icon" href="/assets/favicon-32.png?v=2" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/en/" aria-label="Team SWASH – Home"><span class="logo-frame"><img class="site-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
+        <div class="header-controls"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open menu"><span aria-hidden="true">☰</span></button></div>
+        <nav class="site-nav" id="primary-nav" aria-label="Main navigation">
+          <ul class="nav-list">
+            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
+            <li><a href="/en/">Home</a></li>
+            <li><a href="/en/ueber-uns">About us</a></li>
+            <li><a href="/en/team">Team</a></li>
+            <li><a href="/en/flugergebnisse">Flight results</a></li>
+            <li><a href="/en/simulation">Simulation</a></li>
+            <li><a href="/en/news">News</a></li>
+            <li><a href="/en/kontakt" class="nav-contact">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="page-hero">
+        <div class="container">
+          <p class="breadcrumb"><a href="/en/">Home</a> / About us</p>
+          <p class="eyebrow">Mission &amp; system</p>
+          <h1>A CanSat collects data — and is designed to land under control.</h1>
+          <p class="lead">Team SWASH is developing a satellite the size of a can for CanSat Austria. We combine the required measurements during descent with an experiment using a controlled autorotation rotor to steer towards a target. Our secondary mission includes both elements: a controlled rotor landing and NDVI analysis of plant images.</p>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow section-label">Primary mission</p>
+            <h2>Measure temperature and air pressure during descent.</h2>
+            <p>Our CanSat is designed to measure air temperature and pressure at least once per second and send the readings to a ground station via LoRa. There, we can analyse the measurements together with each flight phase.</p>
+            <p>An ESP32-S3 handles flight control. GPS, orientation and pressure sensors help record and interpret the flight data.</p>
+          </div>
+          <div class="visual-panel">
+            <span class="eyebrow">Measurement · radio · analysis</span><span class="big-number">1 Hz</span>
+            <p>At least one measurement per second during descent.</p>
+          </div>
+        </div>
+      </section>
+      <section class="section soft">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow section-label">Inside the CanSat</p>
+            <h2>One compact system with several tasks.</h2>
+          </div>
+          <div class="grid-2">
+            <article class="card">
+              <span class="icon" aria-hidden="true">01</span>
+              <h3>Flight computer &amp; sensors</h3>
+              <p>An ESP32-S3 reads temperature, pressure, orientation and GPS data, and logs the flight phases.</p>
+            </article>
+            <article class="card">
+              <span class="icon" aria-hidden="true">02</span>
+              <h3>LoRa ground station</h3>
+              <p>Telemetry is transmitted by radio to the ground station during flight.</p>
+            </article>
+            <article class="card">
+              <span class="icon" aria-hidden="true">03</span>
+              <h3>Autorotation rotor</h3>
+              <p>The rotor, swashplate and servos are part of our work towards a stable descent and a more precise landing.</p>
+            </article>
+            <article class="card">
+              <span class="icon" aria-hidden="true">04</span>
+              <h3>Camera &amp; NDVI</h3>
+              <p>The Raspberry Pi CM0 is intended to capture images. NDVI (Normalized Difference Vegetation Index) is a vegetation index that uses image data to indicate plant health.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow section-label">Development status</p>
+            <h2>We make our progress measurable.</h2>
+            <p>In preliminary rotor tests, we are examining how mass, blade angle and airflow affect descent. Next, we will test a smaller blade angle and a larger rotor in controlled drops. We are also developing the NDVI image analysis; an additional ambient-light/UV sensor remains undecided.</p>
+            <a class="button" href="/en/flugergebnisse">See test and flight results</a>
+          </div>
+          <div class="card">
+            <h3>From experiment to analysis</h3>
+            <ul class="check-list">
+              <li>Record test conditions and measurements.</li>
+              <li>Clearly distinguish estimates from measurements.</li>
+              <li>Add telemetry and image data after the flight.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-kicker">Helpful links</p>
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="/en/"><span class="logo-frame"><img class="site-logo footer-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
+            <p>At HTL Kaindorf, Team SWASH is developing a CanSat for measurements, autorotation and a precise landing.</p>
+            <p><a href="https://www.instagram.com/cansat.swash27/" target="_blank" rel="noopener noreferrer">Instagram: @cansat.swash27 ↗</a></p>
+          </div>
+          <div>
+            <h2 class="footer-title">Pages</h2>
+            <ul class="footer-links">
+              <li><a href="/en/ueber-uns">About us</a></li>
+              <li><a href="/en/team">Team</a></li>
+              <li><a href="/en/flugergebnisse">Flight results</a></li>
+              <li><a href="/en/simulation">Simulation</a></li>
+              <li><a href="/en/foto-der-woche">Photo of the week</a></li>
+              <li><a href="/en/news">News</a></li>
+              <li><a href="/en/unterstuetzen">Support us</a></li>
+              <li><a href="/en/kontakt">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="footer-title">CanSat Austria</h2>
+            <p><a href="https://esero.at/de/projects/cansat/" target="_blank" rel="noopener noreferrer">Information from ESERO Austria ↗</a></p>
+            <h2 class="footer-title">Legal</h2>
+            <ul class="footer-links">
+              <li><a href="/en/impressum">Legal notice</a></li>
+              <li><a href="/en/datenschutz">Privacy</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom"><span>© <span data-year>2026</span> Team SWASH · CanSat Austria</span><span>Built with curiosity and teamwork.</span></div>
+      </div>
+    </footer>
+    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+      <div class="privacy-dialog-content">
+        <p class="eyebrow">Privacy</p>
+        <h2 id="privacy-title">Privacy &amp; cookies</h2>
+        <p id="privacy-copy">This website sets no cookies. For visitor statistics without cookies we use Cloudflare Web Analytics. If you change the colour scheme, acknowledge this notice or use the simulation, your browser remembers this locally. <a href="/en/datenschutz">Read our privacy policy</a>.</p>
+        <button class="button" type="button" data-privacy-dismiss>Got it</button>
+      </div>
+    </dialog>
+    <script src="/assets/site.js" defer></script>
+  </body>
+</html>

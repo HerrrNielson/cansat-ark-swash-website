@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Rotor tests and simulation results from Team SWASH: how our CanSat descends, spins up its rotor and lands under control. Flight analysis to follow.">
+    <meta name="theme-color" content="#0b1f3a">
+    <title>Flight results | Team SWASH</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="canonical" href="https://cansat-swash.org/en/flugergebnisse">
+    <link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/flugergebnisse">
+    <link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/flugergebnisse">
+    <link rel="alternate" hreflang="x-default" href="https://cansat-swash.org/flugergebnisse">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Team SWASH">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:locale:alternate" content="de_AT">
+    <meta property="og:title" content="Flight results | Team SWASH">
+    <meta property="og:description" content="Rotor tests and simulation results from Team SWASH: how our CanSat descends, spins up its rotor and lands under control. Flight analysis to follow.">
+    <meta property="og:url" content="https://cansat-swash.org/en/flugergebnisse">
+    <meta property="og:image" content="https://cansat-swash.org/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Group photo of Team SWASH with logo and mission description">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+    <link rel="icon" href="/assets/favicon-32.png?v=2" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/en/" aria-label="Team SWASH – Home"><span class="logo-frame"><img class="site-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
+        <div class="header-controls"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open menu"><span aria-hidden="true">☰</span></button></div>
+        <nav class="site-nav" id="primary-nav" aria-label="Main navigation">
+          <ul class="nav-list">
+            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
+            <li><a href="/en/">Home</a></li>
+            <li><a href="/en/ueber-uns">About us</a></li>
+            <li><a href="/en/team">Team</a></li>
+            <li><a href="/en/flugergebnisse">Flight results</a></li>
+            <li><a href="/en/simulation">Simulation</a></li>
+            <li><a href="/en/news">News</a></li>
+            <li><a href="/en/kontakt" class="nav-contact">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="page-hero">
+        <div class="container">
+          <p class="breadcrumb"><a href="/en/">Home</a> / Flight results</p>
+          <p class="eyebrow">Tests &amp; flight</p>
+          <h1>We share what we measure.</h1>
+          <p class="lead">Here we document preliminary tests and will add our CanSat measurements after launch. The values below are from an initial rotor test and from simulations, not from a flight.</p>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow section-label">Current status</p>
+            <h2>Initial rotor test by a car window</h2>
+            <p>An early test with a 96.9 g test model and an 8° rotor-blade angle. The car’s speed provided the airflow.</p>
+          </div>
+          <div class="table-wrap">
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th scope="col">Run</th>
+                  <th scope="col">Vehicle speed</th>
+                  <th scope="col">Measured force</th>
+                  <th scope="col">Angle to the horizontal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>48 km/h</td>
+                  <td>2.3 N</td>
+                  <td>50°</td>
+                </tr>
+                <tr>
+                  <th scope="row">2</th>
+                  <td>70 km/h</td>
+                  <td>3.5 N</td>
+                  <td>30°</td>
+                </tr>
+                <tr>
+                  <th scope="row">3</th>
+                  <td>70 km/h</td>
+                  <td>3.5 N</td>
+                  <td>30°</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="notice results-note"><strong>Context:</strong> For a complete 300 g CanSat, we estimate a descent speed of about 19–22 m/s from this test. This is above the required 8–11 m/s and the 6 m/s target for a planned precision landing. Next, we will test a smaller rotor blade angle, a larger rotor and controlled drops. The force values have already been corrected for the spring scale’s 0.7 N zero offset.</div>
+        </div>
+      </section>
+      <section class="section soft">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow section-label">Simulation</p>
+            <h2>We fly on the computer before we fly.</h2>
+            <p>Our flight software runs unchanged in a 3D simulation on a PC: rocket, ejection, gusty wind, GPS and a rotor whose three blades are each calculated separately. This lets us test 31 flight scenarios, including broken sensors.</p>
+          </div>
+          <div class="grid-2 chart-grid">
+            <figure class="card chart-card chart-card-wide">
+              <img src="/assets/simulation/flug.svg" width="576" height="403" loading="lazy" alt="Chart: altitude and descent rate of a simulated flight with apogee at 560 m and a descent rate of 8.9 m/s; the firmware estimate lies almost exactly on the simulated curve.">
+              <figcaption>
+                <h3>A complete flight</h3>
+                <p>Launch, apogee at about 560 m, rotor descent at 8.9 m/s, landing. The firmware knows its altitude to within about 1.5 m.</p>
+              </figcaption>
+            </figure>
+            <figure class="card chart-card">
+              <img src="/assets/simulation/zielanflug.svg" width="576" height="389" loading="lazy" alt="Track seen from above: without target approach the CanSat drifts 189 m north-east with the wind. With target approach it lands 3 m from the launch rail, or 6 m from a target 300 m to the north.">
+              <figcaption>
+                <h3>Target approach</h3>
+                <p>The rotor tilts and steers the CanSat to the target: it lands 3 m from the launch rail. Without steering, the wind carries it 189 m away.</p>
+              </figcaption>
+            </figure>
+            <figure class="card chart-card">
+              <img src="/assets/simulation/blattwinkel.svg" width="576" height="331" loading="lazy" alt="Chart: between 2° and 8° blade pitch the CanSat descends at 7.2 to 14.5 m/s; in flight it uses 4.5° and 9.4 m/s. Below about 1.5° the airflow over the rotor stalls.">
+              <figcaption>
+                <h3>Blade pitch as a brake</h3>
+                <p>The blade pitch sets the descent rate; in flight it is 4.5°. Below 1.5° the airflow stalls and the CanSat falls.</p>
+              </figcaption>
+            </figure>
+          </div>
+          <h3 class="sim-subheading">What happens when something goes wrong?</h3>
+          <div class="table-wrap">
+            <table class="results-table results-table-wrap">
+              <thead>
+                <tr>
+                  <th scope="col">Fault</th>
+                  <th scope="col">Before</th>
+                  <th scope="col">Now</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Ejection 3 s late</th>
+                  <td>Rotor never opens, impact at 45 m/s</td>
+                  <td>Rotor spinning after 1.2 s, 8.9 m/s</td>
+                </tr>
+                <tr>
+                  <th scope="row">Attitude sensor fails during spin-up</th>
+                  <td>Can hangs at 60°, up to 16 m/s</td>
+                  <td>Attitude corrected using GPS, 9.0 m/s</td>
+                </tr>
+                <tr>
+                  <th scope="row">Rotor speed sensor dead</th>
+                  <td>13.5 m/s</td>
+                  <td>detected from braking, 9.4 m/s</td>
+                </tr>
+                <tr>
+                  <th scope="row">Pressure sensor freezes</th>
+                  <td>falls at 13.4 m/s</td>
+                  <td>detected, 8.7 m/s</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="sim-cta"><a class="button" href="/en/simulation">Try the simulation yourself</a></p>
+          <div class="notice results-note"><strong>Context:</strong> These are simulations, not measurements. Mass, centre of gravity, blade dimensions, friction and servos are assumed. Drop tests will check the model.</div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow section-label">After launch</p>
+            <h2>Flight analysis will be added here.</h2>
+            <p>Once measurements are available, we will add telemetry, temperature and pressure trends, flight phases and findings from the landing.</p>
+            <a class="button" href="/en/ueber-uns">More about our mission</a>
+          </div>
+          <div class="card">
+            <h3>CanSat Austria</h3>
+            <p>Team SWASH is developing this project as part of ESERO Austria’s Austrian CanSat competition.</p>
+            <p><a href="https://esero.at/de/projects/cansat/" target="_blank" rel="noopener noreferrer">Visit the CanSat project at ESERO Austria ↗</a></p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-kicker">Helpful links</p>
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="/en/"><span class="logo-frame"><img class="site-logo footer-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
+            <p>At HTL Kaindorf, Team SWASH is developing a CanSat for measurements, autorotation and a precise landing.</p>
+            <p><a href="https://www.instagram.com/cansat.swash27/" target="_blank" rel="noopener noreferrer">Instagram: @cansat.swash27 ↗</a></p>
+          </div>
+          <div>
+            <h2 class="footer-title">Pages</h2>
+            <ul class="footer-links">
+              <li><a href="/en/ueber-uns">About us</a></li>
+              <li><a href="/en/team">Team</a></li>
+              <li><a href="/en/flugergebnisse">Flight results</a></li>
+              <li><a href="/en/simulation">Simulation</a></li>
+              <li><a href="/en/foto-der-woche">Photo of the week</a></li>
+              <li><a href="/en/news">News</a></li>
+              <li><a href="/en/unterstuetzen">Support us</a></li>
+              <li><a href="/en/kontakt">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="footer-title">CanSat Austria</h2>
+            <p><a href="https://esero.at/de/projects/cansat/" target="_blank" rel="noopener noreferrer">Information from ESERO Austria ↗</a></p>
+            <h2 class="footer-title">Legal</h2>
+            <ul class="footer-links">
+              <li><a href="/en/impressum">Legal notice</a></li>
+              <li><a href="/en/datenschutz">Privacy</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom"><span>© <span data-year>2026</span> Team SWASH · CanSat Austria</span><span>Built with curiosity and teamwork.</span></div>
+      </div>
+    </footer>
+    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+      <div class="privacy-dialog-content">
+        <p class="eyebrow">Privacy</p>
+        <h2 id="privacy-title">Privacy &amp; cookies</h2>
+        <p id="privacy-copy">This website sets no cookies. For visitor statistics without cookies we use Cloudflare Web Analytics. If you change the colour scheme, acknowledge this notice or use the simulation, your browser remembers this locally. <a href="/en/datenschutz">Read our privacy policy</a>.</p>
+        <button class="button" type="button" data-privacy-dismiss>Got it</button>
+      </div>
+    </dialog>
+    <script src="/assets/site.js" defer></script>
+  </body>
+</html>

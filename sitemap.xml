@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://cansat-swash.org/</loc><lastmod>2026-11-08</lastmod></url>
-  <url><loc>https://cansat-swash.org/ueber-uns</loc><lastmod>2026-11-03</lastmod></url>
-  <url><loc>https://cansat-swash.org/team</loc><lastmod>2026-11-03</lastmod></url>
-  <url><loc>https://cansat-swash.org/flugergebnisse</loc><lastmod>2026-11-03</lastmod></url>
-  <url><loc>https://cansat-swash.org/simulation</loc><lastmod>2026-11-03</lastmod></url>
-  <url><loc>https://cansat-swash.org/foto-der-woche</loc><lastmod>2026-11-08</lastmod></url>
-  <url><loc>https://cansat-swash.org/kontakt</loc><lastmod>2026-11-03</lastmod></url>
-  <url><loc>https://cansat-swash.org/impressum</loc><lastmod>2026-11-03</lastmod></url>
-  <url><loc>https://cansat-swash.org/datenschutz</loc><lastmod>2026-11-03</lastmod></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://cansat-swash.org/</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/"/></url>
+  <url><loc>https://cansat-swash.org/en/</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/"/></url>
+  <url><loc>https://cansat-swash.org/ueber-uns</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/ueber-uns"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/ueber-uns"/></url>
+  <url><loc>https://cansat-swash.org/en/ueber-uns</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/ueber-uns"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/ueber-uns"/></url>
+  <url><loc>https://cansat-swash.org/team</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/team"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/team"/></url>
+  <url><loc>https://cansat-swash.org/en/team</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/team"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/team"/></url>
+  <url><loc>https://cansat-swash.org/flugergebnisse</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/flugergebnisse"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/flugergebnisse"/></url>
+  <url><loc>https://cansat-swash.org/en/flugergebnisse</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/flugergebnisse"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/flugergebnisse"/></url>
+  <url><loc>https://cansat-swash.org/simulation</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/simulation"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/simulation"/></url>
+  <url><loc>https://cansat-swash.org/en/simulation</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/simulation"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/simulation"/></url>
+  <url><loc>https://cansat-swash.org/foto-der-woche</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/foto-der-woche"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/foto-der-woche"/></url>
+  <url><loc>https://cansat-swash.org/en/foto-der-woche</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/foto-der-woche"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/foto-der-woche"/></url>
+  <url><loc>https://cansat-swash.org/news</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/news"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/news"/></url>
+  <url><loc>https://cansat-swash.org/en/news</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/news"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/news"/></url>
+  <url><loc>https://cansat-swash.org/unterstuetzen</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/unterstuetzen"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/unterstuetzen"/></url>
+  <url><loc>https://cansat-swash.org/en/unterstuetzen</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/unterstuetzen"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/unterstuetzen"/></url>
+  <url><loc>https://cansat-swash.org/kontakt</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/kontakt"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/kontakt"/></url>
+  <url><loc>https://cansat-swash.org/en/kontakt</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/kontakt"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/kontakt"/></url>
+  <url><loc>https://cansat-swash.org/impressum</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/impressum"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/impressum"/></url>
+  <url><loc>https://cansat-swash.org/en/impressum</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/impressum"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/impressum"/></url>
+  <url><loc>https://cansat-swash.org/datenschutz</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/datenschutz"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/datenschutz"/></url>
+  <url><loc>https://cansat-swash.org/en/datenschutz</loc><lastmod>2026-11-09</lastmod><xhtml:link rel="alternate" hreflang="de-AT" href="https://cansat-swash.org/datenschutz"/><xhtml:link rel="alternate" hreflang="en" href="https://cansat-swash.org/en/datenschutz"/></url>
 </urlset>

@@ -17,6 +17,7 @@ Braucht Python 3 mit Pillow und die Windows-Schriften Bahnschrift und Segoe UI.
 """
 
 import argparse
+import sys
 import html
 import json
 import re
@@ -352,6 +353,9 @@ def main():
             sizes[name_of(e)] = size
         update_website(entries, sizes)
         print(f"Website: {len(entries)} Wochenfoto(s), Startseite zeigt KW {entries[0]['kw']}")
+        # Englische Seiten neu bauen, damit /en/ dasselbe Wochenfoto zeigt
+        import subprocess
+        subprocess.run([sys.executable, str(ROOT / "tools/build_en.py")], check=True)
 
 
 if __name__ == "__main__":
