@@ -68,16 +68,16 @@ Die Website zählt zur Öffentlichkeitsarbeit, die die Jury mit 10 % bewertet (C
 
 ## Startseite (`index.html`)
 
-### Video ganz oben
+### Teamfoto ganz oben
 
 | Element | Aktuell | Was dort hinkommen soll |
 |---|---|---|
-| Etikett | „Video folgt“ | Fällt weg, sobald ein echtes Video da ist. |
-| Videotitel | „Unser CanSat in Aktion“ | 3–5 Wörter: was man im Video sieht. |
-| Untertitel | „Hier ist Platz für ein kurzes Video …“ | Ein Satz zum Video (z. B. Falltest, Bau, Start). Heute nur Platzhalter. |
-| Screenreader-Text des Platzhalters | „Platzhalter für ein kurzes Video …“ | Mit dem echten Video durch eine Beschreibung des Videos ersetzen. |
+| Foto | Gruppenfoto (`assets/team/team-swash.jpg`) | Bleibt, bis ein Video vom Bau oder Flug da ist. |
+| Titel | „Das ist Team SWASH“ | 3–5 Wörter. |
+| Text | „Wir sind ein Schülerteam der HTL Kaindorf …“ | Ein Satz: wer wir sind und wofür wir bauen. |
+| Button | „Team kennenlernen“ | Führt zur Team-Seite. |
 
-Das Video am besten lokal einbinden. Ein eingebettetes YouTube-Video verlangt eine Ergänzung der Datenschutzerklärung. Videos laufen über Git LFS, das Kontingent ist begrenzt.
+Ein späteres Video am besten lokal einbinden. Ein eingebettetes YouTube-Video verlangt eine Ergänzung der Datenschutzerklärung. Videos laufen über Git LFS, das Kontingent ist begrenzt.
 
 ### Einstieg
 
@@ -87,8 +87,7 @@ Das Video am besten lokal einbinden. Ein eingebettetes YouTube-Video verlangt ei
 | Hauptüberschrift | „Wir bringen einen Satelliten im Dosenformat sicher zurück zur Erde.“ | Die Kernbotschaft des Projekts in einem Satz, das Erste, was man liest. Der unterstrichene Teil („zurück zur Erde“) hat 2–4 Wörter. Die Überschrift ist im HTML in zwei Teile geteilt, die Übersetzung braucht beide Teile. |
 | Einleitung | „Unser CanSat misst Temperatur und Luftdruck …“ | 1–2 Sätze: was der CanSat tut (Primärmission) und was ihn besonders macht (Autorotation, zielgenaue Landung). Für Laien verständlich. |
 | Buttons | „Unsere Mission“, „Flugergebnisse“ | Führen zu „Über uns“ und „Flugergebnisse“. |
-| Foto | „CanSat-Foto folgt“ | Ein echtes Foto vom CanSat oder vom Testmodell. Der Platzhaltertext fällt dann weg. |
-| Bildunterschrift | „Einblicke in Aufbau und Flug ergänzen wir hier.“ | Ein kurzer Satz, was das Foto zeigt, z. B. „Testmodell mit passivem Rotor beim Autofenster-Versuch“. |
+| Foto der Woche | wird erzeugt | Nicht von Hand ändern. Entsteht mit `social/foto_der_woche.py`, Regeln in `social/DESIGN-FOTO-DER-WOCHE.md`. Ein Klick führt zur Seite `foto-der-woche.html`. |
 
 ### Abschnitt „Unser CanSat“
 

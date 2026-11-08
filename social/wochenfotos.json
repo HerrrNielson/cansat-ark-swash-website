@@ -1,0 +1,19 @@
+[
+  {
+    "jahr": 2026,
+    "kw": 45,
+    "bilder": [
+      "social/fotos/2026-kw45.webp",
+      "social/fotos/2026-kw45-2.png"
+    ],
+    "titel": "Zwei Platinen, eine Dose",
+    "text": "Unsere Elektronik im 3D-Modell: zwei runde Platinen übereinander. Darauf sitzen Kamerarechner, Stromversorgung und die Flugsteuerung mit GPS und Funk.",
+    "alt": "3D-Modell der zwei gestapelten runden Platinen unseres CanSat",
+    "unterschriften": [
+      "Die andere Seite: Funkmodule mit Antennenanschlüssen, zwei Taster, ein Summer und die USB-C-Buchse."
+    ],
+    "titel_en": "Two boards, one can",
+    "text_en": "Our electronics as a 3D model: two round circuit boards stacked on top of each other. They carry the camera computer, the power supply and the flight controller with GPS and radio.",
+    "alt_en": "3D model of the two stacked round circuit boards in our CanSat"
+  }
+]

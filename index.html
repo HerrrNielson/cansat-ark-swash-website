@@ -45,11 +45,10 @@
     </header>
     <main id="main">
       <section class="home-video">
-        <div class="video-placeholder" role="img" aria-label="Platzhalter für ein kurzes Video des Team-SWASH-CanSat">
-          <span class="video-tag">Video folgt</span>
+        <div class="video-placeholder masthead-photo">
+          <img class="masthead-img" src="assets/team/team-swash.jpg" alt="Gruppenfoto von Team SWASH" width="1600" height="1200" fetchpriority="high">
           <div class="container video-overlay">
-            <span class="video-play" aria-hidden="true"></span>
-            <div><strong>Unser CanSat in Aktion</strong><span>Hier ist Platz für ein kurzes Video vom Bau oder Flug.</span></div>
+            <div><strong>Das ist Team SWASH</strong><span>Wir sind ein Schülerteam der HTL Kaindorf und bauen unseren CanSat für CanSat Austria 2026/27.</span><a class="button secondary" href="team.html">Team kennenlernen</a></div>
           </div>
         </div>
       </section>
@@ -61,10 +60,14 @@
             <p class="lead">Unser CanSat misst Temperatur und Luftdruck im Sinkflug, sendet die Daten zur Bodenstation und erprobt eine gesteuerte Autorotation für eine präzise Landung.</p>
             <div class="hero-actions"><a class="button" href="ueber-uns.html">Unsere Mission</a><a class="button secondary" href="flugergebnisse.html">Flugergebnisse</a></div>
           </div>
-          <figure class="mission-image">
-            <div class="mission-image-frame" role="img" aria-label="Platzhalter für ein Foto des Team-SWASH-CanSat"><span class="image-placeholder-label"><span aria-hidden="true">✦</span> CanSat-Foto folgt</span></div>
-            <figcaption>Einblicke in Aufbau und Flug ergänzen wir hier.</figcaption>
-          </figure>
+          <!-- WOCHENFOTO:START -->
+          <a class="weekly-link" href="foto-der-woche.html">
+            <figure class="mission-image weekly-photo">
+              <div class="mission-image-frame"><img src="assets/wochenfoto/2026-kw45.jpg" alt="3D-Modell der zwei gestapelten runden Platinen unseres CanSat" width="982" height="736"></div>
+              <figcaption><strong class="weekly-label">Foto der Woche · KW 45</strong> Zwei Platinen, eine Dose<span class="weekly-more">Alle Wochenfotos</span></figcaption>
+            </figure>
+          </a>
+          <!-- WOCHENFOTO:END -->
         </div>
       </section>
       <section class="section soft" aria-labelledby="motivation-title">
@@ -138,6 +141,7 @@
               <li><a href="team.html">Team</a></li>
               <li><a href="flugergebnisse.html">Flugergebnisse</a></li>
               <li><a href="simulation.html">Simulation</a></li>
+              <li><a href="foto-der-woche.html">Foto der Woche</a></li>
               <li><a href="kontakt.html">Kontakt</a></li>
             </ul>
           </div>

@@ -27,7 +27,7 @@ Die `--logo-*`-Variablen ändern sich im Dunkelmodus **nicht**. Sie werden für 
 | `--logo-orange` | `#ff6b1a` | Flugbahn | Hauptakzent: Linien, Schatten, Kontakt-Button, Hervorhebungen auf Dunkel |
 | `--logo-purple` | `#4d1056` | Raketenstreifen | Feature-Kachel, Schatten von Bild und Formular |
 | `--logo-blue` | `#1e5aa8` | Erdbogen | Links, Schatten im Dunkelmodus |
-| `--logo-light` | `#f5f7fa` | Schrift / Stern | Logo-Rahmen, Play-Button, Platzhalter-Etikett |
+| `--logo-light` | `#f5f7fa` | Schrift / Stern | Logo-Rahmen, Platzhalter-Etikett |
 | `--logo-gray` | `#a9b4c2` | Orbit-Ellipse | Sekundäre Linien |
 
 ### Signalpunkte
@@ -91,7 +91,7 @@ Bahnschrift (Windows) und DIN Alternate (macOS) geben den technischen DIN-Charak
 
 | Element | Größe | Gewicht | Zeilenhöhe | Sperrung |
 |---|---|---|---|---|
-| Video-Titel (Startseite) | `clamp(2.4rem, 6vw, 4.6rem)` | 700 | 1.02 | −.015em |
+| Titel im Teamfoto (Startseite) | `clamp(2.1rem, 4.6vw, 3.6rem)` | 700 | 1.02 | −.015em |
 | H1 (Standard) | `clamp(2.4rem, 4.6vw, 4rem)` | 700 | 1.06 | −.012em |
 | H1 im Page-Hero | `clamp(2.4rem, 5vw, 4.2rem)` | 700 | 1.06 | −.012em |
 | H1 Startseiten-Hero | `clamp(2.3rem, 4.2vw, 3.6rem)` | 700 | 1.06 | −.012em |
@@ -141,7 +141,7 @@ Statt gleichmäßiger Radien haben alle Flächen leicht unterschiedliche Eckradi
 |---|---|---|
 | `--radius-hand` | `5px 9px 6px 10px / 9px 5px 10px 6px` | Karten, Panels, Bilder, Tabellen, Dialog |
 | `--radius-hand-sm` | `3px 6px 4px 7px / 6px 3px 7px 4px` | Buttons, Felder, Etiketten, Toggles, Chips |
-| `50 %` | – | nur Logo und Play-Button |
+| `50 %` | – | nur Logo |
 
 ### Harte Schatten
 
@@ -151,16 +151,18 @@ Schatten haben **nie Unschärfe** und sind immer gleich weit nach rechts unten v
 |---|---|---|---|---|
 | `.button` | 4 px | 6 px, `translate(-2px,-2px)` | Orange | Blau |
 | `.button.secondary` | 4 px | 6 px | `--rule` | `--rule` |
-| `.card` | – | 7 px, `translate(-3px,-3px)` | Kartenfarbe | Kartenfarbe |
-| `.feature-tile` | 7 px | 10 px | Marineblau | Blau |
+| `.feature-tile` | 7 px | – | Marineblau | Blau |
 | `.visual-panel` | 7 px | – | Orange | Orange |
 | `.mission-image` | 7 px | – | Lila | Orange |
+| `.weekly-link .mission-image` (Foto der Woche) | 7 px | 10 px, `translate(-3px,-3px)` | Lila | Orange |
+| Textfeld im Teamfoto | 7 px | – | Orange | Orange |
 | `.form-card` | 7 px | – | Lila | Blau |
 | `.table-wrap` | 6 px | – | Orange | Orange |
 | `.privacy-dialog` | 8 px | – | Orange | Orange |
-| `.video-play` | 4 px | – | Orange | Orange |
 
 Beim Drücken (`:active`) schrumpft der Button-Schatten auf 1 px und das Element rutscht um 3 px nach rechts unten: ein spürbares „Eindrücken“.
+
+**Hover-Regel:** Nur Klickbares reagiert auf Hover, und Gleiches reagiert gleich. Buttons und das verlinkte Foto der Woche heben sich an, Header-Schalter werden orange, Text-Links wechseln die Farbe und bekommen eine dickere Unterstreichung. Karten, Feature-Kacheln, Tabellenzeilen und andere Flächen ohne Link bewegen sich **nie**. Tastaturfokus zeigt überall einen 3-px-Rahmen in Orange; bei Buttons sieht Fokus aus wie Hover.
 
 ### Rahmen und Linien
 
@@ -181,7 +183,7 @@ Alle Dekor-Dateien liegen in `assets/`. Sie sind rein dekorativ und werden über
 | Papierkörnung | `deco-grain.svg`, `body::after`, fixiert über allem | Ganze Seite. Hell: Deckkraft .13, `multiply`. Dunkel: .5, `soft-light` |
 | Pinselstrich | `deco-stroke.svg` als `mask`, Farbe über `background` | Unter Navigationspunkten, hinter Abschnitts-Labels, hinter Kartennummern, im Footer-Kicker |
 | Doppel-Unterstreichung | `deco-underline.svg` | `.scribble` in der H1 |
-| Missionsgrafik | `deco-mission.svg` (Rakete, Flugbahn, Orbit, Punkte, aufgeraut per SVG-Filter) | Rechts im Video-Hero und im Page-Hero, 4–8° gedreht |
+| Missionsgrafik | `deco-mission.svg` (Rakete, Flugbahn, Orbit, Punkte, aufgeraut per SVG-Filter) | Rechts im Page-Hero, 6° gedreht |
 | Signalpunkte | `--logo-dots` | Ecke rechts oben in `.visual-panel` und Bildrahmen, Footer-Kicker |
 | Klebeband | orange (82 %), unregelmäßiges `clip-path`-Polygon, −4° gedreht | Oben mittig auf `.mission-image` |
 | Vierzackiger Stern | Orange, `clip-path`-Polygon, 14° gedreht | Ecke rechts oben in `.feature-tile` |
@@ -202,7 +204,6 @@ Kleine Drehungen geben den Eindruck von aufgeklebtem Material. Sie bleiben dezen
 
 | Element | Drehung |
 |---|---|
-| Video-Etikett „Video folgt“ | −3° |
 | Platzhalter-Etikett | −2° |
 | Häkchen-Kästchen | −3° |
 | Klebeband | −4° |

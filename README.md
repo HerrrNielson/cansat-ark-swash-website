@@ -31,3 +31,10 @@ Für Vorschauen beim Teilen (WhatsApp, Instagram, LinkedIn) hat jede Seite Open-
 
 Datenschutz und Impressum sind Mustertexte und müssen auf das tatsächliche Unternehmen, Geschäftsmodell, Hosting und alle eingesetzten Dienste abgestimmt werden.
 
+## Foto der Woche
+
+Startseite, die Seite foto-der-woche.html und die Instagram-Posts entstehen jede Woche mit einem Befehl aus social/wochenfotos.json:
+
+    python social/foto_der_woche.py
+
+Ablauf, Regeln für Fotos und Texte und das Layout der Posts stehen in social/DESIGN-FOTO-DER-WOCHE.md.
