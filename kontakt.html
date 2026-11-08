@@ -8,6 +8,18 @@
     <title>Kontakt | Team SWASH</title>
     <link rel="stylesheet" href="assets/styles.css">
     <link rel="canonical" href="https://cansat-swash.org/kontakt">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Team SWASH">
+    <meta property="og:locale" content="de_AT">
+    <meta property="og:locale:alternate" content="en_GB">
+    <meta property="og:title" content="Kontakt | Team SWASH">
+    <meta property="og:description" content="Kontaktinformationen und Projektlink für Team SWASH.">
+    <meta property="og:url" content="https://cansat-swash.org/kontakt">
+    <meta property="og:image" content="https://cansat-swash.org/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Gruppenfoto von Team SWASH mit Logo und Missionsbeschreibung">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="favicon.ico?v=2" sizes="any">
     <link rel="icon" href="assets/favicon-32.png?v=2" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -42,16 +54,17 @@
       </section>
       <section class="section">
         <div class="container contact-grid">
-          <form class="form-card" id="contact-form">
-            <h2>Nachricht vorbereiten</h2>
-            <p class="form-hint">Name, E-Mail und Nachricht sind Pflichtfelder. Das Formular ist noch nicht mit einem Versanddienst verbunden.</p>
+          <form class="form-card" id="contact-form" action="https://api.web3forms.com/submit" method="post" data-access-key="WEB3FORMS_ACCESS_KEY">
+            <h2>Nachricht senden</h2>
+            <p class="form-hint">Name, E-Mail und Nachricht sind Pflichtfelder. Ihre Nachricht geht per E-Mail direkt an unser Team.</p>
+            <input type="checkbox" name="botcheck" class="visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="form-grid">
               <div class="field"><label for="name">Name *</label><input id="name" name="name" autocomplete="name" required></div>
               <div class="field"><label for="email">E-Mail *</label><input id="email" name="email" type="email" autocomplete="email" required></div>
               <div class="field full"><label for="phone">Telefonnummer</label><input id="phone" name="phone" type="tel" autocomplete="tel"></div>
               <div class="field full"><label for="message">Nachricht *</label><textarea id="message" name="message" required></textarea></div>
             </div>
-            <button class="button" type="submit">Eingaben prüfen</button>
+            <button class="button" type="submit">Nachricht senden</button>
             <p class="form-status" id="form-status" aria-live="polite"></p>
           </form>
           <aside class="contact-details">

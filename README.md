@@ -25,7 +25,9 @@ index.html im Browser öffnen. Für eine Vorschau mit lokalem Webserver können 
 
 ## Vor Veröffentlichung anpassen
 
-Ersetzen Sie alle gelb markierten rechtlichen Platzhalter und ergänzen Sie echte Kontaktinformationen. Das Video auf der Startseite ist ein Platzhalter. Das Kontaktformular validiert die Pflichtfelder, übermittelt aber keine Nachricht. Für serverseitigen Formularversand ist ein eigener Endpunkt oder Formularanbieter einzurichten und in der Datenschutzerklärung zu dokumentieren.
+Ersetzen Sie alle gelb markierten rechtlichen Platzhalter und ergänzen Sie echte Kontaktinformationen. Das Video auf der Startseite ist ein Platzhalter. Das Kontaktformular sendet über Web3Forms (https://web3forms.com). Dort mit der Team-Adresse einen Access Key anfordern und in kontakt.html beim Attribut data-access-key statt WEB3FORMS_ACCESS_KEY eintragen. Der Key ist öffentlich und darf im HTML stehen. Ohne Key zeigt das Formular nur einen Hinweis auf die E-Mail-Adressen.
+
+Für Vorschauen beim Teilen (WhatsApp, Instagram, LinkedIn) hat jede Seite Open-Graph-Tags mit assets/og-image.jpg (1200 × 630). Bei neuen Seiten die Tags mitkopieren und og:title, og:description und og:url anpassen.
 
 Datenschutz und Impressum sind Mustertexte und müssen auf das tatsächliche Unternehmen, Geschäftsmodell, Hosting und alle eingesetzten Dienste abgestimmt werden.
 

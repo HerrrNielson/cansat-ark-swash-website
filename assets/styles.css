@@ -1366,6 +1366,24 @@ a.button::after, .button[type="submit"]::after {
   background: var(--wash);
 }
 
+.form-status.is-error {
+  border-style: solid;
+}
+
+.form-card button[disabled] {
+  opacity: .6;
+  cursor: progress;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .contact-details {
   display: grid;
   gap: 1.5rem;

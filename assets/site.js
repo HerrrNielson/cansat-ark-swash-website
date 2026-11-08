@@ -176,15 +176,60 @@ function initializeSite() {
 
   const form = document.querySelector('#contact-form');
   if (form) {
-    form.addEventListener('submit', (event) => {
+    const status = document.querySelector('#form-status');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const showStatus = (de, en, isError = false) => {
+      if (!status) return;
+      status.textContent = language === 'en' ? en : de;
+      status.classList.add('is-visible');
+      status.classList.toggle('is-error', isError);
+    };
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!form.reportValidity()) return;
-      const status = document.querySelector('#form-status');
-      if (status) {
-        status.textContent = language === 'en'
-          ? 'Please email one of the contacts listed above to send your message.'
-          : 'Bitte schreiben Sie uns an eine der oben angegebenen E-Mail-Adressen.';
-        status.classList.add('is-visible');
+      const accessKey = form.dataset.accessKey || '';
+      if (!accessKey || accessKey === 'WEB3FORMS_ACCESS_KEY') {
+        showStatus(
+          'Das Formular ist noch nicht freigeschaltet. Bitte schreiben Sie uns an eine der angegebenen E-Mail-Adressen.',
+          'The form is not active yet. Please email one of the contacts listed.',
+          true,
+        );
+        return;
+      }
+      const data = Object.fromEntries(new FormData(form));
+      if (data.botcheck) return;
+      const payload = {
+        access_key: accessKey,
+        subject: `Neue Nachricht über cansat-swash.org von ${data.name}`,
+        from_name: 'Website Team SWASH',
+        name: data.name,
+        email: data.email,
+        phone: data.phone || '',
+        message: data.message,
+      };
+      if (submitButton) submitButton.disabled = true;
+      showStatus('Nachricht wird gesendet …', 'Sending your message …');
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.success) throw new Error(result.message || response.statusText);
+        form.reset();
+        showStatus(
+          'Danke! Ihre Nachricht ist bei uns angekommen. Wir melden uns so bald wie möglich.',
+          'Thank you! Your message has reached us. We will get back to you as soon as we can.',
+        );
+      } catch {
+        showStatus(
+          'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später noch einmal oder schreiben Sie uns direkt per E-Mail.',
+          'Your message could not be sent. Please try again later or email us directly.',
+          true,
+        );
+      } finally {
+        if (submitButton) submitButton.disabled = false;
       }
     });
   }
