@@ -10,6 +10,10 @@ Die Links nutzen saubere URLs wie auf der Live-Seite (/team statt team.html). De
 
 und http://localhost:8000 öffnen. Der normale python -m http.server findet /team nicht.
 
+## Veröffentlichen
+
+Cloudflare baut bei jedem Push auf main die Website. Was veröffentlicht wird, bestimmt tools/build-dist.sh (Build command in Cloudflare: sh tools/build-dist.sh). README, Guides, social/ und tools/ werden nicht veröffentlicht. Ein neuer Ordner, der auf die Website soll, muss dort ergänzt werden.
+
 ## Englische Seiten
 
 Die englischen Seiten unter en/ werden aus den deutschen erzeugt, nicht von Hand bearbeitet:
