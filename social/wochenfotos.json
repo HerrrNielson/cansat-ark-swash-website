@@ -1,6 +1,25 @@
 [
   {
     "jahr": 2026,
+    "kw": 46,
+    "suchzeile": "CanSat Austria Kickoff mit ESERO Austria: Team SWASH stellt seinen Mini-Satelliten vor 🛰️",
+    "bilder": [
+      "social/fotos/2026-kw46.jpg"
+    ],
+    "ausschnitte": [
+      "180,175,940,705"
+    ],
+    "titel": "Unser CanSat beim Kickoff",
+    "text": "Beim Online-Kickoff von CanSat Austria haben wir unseren CanSat vorgestellt: einen Satelliten in Dosengröße, der mit einem Rotor statt Fallschirm landet.",
+    "alt": "Laptop mit der Videokonferenz des Online-Kickoffs von CanSat Austria: links ESERO Austria, rechts stellt Valentin aus unserem Team mit Headset unseren CanSat vor",
+    "frage": "Was wollt ihr über unseren CanSat wissen? 👀",
+    "thema_tag": "#cansataustria",
+    "titel_en": "Our CanSat at the kickoff",
+    "text_en": "At the online kickoff of CanSat Austria we presented our CanSat: a satellite the size of a drink can that lands with a rotor instead of a parachute.",
+    "alt_en": "Laptop showing the video call of the CanSat Austria online kickoff: ESERO Austria on the left, and on the right Valentin from our team presents our CanSat wearing a headset"
+  },
+  {
+    "jahr": 2026,
     "kw": 45,
     "suchzeile": "CanSat-Elektronik im 3D-Modell: zwei runde Platinen für eine Getränkedose 🛰️",
     "bilder": [
