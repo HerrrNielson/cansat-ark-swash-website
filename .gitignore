@@ -1,1 +1,4 @@
 dist/
+
+# Lokale Claude-Code-Einstellungen (Berechtigungen, Vorschau-Server mit Pfaden vom eigenen PC)
+.claude/
