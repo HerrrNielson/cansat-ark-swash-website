@@ -2,7 +2,16 @@
 
 Jede Woche zeigt Team SWASH ein Foto davon, woran gerade gebaut wird: auf Instagram als Karussell und auf der Website (Startseite und Seite [Foto der Woche](../foto-der-woche.html)). Damit alle Posts gleich aussehen, entstehen sie **immer** mit dem Skript `social/foto_der_woche.py` aus einem Eintrag in `social/wochenfotos.json`. Nicht von Hand in Canva o. Ä. nachbauen.
 
-**Wo was liegt:** Fotos, Daten und Skript liegen hier im Website-Repo. Die fertigen **Instagram-Posts** (PNGs und Bildunterschrift) legt das Skript **immer ins Haupt-Repo** [`cansat-ark-swash`](https://github.com/HerrrNielson/cansat-ark-swash) unter `outreach/posts/foto-der-woche/`, zu den anderen Instagram-Beiträgen, nicht ins Website-Repo. Dafür muss das Haupt-Repo neben dem Website-Repo liegen (gleicher Ordner); sonst den Pfad mit `--haupt-repo` angeben.
+**Wo was liegt:**
+
+| Was | Wo |
+|---|---|
+| Originalfotos | Haupt-Repo [`cansat-ark-swash`](https://github.com/HerrrNielson/cansat-ark-swash): `outreach/posts/foto-der-woche/fotos/` |
+| Instagram-Posts (PNGs, Bildunterschrift) | Haupt-Repo: `outreach/posts/foto-der-woche/`, bei den anderen Instagram-Beiträgen |
+| Texte (`wochenfotos.json`), Skript, dieser Guide | hier im Website-Repo, `social/` |
+| Website-Bilder (vom Skript erzeugt) | hier im Website-Repo, `assets/wochenfoto/` |
+
+Fotos und Posts kommen **nie** ins Website-Repo: Es ist öffentlich, das Haupt-Repo privat. Das Skript erwartet das Haupt-Repo neben dem Website-Repo (gleicher Ordner); sonst den Pfad mit `--haupt-repo` angeben.
 
 Farben, Schriften und Formen kommen aus dem Design-System der Website ([`DESIGN.md`](../DESIGN.md)).
 
@@ -10,7 +19,7 @@ Farben, Schriften und Formen kommen aus dem Design-System der Website ([`DESIGN.
 
 ## Ablauf jede Woche
 
-1. **Fotos ablegen** in `social/fotos/`, benannt nach Jahr und Kalenderwoche:
+1. **Fotos ablegen** im Haupt-Repo in `outreach/posts/foto-der-woche/fotos/`, benannt nach Jahr und Kalenderwoche:
    `2026-kw46.jpg` (Hauptbild), `2026-kw46-2.jpg`, `2026-kw46-3.jpg` (weitere Karussell-Folien).
 2. **Eintrag oben** in `social/wochenfotos.json` ergänzen (Vorlage unten).
 3. **Skript starten** im Website-Ordner:
@@ -29,7 +38,7 @@ Das Skript erneuert die Website immer aus der ganzen JSON-Datei. Ein Tippfehler 
   "jahr": 2026,
   "kw": 46,
   "suchzeile": "Suchbegriffe zuerst: was man sieht, in Worten, nach denen jemand sucht 🛰️",
-  "bilder": ["social/fotos/2026-kw46.jpg", "social/fotos/2026-kw46-2.jpg"],
+  "bilder": ["2026-kw46.jpg", "2026-kw46-2.jpg"],
   "titel": "Kurzer Titel",
   "text": "Ein bis zwei Sätze, was man sieht und warum es wichtig ist.",
   "alt": "Bildbeschreibung für Screenreader: was ist auf dem Hauptbild zu sehen",
@@ -41,6 +50,8 @@ Das Skript erneuert die Website immer aus der ganzen JSON-Datei. Ein Tippfehler 
   "alt_en": "Image description …"
 }
 ```
+
+`bilder` sind Dateinamen im Ordner `outreach/posts/foto-der-woche/fotos/` des Haupt-Repos, das erste ist das Hauptbild.
 
 Optional: `"ausschnitte": ["x,y,breite,hoehe", null]` in Pixeln des Originalbilds, falls der automatische Zuschnitt nicht passt (`null` = automatisch).
 
@@ -142,4 +153,4 @@ Format **1080 × 1350 px (4:5)**, PNG. Alle Folien eines Karussells haben densel
 - **Startseite:** zeigt das Hauptbild der neuesten Woche rechts neben der Überschrift, mit Unterschrift „Foto der Woche · KW …“, Titel und „Alle Wochenfotos →“. Das ganze Bild ist ein Link auf `foto-der-woche.html` und hebt sich beim Überfahren an, wie alle klickbaren Elemente.
 - **Seite Foto der Woche:** alle Wochen, neueste oben, jeweils Bild links und KW, Titel und Text rechts. Jede Woche hat einen Anker, z. B. `foto-der-woche.html#2026-kw45`.
 - Beide Blöcke und die englischen Texte schreibt das Skript zwischen die Markierungen `WOCHENFOTO:START/END` bzw. `ARCHIV:START/END`. **Nichts zwischen den Markierungen von Hand ändern**, es wird beim nächsten Lauf überschrieben.
-- Die Originalfotos in `social/fotos/` liefert die Website nicht aus (geprüft am 08.11.2026). Das GitHub-Repo ist aber **öffentlich**, also kann sie dort jeder sehen. Die Instagram-Folien liegen seit 15.11.2026 im (privaten) Haupt-Repo, siehe oben. Nichts in dieses Repo legen, was nicht öffentlich sein darf.
+- Originalfotos und Instagram-Folien liegen seit 15.11.2026 im (privaten) Haupt-Repo, siehe oben. Dieses GitHub-Repo ist **öffentlich**: Nichts hineinlegen, was nicht öffentlich sein darf. Ältere Fotos (KW 45, KW 46) sind hier noch in der Git-Historie zu sehen.

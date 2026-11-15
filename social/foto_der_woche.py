@@ -1,7 +1,8 @@
 """Foto der Woche: Instagram-Post und Website aus einer Datenquelle.
 
 Ablauf jede Woche (Details in social/DESIGN-FOTO-DER-WOCHE.md):
-    1. Bilder nach social/fotos/ legen, z. B. 2026-kw46.jpg und 2026-kw46-2.jpg
+    1. Bilder ins Haupt-Repo nach cansat-ark-swash/outreach/posts/foto-der-woche/fotos/
+       legen, z. B. 2026-kw46.jpg und 2026-kw46-2.jpg
     2. Neuen Eintrag oben in social/wochenfotos.json ergänzen
     3. python social/foto_der_woche.py
 
@@ -30,10 +31,13 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "social/wochenfotos.json"
 FONTS = Path("C:/Windows/Fonts")
 
-# Instagram-Posts gehören ins Haupt-Repo zu den anderen Beiträgen, nicht ins
-# öffentliche Website-Repo. Standard: Haupt-Repo liegt neben dem Website-Repo.
+# Originalfotos und Instagram-Posts gehören ins Haupt-Repo zu den anderen
+# Beiträgen, nicht ins öffentliche Website-Repo. Hier liegen nur die Texte
+# (wochenfotos.json) und die fertigen Website-Bilder (assets/wochenfoto/).
+# Standard: Haupt-Repo liegt neben dem Website-Repo.
 MAIN_REPO = ROOT.parent / "cansat-ark-swash"
 INSTAGRAM_DIR = Path("outreach/posts/foto-der-woche")
+FOTO_DIR = INSTAGRAM_DIR / "fotos"
 
 # Markenfarben aus DESIGN.md (--logo-*), keine anderen Farben verwenden
 NAVY = (11, 31, 58)
@@ -222,17 +226,24 @@ def load_entries():
     return sorted(entries, key=lambda e: (e["jahr"], e["kw"]), reverse=True)
 
 
-def open_cropped(e, i):
+def open_cropped(e, i, fotos):
     boxes = e.get("ausschnitte") or []
     box = boxes[i] if i < len(boxes) and boxes[i] else None
     if isinstance(box, str):
         box = tuple(int(v) for v in box.split(","))
-    return crop_4_3(Image.open(ROOT / e["bilder"][i]).convert("RGB"), box)
+    return crop_4_3(Image.open(fotos / e["bilder"][i]).convert("RGB"), box)
 
 
-def web_image(e):
+def check_photos(entries, fotos):
+    """Das Hauptbild jeder Woche muss da sein, sonst fehlt es auf der Website."""
+    for e in entries:
+        if not (fotos / e["bilder"][0]).is_file():
+            raise SystemExit(f"KW {e['kw']}: Foto {e['bilder'][0]} fehlt in {fotos}.")
+
+
+def web_image(e, fotos):
     path = ROOT / "assets/wochenfoto" / f"{name_of(e)}.jpg"
-    photo = open_cropped(e, 0)
+    photo = open_cropped(e, 0, fotos)
     if photo.width > 1600:
         photo = photo.resize((1600, 1200), Image.LANCZOS)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -240,9 +251,9 @@ def web_image(e):
     return path, photo.size
 
 
-def build_instagram(e, out):
+def build_instagram(e, out, fotos):
     out.mkdir(parents=True, exist_ok=True)
-    missing = [b for b in e["bilder"][1:] if not (ROOT / b).exists()]
+    missing = [b for b in e["bilder"][1:] if not (fotos / b).exists()]
     for b in missing:
         print(f"WARNUNG: {b} fehlt, diese Folie wird ausgelassen.")
     images = [i for i, b in enumerate(e["bilder"]) if i == 0 or b not in missing]
@@ -251,7 +262,7 @@ def build_instagram(e, out):
     files = []
     for slot, i in enumerate(images):
         text = e["text"] if i == 0 else (subs[i - 1] if i - 1 < len(subs) else "")
-        slide = build_slide(open_cropped(e, i), e["kw"], e["jahr"], e["titel"], text, (slot + 1, n) if n > 1 else None)
+        slide = build_slide(open_cropped(e, i, fotos), e["kw"], e["jahr"], e["titel"], text, (slot + 1, n) if n > 1 else None)
         path = out / f"{name_of(e)}-{slot + 1}.png"
         slide.save(path, optimize=True)
         files.append(path)
@@ -345,11 +356,13 @@ def main():
     if not (main_repo / "outreach").is_dir():
         raise SystemExit(
             f"Haupt-Repo nicht gefunden: {main_repo}\n"
-            "Die Instagram-Posts kommen nach cansat-ark-swash/outreach/posts/foto-der-woche/. "
+            "Fotos und Instagram-Posts liegen in cansat-ark-swash/outreach/posts/foto-der-woche/. "
             "Das Repo neben das Website-Repo klonen oder den Pfad mit --haupt-repo angeben."
         )
+    fotos = main_repo / FOTO_DIR
 
     entries = load_entries()
+    check_photos(entries, fotos)
     target = entries[0]
     if args.kw:
         match = [e for e in entries if e["kw"] == args.kw and (not args.jahr or e["jahr"] == args.jahr)]
@@ -357,7 +370,7 @@ def main():
             raise SystemExit(f"KW {args.kw} steht nicht in {DATA.name}.")
         target = match[0]
 
-    files, caption = build_instagram(target, main_repo / INSTAGRAM_DIR)
+    files, caption = build_instagram(target, main_repo / INSTAGRAM_DIR, fotos)
     rel = lambda p: f"{main_repo.name}/{p.relative_to(main_repo).as_posix()}"
     print(f"Instagram KW {target['kw']}: " + ", ".join(rel(f) for f in files))
     print(f"Bildunterschrift:  {rel(caption)}")
@@ -365,7 +378,7 @@ def main():
     if not args.nur_instagram:
         sizes = {}
         for e in entries:
-            _, size = web_image(e)
+            _, size = web_image(e, fotos)
             sizes[name_of(e)] = size
         update_website(entries, sizes)
         print(f"Website: {len(entries)} Wochenfoto(s), Startseite zeigt KW {entries[0]['kw']}")
