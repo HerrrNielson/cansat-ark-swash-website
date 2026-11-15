@@ -2,6 +2,8 @@
 
 Jede Woche zeigt Team SWASH ein Foto davon, woran gerade gebaut wird: auf Instagram als Karussell und auf der Website (Startseite und Seite [Foto der Woche](../foto-der-woche.html)). Damit alle Posts gleich aussehen, entstehen sie **immer** mit dem Skript `social/foto_der_woche.py` aus einem Eintrag in `social/wochenfotos.json`. Nicht von Hand in Canva o. Ä. nachbauen.
 
+**Wo was liegt:** Fotos, Daten und Skript liegen hier im Website-Repo. Die fertigen **Instagram-Posts** (PNGs und Bildunterschrift) legt das Skript **immer ins Haupt-Repo** [`cansat-ark-swash`](https://github.com/HerrrNielson/cansat-ark-swash) unter `outreach/posts/foto-der-woche/`, zu den anderen Instagram-Beiträgen, nicht ins Website-Repo. Dafür muss das Haupt-Repo neben dem Website-Repo liegen (gleicher Ordner); sonst den Pfad mit `--haupt-repo` angeben.
+
 Farben, Schriften und Formen kommen aus dem Design-System der Website ([`DESIGN.md`](../DESIGN.md)).
 
 ---
@@ -15,8 +17,8 @@ Farben, Schriften und Formen kommen aus dem Design-System der Website ([`DESIGN.
    ```
    python social/foto_der_woche.py
    ```
-4. **Ergebnis prüfen:** `social/posts/2026-kw46-1.png`, `-2.png` … und die Bildunterschrift `social/posts/2026-kw46.txt` ansehen. Website lokal öffnen (Startseite und `foto-der-woche.html`), auch mit Umschaltung auf EN.
-5. **Website veröffentlichen** (committen und pushen), **dann** auf Instagram posten: alle PNGs der Woche in der Reihenfolge `-1`, `-2` … als ein Karussell, Text aus der `.txt`-Datei.
+4. **Ergebnis prüfen:** im Haupt-Repo `outreach/posts/foto-der-woche/2026-kw46-1.png`, `-2.png` … und die Bildunterschrift `2026-kw46.txt` ansehen. Website lokal öffnen (Startseite und `foto-der-woche.html`), auch mit Umschaltung auf EN.
+5. **Beide Repos veröffentlichen** (committen und pushen): Website-Repo und Haupt-Repo. **Dann** auf Instagram posten: alle PNGs der Woche in der Reihenfolge `-1`, `-2` … als ein Karussell, Text aus der `.txt`-Datei. Danach den Post im Outreach-Log des Haupt-Repos eintragen (`outreach/log.md`).
 
 Das Skript erneuert die Website immer aus der ganzen JSON-Datei. Ein Tippfehler in einer alten Woche wird also in der JSON korrigiert und das Skript neu gestartet.
 
@@ -140,4 +142,4 @@ Format **1080 × 1350 px (4:5)**, PNG. Alle Folien eines Karussells haben densel
 - **Startseite:** zeigt das Hauptbild der neuesten Woche rechts neben der Überschrift, mit Unterschrift „Foto der Woche · KW …“, Titel und „Alle Wochenfotos →“. Das ganze Bild ist ein Link auf `foto-der-woche.html` und hebt sich beim Überfahren an, wie alle klickbaren Elemente.
 - **Seite Foto der Woche:** alle Wochen, neueste oben, jeweils Bild links und KW, Titel und Text rechts. Jede Woche hat einen Anker, z. B. `foto-der-woche.html#2026-kw45`.
 - Beide Blöcke und die englischen Texte schreibt das Skript zwischen die Markierungen `WOCHENFOTO:START/END` bzw. `ARCHIV:START/END`. **Nichts zwischen den Markierungen von Hand ändern**, es wird beim nächsten Lauf überschrieben.
-- Die Originalfotos in `social/fotos/` und die Instagram-Folien in `social/posts/` liefert die Website nicht aus (geprüft am 08.11.2026). Das GitHub-Repo ist aber **öffentlich**, also kann sie dort jeder sehen. Nichts in dieses Repo legen, was nicht öffentlich sein darf.
+- Die Originalfotos in `social/fotos/` liefert die Website nicht aus (geprüft am 08.11.2026). Das GitHub-Repo ist aber **öffentlich**, also kann sie dort jeder sehen. Die Instagram-Folien liegen seit 15.11.2026 im (privaten) Haupt-Repo, siehe oben. Nichts in dieses Repo legen, was nicht öffentlich sein darf.

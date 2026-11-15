@@ -5,10 +5,11 @@ Ablauf jede Woche (Details in social/DESIGN-FOTO-DER-WOCHE.md):
     2. Neuen Eintrag oben in social/wochenfotos.json ergänzen
     3. python social/foto_der_woche.py
 
-Ergebnis für die neueste Woche (oder --kw/--jahr):
-    social/posts/<jahr>-kw<kw>-1.png, -2.png …  Instagram-Karussell, 1080 x 1350
-    social/posts/<jahr>-kw<kw>.txt              Bildunterschrift mit Hashtags
-Und für alle Wochen:
+Ergebnis für die neueste Woche (oder --kw/--jahr), im Haupt-Repo cansat-ark-swash
+(liegt neben dem Website-Repo, sonst --haupt-repo angeben):
+    outreach/posts/foto-der-woche/<jahr>-kw<kw>-1.png, -2.png …  Instagram-Karussell, 1080 x 1350
+    outreach/posts/foto-der-woche/<jahr>-kw<kw>.txt              Bildunterschrift mit Hashtags
+Und für alle Wochen, hier im Website-Repo:
     assets/wochenfoto/<jahr>-kw<kw>.jpg         Website-Bild (erstes Bild, 4:3)
     index.html, foto-der-woche.html             Blöcke zwischen den WOCHENFOTO-/ARCHIV-Markierungen
     assets/translations.js                      englische Texte zwischen den WOCHENFOTO-Markierungen
@@ -28,6 +29,11 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "social/wochenfotos.json"
 FONTS = Path("C:/Windows/Fonts")
+
+# Instagram-Posts gehören ins Haupt-Repo zu den anderen Beiträgen, nicht ins
+# öffentliche Website-Repo. Standard: Haupt-Repo liegt neben dem Website-Repo.
+MAIN_REPO = ROOT.parent / "cansat-ark-swash"
+INSTAGRAM_DIR = Path("outreach/posts/foto-der-woche")
 
 # Markenfarben aus DESIGN.md (--logo-*), keine anderen Farben verwenden
 NAVY = (11, 31, 58)
@@ -234,8 +240,7 @@ def web_image(e):
     return path, photo.size
 
 
-def build_instagram(e):
-    out = ROOT / "social/posts"
+def build_instagram(e, out):
     out.mkdir(parents=True, exist_ok=True)
     missing = [b for b in e["bilder"][1:] if not (ROOT / b).exists()]
     for b in missing:
@@ -332,7 +337,17 @@ def main():
     ap.add_argument("--kw", type=int, help="Woche für den Instagram-Post (Standard: neueste)")
     ap.add_argument("--jahr", type=int)
     ap.add_argument("--nur-instagram", action="store_true", help="Website nicht anfassen")
+    ap.add_argument("--haupt-repo", type=Path, default=MAIN_REPO,
+                    help=f"Pfad zum Haupt-Repo cansat-ark-swash (Standard: {MAIN_REPO})")
     args = ap.parse_args()
+
+    main_repo = args.haupt_repo.resolve()
+    if not (main_repo / "outreach").is_dir():
+        raise SystemExit(
+            f"Haupt-Repo nicht gefunden: {main_repo}\n"
+            "Die Instagram-Posts kommen nach cansat-ark-swash/outreach/posts/foto-der-woche/. "
+            "Das Repo neben das Website-Repo klonen oder den Pfad mit --haupt-repo angeben."
+        )
 
     entries = load_entries()
     target = entries[0]
@@ -342,9 +357,10 @@ def main():
             raise SystemExit(f"KW {args.kw} steht nicht in {DATA.name}.")
         target = match[0]
 
-    files, caption = build_instagram(target)
-    print(f"Instagram KW {target['kw']}: " + ", ".join(str(f.relative_to(ROOT)) for f in files))
-    print(f"Bildunterschrift:  {caption.relative_to(ROOT)}")
+    files, caption = build_instagram(target, main_repo / INSTAGRAM_DIR)
+    rel = lambda p: f"{main_repo.name}/{p.relative_to(main_repo).as_posix()}"
+    print(f"Instagram KW {target['kw']}: " + ", ".join(rel(f) for f in files))
+    print(f"Bildunterschrift:  {rel(caption)}")
 
     if not args.nur_instagram:
         sizes = {}

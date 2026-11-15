@@ -34,7 +34,7 @@ Startseite, die Seite Foto der Woche und die Instagram-Posts entstehen jede Woch
 
     python social/foto_der_woche.py
 
-Das Skript baut auch die englischen Seiten neu. Ablauf, Regeln für Fotos und Texte und das Layout der Posts: [`social/DESIGN-FOTO-DER-WOCHE.md`](social/DESIGN-FOTO-DER-WOCHE.md).
+Das Skript baut auch die englischen Seiten neu. Die Instagram-Posts legt es nicht hier ab, sondern im Haupt-Repo [`cansat-ark-swash`](https://github.com/HerrrNielson/cansat-ark-swash) unter `outreach/posts/foto-der-woche/`; das Haupt-Repo muss dafür neben diesem Repo liegen. Ablauf, Regeln für Fotos und Texte und das Layout der Posts: [`social/DESIGN-FOTO-DER-WOCHE.md`](social/DESIGN-FOTO-DER-WOCHE.md).
 
 ## Simulationsdiagramme
 
@@ -56,7 +56,7 @@ Die Diagramme auf der Seite Flugergebnisse erzeugt das Haupt-Repo aus der Simula
 | `impressum.html`, `datenschutz.html` | Rechtliches |
 | `en/` | Englische Seiten, erzeugt von `tools/build_en.py` |
 | `assets/` | `styles.css`, `site.js` (Menü, Hell-/Dunkelmodus, Sprachschalter, Formular, Datenschutz-Hinweis), `translations.js`, Logo, Fotos, Grafiken |
-| `social/` | Foto der Woche: Daten, Originalfotos, Instagram-Folien, Skript, Design-Guide |
+| `social/` | Foto der Woche: Daten, Originalfotos, Skript, Design-Guide (Instagram-Folien im Haupt-Repo) |
 | `tools/` | `serve.py` (Vorschau), `build_en.py` (englische Seiten, Sitemap), `build-dist.sh` (Veröffentlichung) |
 
 ## Dienste
