@@ -60,6 +60,8 @@ Optional: `"ausschnitte": ["x,y,breite,hoehe", null]` in Pixeln des Originalbild
 
 Für die Bildunterschrift gelten die Instagram-Regeln des Teams aus dem Haupt-Repo ([`outreach/video-guideline.md`](https://github.com/HerrrNielson/cansat-ark-swash/blob/main/outreach/video-guideline.md), Abschnitt 7, und [`outreach/DESIGN.md`](https://github.com/HerrrNielson/cansat-ark-swash/blob/main/outreach/DESIGN.md)). Fakten nur aus dem Repo oder vom Team bestätigt; ein 3D-Modell heißt „3D-Modell“, nicht „Foto“ oder „fertige Platine“.
 
+**Inhalt:** Der Text beschreibt, was auf dem Foto zu sehen ist und was in dieser Woche passiert ist. Den CanSat selbst (Satellit in Dosengröße, landet mit Rotor statt Fallschirm) müssen wir **nicht jedes Mal** erklären, das steht auf der Website. Und nur schreiben, was wirklich gezeigt oder gemacht wurde: Beim Kickoff in KW 46 haben wir z. B. nur die Sekundärmission vorgestellt, nicht den ganzen CanSat.
+
 **Anrede:** auf Instagram **„ihr“** (in `frage` und überall, wo die Leser angesprochen werden). Die Website-Texte (`titel`, `text`, `alt`) bleiben sachlich in der Wir-Form, weil sie auch auf der Website stehen, und dort gilt „Sie“.
 
 | Feld | Länge | Beispiel |

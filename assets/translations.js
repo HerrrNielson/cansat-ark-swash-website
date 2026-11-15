@@ -360,9 +360,9 @@ window.swashTranslations = {
   // WOCHENFOTO:START
   "Foto der Woche · KW 46": "Photo of the week · Week 46",
   "KW 46 · 2026": "Week 46 · 2026",
-  "Unser CanSat beim Kickoff": "Our CanSat at the kickoff",
-  "Beim Online-Kickoff von CanSat Austria haben wir unseren CanSat vorgestellt: einen Satelliten in Dosengröße, der mit einem Rotor statt Fallschirm landet.": "At the online kickoff of CanSat Austria we presented our CanSat: a satellite the size of a drink can that lands with a rotor instead of a parachute.",
-  "Laptop mit der Videokonferenz des Online-Kickoffs von CanSat Austria: links ESERO Austria, rechts stellt Valentin aus unserem Team mit Headset unseren CanSat vor": "Laptop showing the video call of the CanSat Austria online kickoff: ESERO Austria on the left, and on the right Valentin from our team presents our CanSat wearing a headset",
+  "Kickoff bei CanSat Austria": "Kickoff at CanSat Austria",
+  "Am 12. November war der Online-Kickoff von CanSat Austria. Wir haben dort unsere Sekundärmission vorgestellt.": "On 12 November, CanSat Austria held its online kickoff. We presented our secondary mission there.",
+  "Laptop mit der Videokonferenz des Online-Kickoffs von CanSat Austria: links ESERO Austria, rechts stellt Valentin aus unserem Team mit Headset unsere Sekundärmission vor": "Laptop showing the video call of the CanSat Austria online kickoff: ESERO Austria on the left, and on the right Valentin from our team presents our secondary mission wearing a headset",
   "Foto der Woche · KW 45": "Photo of the week · Week 45",
   "KW 45 · 2026": "Week 45 · 2026",
   "Zwei Platinen, eine Dose": "Two boards, one can",
