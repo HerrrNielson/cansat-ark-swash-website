@@ -153,9 +153,13 @@ fieldset.tb > legend { padding: 0 2px; margin-left: 2px; }
   color: var(--white); background: var(--off); font-weight: 700; font-size: 11px; border-radius: 6px;
   text-align: center; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-::-webkit-scrollbar { width: 17px; height: 17px; background: var(--panel); }
-::-webkit-scrollbar-thumb { background: #cdcdcd; border: 4px solid var(--panel); }
-::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
+/* Standard scrollbar colours; thumb #8a8a8a keeps 3:1 against the panel track */
+:root { scrollbar-color: #8a8a8a var(--panel); }
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar { width: 17px; height: 17px; background: var(--panel); }
+  ::-webkit-scrollbar-thumb { background: #cdcdcd; border: 4px solid var(--panel); }
+  ::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
+}
 
 /* ---- main window ---- */
 .frame-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -2573,7 +2577,7 @@ const ICON_WARN = '<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="
 function dialog(title, bodyNode, buttons, icon) {
   return new Promise(resolve => {
     const layer = $("modalLayer");
-    layer.innerHTML = "";
+    layer.replaceChildren();
     const win = document.createElement("div");
     win.className = "win dlg";
     win.setAttribute("role", "dialog");
@@ -2583,7 +2587,7 @@ function dialog(title, bodyNode, buttons, icon) {
     win.querySelector(".title").textContent = title;
     win.querySelector(".msg").append(bodyNode);
     const onKey = e => { if (e.key === "Escape") close(false); };
-    const close = v => { layer.hidden = true; layer.innerHTML = ""; document.removeEventListener("keydown", onKey); resolve(v); };
+    const close = v => { layer.hidden = true; layer.replaceChildren(); document.removeEventListener("keydown", onKey); resolve(v); };
     document.addEventListener("keydown", onKey);
     win.querySelector(".tb-btns .x").onclick = () => close(false);
     for (const [label, value] of buttons) {
@@ -2819,7 +2823,7 @@ const mission = {
   clear() {
     this.last = null; this.maxAlt = 0;
     for (const p of this.parts()) p.clear();
-    $("summary").innerHTML = "";
+    $("summary").replaceChildren();
     this.phaseScreen = "PAD";
     if (this.auto) this.select("PAD");
   },
@@ -3112,8 +3116,8 @@ function connectSimulator(scenario, padHoldS, speed) {
   target = simTarget();  // the simulation's own target near the pad
   mapView.centered = false;
   charts.alt.clear(); charts.vz.clear(); charts.rpm.clear();
-  $("packetBody").innerHTML = "";
-  app.cmdRows.clear(); $("cmdList").innerHTML = "";  // request numbers start at 1 again
+  $("packetBody").replaceChildren();
+  app.cmdRows.clear(); $("cmdList").replaceChildren();  // request numbers start at 1 again
   app.packetLastWall = null; app.packetLastSeq = -1; app.pendingRows = []; app.last = null; app.lastPacketMs = 0;
   $("alertBanner").hidden = true;
   $("linkLabel").textContent = "simulator: RN2483 1.0.5 Oct 31 2018 15:06:52 (simulated)";

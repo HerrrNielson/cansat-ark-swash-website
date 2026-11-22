@@ -8,6 +8,8 @@
       content="Die Mitglieder und Fachbereiche von Team SWASH: Konstruktion, Elektronik, Programmierung und Wissenschaft."
     />
     <meta name="theme-color" content="#0b1f3a" />
+    <meta name="color-scheme" content="light dark">
+    <script>try{const s=localStorage.getItem("team-swash-color-scheme")??(localStorage.getItem("team-swash-theme")==="dark"?"dark":null);if(s==="light"||s==="dark")document.querySelector('meta[name="color-scheme"]').content=s}catch{}</script>
     <title>Team | Team SWASH</title>
     <link rel="stylesheet" href="assets/styles.css" />
     <link rel="canonical" href="https://cansat-swash.org/team" />
@@ -37,7 +39,7 @@
         <a class="brand" href="/" aria-label="Team SWASH – Startseite"
           ><span class="logo-frame"
             ><img
-              class="site-logo"
+              class="site-logo" width="500" height="500"
               src="assets/swash-logo.png"
               alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf" /></span
           ><span class="brand-title">Team SWASH</span></a
@@ -59,7 +61,6 @@
               <button
                 class="theme-toggle"
                 type="button"
-                aria-pressed="false"
                 aria-label="Dunkelmodus aktivieren"
               >
                 <span class="theme-icon" aria-hidden="true">☾</span>
@@ -285,7 +286,7 @@
             <a class="brand" href="/"
               ><span class="logo-frame"
                 ><img
-                  class="site-logo footer-logo"
+                  class="site-logo footer-logo" width="500" height="500"
                   src="assets/swash-logo.png"
                   alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf"
                   loading="lazy" /></span
@@ -336,7 +337,7 @@
       </div>
     </footer>
     <dialog
-      class="privacy-dialog"
+      class="privacy-dialog" closedby="any"
       id="privacy-dialog"
       aria-labelledby="privacy-title"
       aria-describedby="privacy-copy"
@@ -345,7 +346,7 @@
         <p class="eyebrow">Datenschutz</p>
         <h2 id="privacy-title">Datenschutz &amp; Cookies</h2>
         <p id="privacy-copy">Diese Website setzt keine Cookies. Für eine Besucherstatistik ohne Cookies nutzen wir Cloudflare Web Analytics. Wenn Sie das Farbschema umstellen, diesen Hinweis bestätigen oder die Simulation benutzen, merkt sich Ihr Browser das lokal. <a href="/datenschutz">Datenschutzerklärung lesen</a>.</p>
-        <button class="button" type="button" data-privacy-dismiss>
+        <button class="button" type="button" data-privacy-dismiss autofocus>
           Verstanden
         </button>
       </div>

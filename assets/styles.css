@@ -34,33 +34,58 @@
   --on-deep-accent: #ff6b1a;
   --button-shadow: #ff6b1a;
   --hard-shadow: #0b1f3a;
+  --on-brand: #ffffff;
+  --tile-shadow: #0b1f3a;
+  --card-shadow: #4d1056;
+  --image-shadow: #4d1056;
+  --placeholder-bg: #ffe2a8;
   --font-display: Bahnschrift, "DIN Alternate", "Helvetica Neue", "Segoe UI", Inter, system-ui, sans-serif;
   --radius-hand: 5px 9px 6px 10px / 9px 5px 10px 6px;
   --radius-hand-sm: 3px 6px 4px 7px / 6px 3px 7px 4px;
   --width: 1240px;
+
+  /* Follow the system colour scheme. The <meta name="color-scheme"> in each
+     page's <head> carries a manual override from the header toggle (site.js);
+     these rules map it back to the property, which light-dark() keys off. */
+  color-scheme: light dark;
+
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
 }
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --navy: #ffffff;
-  --brand: #ff6b1a;
-  --header-bg: #071528;
-  --ink: #ffffff;
-  --line: #2b4062;
-  --rule: #a9b4c2;
-  --paper: #0b1f3a;
-  --wash: #0f2747;
-  --accent: #ff6b1a;
-  --accent-dark: #ff8c4d;
-  --link: #8db4f0;
-  --dot-green: #5fb36a;
-  --dot-amber: #f0a050;
-  --dot-red: #ef6b80;
-  --dot-blue: #7fa6e8;
-  --deep: #071528;
-  --deep-2: #040e1c;
-  --button-shadow: #1e5aa8;
-  --hard-shadow: #040e1c;
+/* Dark values. Browsers without light-dark() keep the light values above
+   (and the toggle has no effect there) instead of losing every colour. */
+@supports (color: light-dark(white, black)) {
+  :root {
+    --navy: light-dark(#0b1f3a, #ffffff);
+    --brand: light-dark(#0b1f3a, #ff6b1a);
+    --header-bg: light-dark(#0b1f3a, #071528);
+    --ink: light-dark(#000000, #ffffff);
+    --line: light-dark(#c9ced6, #2b4062);
+    --rule: light-dark(#0b1f3a, #a9b4c2);
+    --paper: light-dark(#ffffff, #0b1f3a);
+    --wash: light-dark(#f5f7fa, #0f2747);
+    --accent-dark: light-dark(#c2500f, #ff8c4d);
+    --link: light-dark(#1e5aa8, #8db4f0);
+    --dot-green: light-dark(#005300, #5fb36a);
+    --dot-amber: light-dark(#c77214, #f0a050);
+    --dot-red: light-dark(#b5213a, #ef6b80);
+    --dot-blue: light-dark(#2c55a2, #7fa6e8);
+    --deep: light-dark(#0b1f3a, #071528);
+    --deep-2: light-dark(#071528, #040e1c);
+    --button-shadow: light-dark(#ff6b1a, #1e5aa8);
+    --hard-shadow: light-dark(#0b1f3a, #040e1c);
+    --on-brand: light-dark(#ffffff, #0b1f3a);
+    --tile-shadow: light-dark(#0b1f3a, #1e5aa8);
+    --card-shadow: light-dark(#4d1056, #1e5aa8);
+    --image-shadow: light-dark(#4d1056, #ff6b1a);
+    --placeholder-bg: light-dark(#ffe2a8, #ffc670);
+  }
 }
 
 * {
@@ -459,7 +484,7 @@ h3 {
   padding: .8rem 1.3rem;
   border: 2px solid var(--brand);
   border-radius: var(--radius-hand-sm);
-  color: white;
+  color: var(--on-brand);
   background: var(--brand);
   box-shadow: 4px 4px 0 var(--button-shadow);
   text-decoration: none;
@@ -478,7 +503,7 @@ a.button::after, .button[type="submit"]::after {
 }
 
 .button:hover, .button:focus-visible {
-  color: white;
+  color: var(--on-brand);
   box-shadow: 6px 6px 0 var(--button-shadow);
   transform: translate(-2px, -2px);
 }
@@ -662,8 +687,8 @@ a.button::after, .button[type="submit"]::after {
   min-width: 0;
   margin: 0;
   border-radius: var(--radius-hand);
-  background: var(--logo-navy);
-  box-shadow: 7px 7px 0 var(--logo-purple);
+  background: var(--deep);
+  box-shadow: 7px 7px 0 var(--image-shadow);
 }
 
 .mission-image::after {
@@ -687,7 +712,7 @@ a.button::after, .button[type="submit"]::after {
   min-height: 380px;
   overflow: hidden;
   border-radius: inherit;
-  background: var(--logo-navy);
+  background: var(--deep);
 }
 
 .mission-image-frame::before {
@@ -738,7 +763,7 @@ a.button::after, .button[type="submit"]::after {
   padding: 1rem 1.25rem 1.1rem;
   border-top: 2px dashed rgba(245,247,250,.45);
   color: white;
-  background: var(--logo-navy);
+  background: var(--deep);
   font-size: .98rem;
 }
 
@@ -861,7 +886,7 @@ a.button::after, .button[type="submit"]::after {
   border: 0;
   color: white;
   background: var(--logo-purple);
-  box-shadow: 7px 7px 0 var(--logo-navy);
+  box-shadow: 7px 7px 0 var(--tile-shadow);
 }
 
 .feature-tile::before {
@@ -919,7 +944,7 @@ a.button::after, .button[type="submit"]::after {
   padding: clamp(1.9rem, 3vw, 2.6rem);
   border-radius: var(--radius-hand);
   color: white;
-  background: var(--logo-navy);
+  background: var(--deep);
   box-shadow: 7px 7px 0 var(--logo-orange);
 }
 
@@ -1092,7 +1117,7 @@ a.button::after, .button[type="submit"]::after {
   margin-bottom: 1.25rem;
   overflow: hidden;
   border-radius: var(--radius-hand-sm);
-  background: var(--logo-navy);
+  background: var(--deep);
 }
 
 .member-photo::after {
@@ -1175,12 +1200,12 @@ a.button::after, .button[type="submit"]::after {
 }
 
 .weekly-link:hover .mission-image, .weekly-link:focus-visible .mission-image {
-  box-shadow: 10px 10px 0 var(--logo-purple);
+  box-shadow: 10px 10px 0 var(--image-shadow);
   transform: translate(-3px, -3px);
 }
 
 .weekly-link:active .mission-image {
-  box-shadow: 2px 2px 0 var(--logo-purple);
+  box-shadow: 2px 2px 0 var(--image-shadow);
   transform: translate(3px, 3px);
 }
 
@@ -1324,7 +1349,7 @@ a.button::after, .button[type="submit"]::after {
 .member-name .placeholder {
   padding: 0 .25rem;
   color: #000;
-  background: #ffe2a8;
+  background: var(--placeholder-bg);
   font-weight: 700;
 }
 
@@ -1465,7 +1490,7 @@ a.button::after, .button[type="submit"]::after {
   border-radius: var(--radius-hand);
   color: var(--ink);
   background: var(--paper);
-  box-shadow: 7px 7px 0 var(--logo-purple);
+  box-shadow: 7px 7px 0 var(--card-shadow);
 }
 
 .form-grid {
@@ -1702,7 +1727,13 @@ a.button::after, .button[type="submit"]::after {
 }
 
 .privacy-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
   background: rgba(11,31,58,.72);
+}
+
+.privacy-dialog:modal {
+  overscroll-behavior: contain;
 }
 
 .privacy-dialog h2 {
@@ -1916,64 +1947,20 @@ a.button::after, .button[type="submit"]::after {
   }
 }
 
-/* Dark mode */
+/* Dark mode: colours switch via light-dark() tokens in :root. The paper
+   grain is not a colour, so it needs both the system preference (unless
+   overridden to light) and the manual dark override. */
 
-:root[data-theme="dark"] body::after {
+@media (prefers-color-scheme: dark) {
+  :root:not(:has(> head > meta[name="color-scheme"][content="light"])) body::after {
+    opacity: .5;
+    mix-blend-mode: soft-light;
+  }
+}
+
+:root:has(> head > meta[name="color-scheme"][content="dark"]) body::after {
   opacity: .5;
   mix-blend-mode: soft-light;
-}
-
-:root[data-theme="dark"] .button {
-  color: var(--logo-navy);
-}
-
-:root[data-theme="dark"] .button:hover,
-:root[data-theme="dark"] .button:focus-visible {
-  color: var(--logo-navy);
-}
-
-:root[data-theme="dark"] .button.secondary,
-:root[data-theme="dark"] .button.secondary:hover,
-:root[data-theme="dark"] .button.secondary:focus-visible {
-  color: white;
-}
-
-:root[data-theme="dark"] .mission-image,
-:root[data-theme="dark"] .visual-panel {
-  background: var(--deep);
-}
-
-:root[data-theme="dark"] .mission-image-frame,
-:root[data-theme="dark"] .mission-image figcaption,
-:root[data-theme="dark"] .member-photo {
-  background: var(--deep);
-}
-
-:root[data-theme="dark"] .feature-tile {
-  box-shadow: 7px 7px 0 var(--logo-blue);
-}
-
-:root[data-theme="dark"] .mission-image {
-  box-shadow: 7px 7px 0 var(--logo-orange);
-}
-
-:root[data-theme="dark"] .weekly-link:hover .mission-image,
-:root[data-theme="dark"] .weekly-link:focus-visible .mission-image {
-  box-shadow: 10px 10px 0 var(--logo-orange);
-}
-
-:root[data-theme="dark"] .weekly-link:active .mission-image {
-  box-shadow: 2px 2px 0 var(--logo-orange);
-}
-
-:root[data-theme="dark"] .form-card {
-  box-shadow: 7px 7px 0 var(--logo-blue);
-}
-
-:root[data-theme="dark"] .legal-content .placeholder,
-:root[data-theme="dark"] .member-name .placeholder {
-  color: #000;
-  background: #ffc670;
 }
 
 @media (prefers-reduced-motion: reduce) {

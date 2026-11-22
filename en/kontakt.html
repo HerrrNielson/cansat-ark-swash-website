@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Contact Team SWASH: sponsors, schools, the press and anyone interested can reach our CanSat team using the form or by email.">
     <meta name="theme-color" content="#0b1f3a">
+    <meta name="color-scheme" content="light dark">
+    <script>try{const s=localStorage.getItem("team-swash-color-scheme")??(localStorage.getItem("team-swash-theme")==="dark"?"dark":null);if(s==="light"||s==="dark")document.querySelector('meta[name="color-scheme"]').content=s}catch{}</script>
     <title>Contact | Team SWASH</title>
     <link rel="stylesheet" href="/assets/styles.css">
     <link rel="canonical" href="https://cansat-swash.org/en/kontakt">
@@ -31,11 +33,11 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/en/" aria-label="Team SWASH – Home"><span class="logo-frame"><img class="site-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
+        <a class="brand" href="/en/" aria-label="Team SWASH – Home"><span class="logo-frame"><img class="site-logo" width="500" height="500" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
         <div class="header-controls"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open menu"><span aria-hidden="true">☰</span></button></div>
         <nav class="site-nav" id="primary-nav" aria-label="Main navigation">
           <ul class="nav-list">
-            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
+            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-label="Switch to dark mode"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
             <li><a href="/en/">Home</a></li>
             <li><a href="/en/ueber-uns">About us</a></li>
             <li><a href="/en/team">Team</a></li>
@@ -94,7 +96,7 @@
         <p class="footer-kicker">Helpful links</p>
         <div class="footer-grid">
           <div>
-            <a class="brand" href="/en/"><span class="logo-frame"><img class="site-logo footer-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
+            <a class="brand" href="/en/"><span class="logo-frame"><img class="site-logo footer-logo" width="500" height="500" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
             <p>At HTL Kaindorf, Team SWASH is developing a CanSat for measurements, autorotation and a precise landing.</p>
             <p><a href="https://www.instagram.com/cansat.swash27/" target="_blank" rel="noopener noreferrer">Instagram: @cansat.swash27 ↗</a></p>
           </div>
@@ -124,12 +126,12 @@
         <div class="footer-bottom"><span>© <span data-year>2026</span> Team SWASH · CanSat Austria</span><span>Built with curiosity and teamwork.</span></div>
       </div>
     </footer>
-    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+    <dialog class="privacy-dialog" closedby="any" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
       <div class="privacy-dialog-content">
         <p class="eyebrow">Privacy</p>
         <h2 id="privacy-title">Privacy &amp; cookies</h2>
         <p id="privacy-copy">This website sets no cookies. For visitor statistics without cookies we use Cloudflare Web Analytics. If you change the colour scheme, acknowledge this notice or use the simulation, your browser remembers this locally. <a href="/en/datenschutz">Read our privacy policy</a>.</p>
-        <button class="button" type="button" data-privacy-dismiss>Got it</button>
+        <button class="button" type="button" data-privacy-dismiss autofocus>Got it</button>
       </div>
     </dialog>
     <script src="/assets/site.js" defer></script>

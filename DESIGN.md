@@ -45,6 +45,8 @@ Die vier Punkte aus dem Logo bilden eine eigene Farbfamilie. Sie erscheinen als 
 
 ### Semantische Tokens (wechseln mit dem Theme)
 
+Die Seite folgt der Systemeinstellung (hell/dunkel). Der Schalter im Kopf speichert nur eine Abweichung davon (`team-swash-color-scheme`) und schreibt sie in `<meta name="color-scheme">`; schaltet man zurück auf die Systemeinstellung, wird der Eintrag gelöscht. Die Tokens stehen als `light-dark(hell, dunkel)` in `:root`. Neue Farben, die im Dunkelmodus anders sein sollen, als Token mit `light-dark()` anlegen, nicht als eigene Dunkel-Regel. Nur Werte, die keine Farben sind (z. B. die Papierkörnung), brauchen eigene Regeln am Ende von `styles.css`.
+
 | Token | Hell | Dunkel | Bedeutung |
 |---|---|---|---|
 | `--paper` | `#ffffff` | `#0b1f3a` | Seitenhintergrund, Kartenfläche |

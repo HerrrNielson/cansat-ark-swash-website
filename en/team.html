@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="The members and disciplines of Team SWASH: engineering, electronics, software and science." />
     <meta name="theme-color" content="#0b1f3a" />
+    <meta name="color-scheme" content="light dark">
+    <script>try{const s=localStorage.getItem("team-swash-color-scheme")??(localStorage.getItem("team-swash-theme")==="dark"?"dark":null);if(s==="light"||s==="dark")document.querySelector('meta[name="color-scheme"]').content=s}catch{}</script>
     <title>Team | Team SWASH</title>
     <link rel="stylesheet" href="/assets/styles.css" />
     <link rel="canonical" href="https://cansat-swash.org/en/team" />
@@ -31,7 +33,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/en/" aria-label="Team SWASH – Home"><span class="logo-frame"><img class="site-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" /></span><span class="brand-title">Team SWASH</span></a>
+        <a class="brand" href="/en/" aria-label="Team SWASH – Home"><span class="logo-frame"><img class="site-logo" width="500" height="500" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" /></span><span class="brand-title">Team SWASH</span></a>
         <div class="header-controls">
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open menu">
             <span aria-hidden="true">☰</span>
@@ -40,7 +42,7 @@
         <nav class="site-nav" id="primary-nav" aria-label="Main navigation">
           <ul class="nav-list">
             <li class="theme-nav-item">
-              <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+              <button class="theme-toggle" type="button" aria-label="Switch to dark mode">
                 <span class="theme-icon" aria-hidden="true">☾</span>
               </button>
             </li>
@@ -211,7 +213,7 @@
         <p class="footer-kicker">Helpful links</p>
         <div class="footer-grid">
           <div>
-            <a class="brand" href="/en/"><span class="logo-frame"><img class="site-logo footer-logo" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" loading="lazy" /></span><span>Team SWASH</span></a>
+            <a class="brand" href="/en/"><span class="logo-frame"><img class="site-logo footer-logo" width="500" height="500" src="/assets/swash-logo.png" alt="SWASH – Space Group Kaindorf" loading="lazy" /></span><span>Team SWASH</span></a>
             <p>
               At HTL Kaindorf, Team SWASH is developing a CanSat for measurements, autorotation and a precise landing.
             </p>
@@ -249,12 +251,12 @@
         </div>
       </div>
     </footer>
-    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+    <dialog class="privacy-dialog" closedby="any" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
       <div class="privacy-dialog-content">
         <p class="eyebrow">Privacy</p>
         <h2 id="privacy-title">Privacy &amp; cookies</h2>
         <p id="privacy-copy">This website sets no cookies. For visitor statistics without cookies we use Cloudflare Web Analytics. If you change the colour scheme, acknowledge this notice or use the simulation, your browser remembers this locally. <a href="/en/datenschutz">Read our privacy policy</a>.</p>
-        <button class="button" type="button" data-privacy-dismiss>
+        <button class="button" type="button" data-privacy-dismiss autofocus>
           Got it
         </button>
       </div>

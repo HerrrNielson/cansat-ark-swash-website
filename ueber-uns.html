@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Mission und Technik von Team SWASH: wie unser CanSat Temperatur und Luftdruck misst, Daten zur Bodenstation sendet und mit einem Rotor landet.">
     <meta name="theme-color" content="#0b1f3a">
+    <meta name="color-scheme" content="light dark">
+    <script>try{const s=localStorage.getItem("team-swash-color-scheme")??(localStorage.getItem("team-swash-theme")==="dark"?"dark":null);if(s==="light"||s==="dark")document.querySelector('meta[name="color-scheme"]').content=s}catch{}</script>
     <title>Über uns | Team SWASH</title>
     <link rel="stylesheet" href="assets/styles.css">
     <link rel="canonical" href="https://cansat-swash.org/ueber-uns">
@@ -31,11 +33,11 @@
     <a class="skip-link" href="#main">Zum Inhalt springen</a>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/" aria-label="Team SWASH – Startseite"><span class="logo-frame"><img class="site-logo" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
+        <a class="brand" href="/" aria-label="Team SWASH – Startseite"><span class="logo-frame"><img class="site-logo" width="500" height="500" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf"></span><span class="brand-title">Team SWASH</span></a>
         <div class="header-controls"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Menü öffnen"><span aria-hidden="true">☰</span></button></div>
         <nav class="site-nav" id="primary-nav" aria-label="Hauptnavigation">
           <ul class="nav-list">
-            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dunkelmodus aktivieren"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
+            <li class="theme-nav-item"><button class="theme-toggle" type="button" aria-label="Dunkelmodus aktivieren"><span class="theme-icon" aria-hidden="true">☾</span></button></li>
             <li><a href="/">Home</a></li>
             <li><a href="/ueber-uns">Über uns</a></li>
             <li><a href="/team">Team</a></li>
@@ -124,7 +126,7 @@
         <p class="footer-kicker">Hilfreiche Links</p>
         <div class="footer-grid">
           <div>
-            <a class="brand" href="/"><span class="logo-frame"><img class="site-logo footer-logo" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
+            <a class="brand" href="/"><span class="logo-frame"><img class="site-logo footer-logo" width="500" height="500" src="assets/swash-logo.png" alt="SWASH – Arbeitsgruppe für Raumfahrt Kaindorf" loading="lazy"></span><span>Team SWASH</span></a>
             <p>An der HTL Kaindorf entwickelt Team SWASH einen CanSat für Messungen, Autorotation und eine präzise Landung.</p>
             <p><a href="https://www.instagram.com/cansat.swash27/" target="_blank" rel="noopener noreferrer">Instagram: @cansat.swash27 ↗</a></p>
           </div>
@@ -154,12 +156,12 @@
         <div class="footer-bottom"><span>© <span data-year>2026</span> Team SWASH · CanSat Austria</span><span>Mit Teamgeist und Neugier entwickelt.</span></div>
       </div>
     </footer>
-    <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
+    <dialog class="privacy-dialog" closedby="any" id="privacy-dialog" aria-labelledby="privacy-title" aria-describedby="privacy-copy">
       <div class="privacy-dialog-content">
         <p class="eyebrow">Datenschutz</p>
         <h2 id="privacy-title">Datenschutz &amp; Cookies</h2>
         <p id="privacy-copy">Diese Website setzt keine Cookies. Für eine Besucherstatistik ohne Cookies nutzen wir Cloudflare Web Analytics. Wenn Sie das Farbschema umstellen, diesen Hinweis bestätigen oder die Simulation benutzen, merkt sich Ihr Browser das lokal. <a href="/datenschutz">Datenschutzerklärung lesen</a>.</p>
-        <button class="button" type="button" data-privacy-dismiss>Verstanden</button>
+        <button class="button" type="button" data-privacy-dismiss autofocus>Verstanden</button>
       </div>
     </dialog>
     <script src="assets/site.js" defer></script>

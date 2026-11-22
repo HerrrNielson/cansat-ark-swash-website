@@ -5,7 +5,6 @@ function initializeSite() {
   const themeToggle = document.querySelector('.theme-toggle');
   const themeIcon = document.querySelector('.theme-icon');
   const themeNavItem = document.querySelector('.theme-nav-item');
-  let theme = getStoredValue('team-swash-theme') || getStoredValue('nordlicht-theme') || 'light';
   // Each language has its own pages (/team and /en/team, built by tools/build_en.py).
   // The switch is a plain link to the same page in the other language.
   const language = root.lang.startsWith('en') ? 'en' : 'de';
@@ -20,24 +19,53 @@ function initializeSite() {
   languageToggle.setAttribute('aria-label', other === 'en' ? 'English version' : 'Deutsche Version');
   if (themeNavItem) themeNavItem.append(languageToggle);
 
-  const setTheme = (nextTheme) => {
-    theme = nextTheme;
-    root.dataset.theme = theme;
-    if (themeToggle) {
-      const isDark = theme === 'dark';
-      themeToggle.setAttribute('aria-pressed', String(isDark));
-      themeToggle.setAttribute('aria-label', language === 'en'
-        ? (isDark ? 'Switch to light mode' : 'Switch to dark mode')
-        : (isDark ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren'));
-      if (themeIcon) themeIcon.textContent = isDark ? '☼' : '☾';
-    }
+  // Colour scheme: the page follows the system setting. The toggle only stores
+  // an override when the visitor picks the opposite of the system; toggling back
+  // to the system scheme removes it again. The inline script in each <head>
+  // applies a stored override before the first paint; styles.css reads it from
+  // <meta name="color-scheme">.
+  const schemeKey = 'team-swash-color-scheme';
+  const schemeMeta = document.querySelector('meta[name="color-scheme"]');
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const readOverride = () => {
+    const value = getStoredValue(schemeKey);
+    return value === 'light' || value === 'dark' ? value : null;
+  };
+  // Earlier versions stored 'light' or 'dark' under another key on every click.
+  // Only 'dark' was a real choice against the light default, so carry that over.
+  const legacyTheme = getStoredValue('team-swash-theme');
+  if (legacyTheme !== null) {
+    if (legacyTheme === 'dark' && readOverride() === null) setStoredValue(schemeKey, 'dark');
+    removeStoredValue('team-swash-theme');
+  }
+  let override = readOverride();
+  const renderedScheme = () => override || (systemDark.matches ? 'dark' : 'light');
+  const applyScheme = () => {
+    if (schemeMeta) schemeMeta.content = override || 'light dark';
+    if (!themeToggle) return;
+    const isDark = renderedScheme() === 'dark';
+    themeToggle.setAttribute('aria-label', language === 'en'
+      ? (isDark ? 'Switch to light mode' : 'Switch to dark mode')
+      : (isDark ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren'));
+    if (themeIcon) themeIcon.textContent = isDark ? '☼' : '☾';
   };
 
-  setTheme(theme === 'dark' ? 'dark' : 'light');
-  // Store a setting only once the visitor changes it, as the privacy policy states.
+  applyScheme();
   if (themeToggle) themeToggle.addEventListener('click', () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-    setStoredValue('team-swash-theme', theme);
+    const target = renderedScheme() === 'dark' ? 'light' : 'dark';
+    const system = systemDark.matches ? 'dark' : 'light';
+    // Store only a choice against the system, as the privacy policy states.
+    override = target === system ? null : target;
+    if (override) setStoredValue(schemeKey, override);
+    else removeStoredValue(schemeKey);
+    applyScheme();
+  });
+  // Keep the icon right when the system switches, and follow other tabs.
+  systemDark.addEventListener('change', applyScheme);
+  window.addEventListener('storage', (event) => {
+    if (event.key !== schemeKey && event.key !== null) return;
+    override = readOverride();
+    applyScheme();
   });
 
   const privacyDialog = document.querySelector('#privacy-dialog');
@@ -46,31 +74,26 @@ function initializeSite() {
   const noticeWasSeen = () => {
     return getStoredValue(privacyKey) === 'seen' || getStoredValue(privacyKey, 'session') === 'seen';
   };
-  if (privacyDialog && !noticeWasSeen()) {
-    if (typeof privacyDialog.showModal === 'function') privacyDialog.showModal();
-    else privacyDialog.setAttribute('open', '');
-  }
-  if (privacyDialog && privacyDismiss) {
-    privacyDismiss.addEventListener('click', () => {
+  if (privacyDialog) {
+    // However it is closed (button, Esc, click outside), the notice counts as seen.
+    privacyDialog.addEventListener('close', () => {
       if (!setStoredValue(privacyKey, 'seen')) setStoredValue(privacyKey, 'seen', 'session');
-      if (typeof privacyDialog.close === 'function') privacyDialog.close();
-      else privacyDialog.removeAttribute('open');
     });
+    privacyDismiss?.addEventListener('click', () => privacyDialog.close());
+    if (!noticeWasSeen()) privacyDialog.showModal();
   }
 
   // The simulation guide opens once by itself; afterwards only through its button.
   const simGuide = document.querySelector('#sim-guide');
   const simGuideKey = 'team-swash-sim-guide';
-  const openSimGuide = () => {
-    if (typeof simGuide.showModal === 'function') simGuide.showModal();
-    else simGuide.setAttribute('open', '');
-  };
+  const openSimGuide = () => simGuide.showModal();
   if (simGuide) {
-    document.querySelectorAll('[data-sim-guide-open]').forEach((button) => button.addEventListener('click', openSimGuide));
-    simGuide.querySelector('[data-sim-guide-dismiss]')?.addEventListener('click', () => {
-      if (typeof simGuide.close === 'function') simGuide.close();
-      else simGuide.removeAttribute('open');
-    });
+    // The buttons open and close the guide via command/commandfor in the HTML.
+    // Browsers without invoker commands get the same through click listeners.
+    if (!('commandForElement' in HTMLButtonElement.prototype)) {
+      document.querySelectorAll('[data-sim-guide-open]').forEach((button) => button.addEventListener('click', () => simGuide.showModal()));
+      simGuide.querySelector('[data-sim-guide-dismiss]')?.addEventListener('click', () => simGuide.close());
+    }
     simGuide.addEventListener('close', () => setStoredValue(simGuideKey, 'seen'));
     if (getStoredValue(simGuideKey) !== 'seen') {
       // Wait for the privacy notice, so two dialogs never stack.
@@ -192,6 +215,14 @@ function getStoredValue(key, storageType = 'local') {
     return storage.getItem(key);
   } catch {
     return null;
+  }
+}
+
+function removeStoredValue(key) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Storage blocked: nothing was stored either.
   }
 }
 
