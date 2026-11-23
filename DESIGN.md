@@ -262,7 +262,7 @@ Normale und `.soft`-Abschnitte wechseln sich ab. Zwei `.soft` hintereinander ver
 | Breite | Änderung |
 |---|---|
 | ≤ 1060 px | Navigationspunkte enger |
-| ≤ 940 px | Header 72 px hoch, Hamburger-Menü, Navigation als Ausklapp-Liste |
+| ≤ 1040 px | Header 72 px hoch, Hamburger-Menü, Navigation als Ausklapp-Liste |
 | ≤ 820 px | `.hero-grid`, `.split`, `.contact-grid` einspaltig; `.grid-3` zweispaltig (einzelne letzte Karte über volle Breite); Footer zweispaltig |
 | ≤ 560 px | Alles einspaltig; Hero-Buttons volle Breite; Abschnittsleiste untereinander |
 
